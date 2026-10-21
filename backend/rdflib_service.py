@@ -223,3 +223,182 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             "nodes": list(nodes_dict.values()),
             "edges": edges
         }
+
+
+# ======================================================================
+# Service Maladie — Module dédié aux maladies (ontologie_maladie.owl)
+# ======================================================================
+MALADIE_OWL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ontologie_maladie.owl")
+
+class MaladieService:
+    """Service RDFLib pour le module Maladie."""
+
+    def __init__(self):
+        self.graph = Graph()
+        self.loaded = False
+        self._load()
+
+    def _load(self):
+        if os.path.exists(MALADIE_OWL_PATH):
+            try:
+                self.graph.parse(MALADIE_OWL_PATH, format="xml")
+                self.graph.bind("mal", Namespace("http://example.org/ontologie-maladie#"))
+                self.loaded = True
+
+                # Chargement des ontologies pour les questions croisées (Sami, Dr Fatima, diagnostics)
+                pers_path = os.path.join(BASE_DIR, "ontologie_personne.owl")
+                if os.path.exists(pers_path):
+                    try:
+                        self.graph.parse(pers_path, format="xml")
+                    except Exception:
+                        pass
+
+                med_path = os.path.join(BASE_DIR, "ontologie_medicale.owl")
+                if os.path.exists(med_path):
+                    try:
+                        self.graph.parse(med_path, format="xml")
+                    except Exception:
+                        pass
+
+                self.graph.bind("med", Namespace("http://example.org/ontologie-medicale#"))
+                print(f"[MaladieService] ontologies chargées ({len(self.graph)} triplets).")
+            except Exception as e:
+                print(f"[MaladieService] Erreur chargement OWL : {e}")
+        else:
+            print(f"[MaladieService] ontologie_maladie.owl introuvable — module désactivé.")
+
+    NS = "http://example.org/ontologie-maladie#"
+
+    def execute_sparql(self, query_str: str) -> Dict[str, Any]:
+        """Exécute une requête SPARQL sur le graphe Maladie."""
+        import re
+        prefixes = f"""PREFIX mal: <{self.NS}>
+PREFIX med: <http://example.org/ontologie-medicale#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+"""
+        q = query_str.strip()
+        q = re.sub(r'PREFIX\s+:\s+<[^>]+>', '', q, flags=re.IGNORECASE)
+        if "PREFIX mal:" not in q:
+            q = prefixes + q
+
+        res = self.graph.query(q)
+        vars_list = [str(v) for v in res.vars] if res.vars else []
+        bindings = []
+        for row in res:
+            binding = {}
+            for i, var in enumerate(vars_list):
+                val = row[i]
+                if val is not None:
+                    if isinstance(val, URIRef):
+                        binding[var] = {"type": "uri", "value": str(val)}
+                    elif isinstance(val, Literal):
+                        entry = {"type": "literal", "value": str(val)}
+                        if val.datatype: entry["datatype"] = str(val.datatype)
+                        binding[var] = entry
+                    else:
+                        binding[var] = {"type": "literal", "value": str(val)}
+            bindings.append(binding)
+        return {"head": {"vars": vars_list}, "results": {"bindings": bindings}}
+
+    def get_all_maladies(self) -> List[Dict[str, Any]]:
+        """Retourne tous les individus Maladie avec leurs propriétés."""
+        q = """
+        SELECT ?m ?type ?nom ?codeCIM ?gravite ?contagieuse ?chronique ?duree WHERE {
+            ?m rdf:type ?type .
+            ?type rdfs:subClassOf* mal:Maladie .
+            OPTIONAL { ?m mal:nom ?nom }
+            OPTIONAL { ?m mal:codeCIM ?codeCIM }
+            OPTIONAL { ?m mal:gravite ?gravite }
+            OPTIONAL { ?m mal:estContagieuse ?contagieuse }
+            OPTIONAL { ?m mal:estChronique ?chronique }
+            OPTIONAL { ?m mal:dureeTraitement ?duree }
+        }
+        """
+        rows = self.execute_sparql(q)["results"]["bindings"]
+        maladies_dict = {}
+        for r in rows:
+            uri = r["m"]["value"]
+            if uri not in maladies_dict:
+                maladies_dict[uri] = {
+                    "id": uri.split("#")[-1],
+                    "types": [],
+                    "nom": r.get("nom", {}).get("value", uri.split("#")[-1]),
+                    "codeCIM": r.get("codeCIM", {}).get("value", ""),
+                    "gravite": r.get("gravite", {}).get("value", "1"),
+                    "contagieuse": r.get("contagieuse", {}).get("value", "false"),
+                    "chronique": r.get("chronique", {}).get("value", "false"),
+                    "duree": r.get("duree", {}).get("value", ""),
+                    "symptomes": [],
+                    "medicaments": []
+                }
+            type_val = r["type"]["value"].split("#")[-1]
+            if type_val not in maladies_dict[uri]["types"] and type_val not in ["NamedIndividual", "Thing"]:
+                maladies_dict[uri]["types"].append(type_val)
+
+        # Charger les symptômes liés
+        q2 = """
+        SELECT ?m ?sNom WHERE {
+            ?m mal:aPourSymptome ?s .
+            OPTIONAL { ?s mal:nomSymptome ?sNom }
+        }
+        """
+        for r in self.execute_sparql(q2)["results"]["bindings"]:
+            uri = r["m"]["value"]
+            if uri in maladies_dict:
+                snom = r.get("sNom", {}).get("value", r.get("s", {}).get("value", "").split("#")[-1])
+                if snom and snom not in maladies_dict[uri]["symptomes"]:
+                    maladies_dict[uri]["symptomes"].append(snom)
+
+        # Charger les médicaments liés
+        q3 = """
+        SELECT ?m ?medId WHERE {
+            ?m mal:estTraiteePar ?med .
+            BIND(STRAFTER(STR(?med), "#") AS ?medId)
+        }
+        """
+        for r in self.execute_sparql(q3)["results"]["bindings"]:
+            uri = r["m"]["value"]
+            if uri in maladies_dict:
+                mid = r.get("medId", {}).get("value", "")
+                if mid and mid not in maladies_dict[uri]["medicaments"]:
+                    maladies_dict[uri]["medicaments"].append(mid)
+
+        result = [v for v in maladies_dict.values() if "Maladie" not in v["types"] or len(v["types"]) > 0]
+        # Garder seulement les individus (pas les classes)
+        filtered = [v for v in result if any(t in ["Grippe","Angine","Diabete","Hypertension","UlcereGastrique",
+                                                   "MaladieInfectieuse","MaladieChronique","MaladieDigestive"] for t in v["types"])]
+
+        # S'assurer que les sous-classes héritent des super-classes pour les filtres UI
+        for m in filtered:
+            if any(t in ["Grippe", "Angine"] for t in m["types"]) and "MaladieInfectieuse" not in m["types"]:
+                m["types"].append("MaladieInfectieuse")
+            if any(t in ["Diabete", "Hypertension"] for t in m["types"]) and "MaladieChronique" not in m["types"]:
+                m["types"].append("MaladieChronique")
+            if any(t in ["UlcereGastrique"] for t in m["types"]) and "MaladieDigestive" not in m["types"]:
+                m["types"].append("MaladieDigestive")
+
+        return filtered
+
+    def get_graph_maladie(self) -> Dict[str, Any]:
+        """Retourne les nœuds et liens du graphe Maladie."""
+        q = """
+        SELECT ?s ?p ?o WHERE {
+            ?s ?p ?o .
+            FILTER(?p IN (mal:aPourSymptome, mal:estTraiteePar, mal:touche,
+                          mal:necessite, mal:necessiteSuiviPar, mal:estPrescritePour))
+        }
+        """
+        bindings = self.execute_sparql(q)["results"]["bindings"]
+        nodes_dict = {}
+        edges = []
+        for b in bindings:
+            s = b["s"]["value"].split("#")[-1]
+            p = b["p"]["value"].split("#")[-1]
+            o = b["o"]["value"].split("#")[-1]
+            if s not in nodes_dict: nodes_dict[s] = {"id": s, "label": s}
+            if o not in nodes_dict: nodes_dict[o] = {"id": o, "label": o}
+            edges.append({"from": s, "to": o, "label": p})
+        return {"nodes": list(nodes_dict.values()), "edges": edges}

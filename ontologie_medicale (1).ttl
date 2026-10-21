@@ -211,6 +211,115 @@ xsd:date rdf:type rdfs:Datatype .
        rdfs:range :Opération .
 
 
+###  http://example.org/ontologie-medicale#aPourSymptome
+:aPourSymptome rdf:type owl:ObjectProperty ;
+               owl:inverseOf :estSymptomeDe ;
+               rdfs:domain :Maladie ;
+               rdfs:range :Symptome ;
+               rdfs:label "a pour symptôme"@fr ;
+               rdfs:comment "Une maladie se manifeste par un ou plusieurs symptômes."@fr .
+
+
+###  http://example.org/ontologie-medicale#estSymptomeDe
+:estSymptomeDe rdf:type owl:ObjectProperty ;
+               owl:inverseOf :aPourSymptome ;
+               rdfs:domain :Symptome ;
+               rdfs:range :Maladie ;
+               rdfs:label "est symptôme de"@fr ;
+               rdfs:comment "Un symptôme est associé à une maladie. Inverse : aPourSymptome."@fr .
+
+
+###  http://example.org/ontologie-medicale#estTraiteePar
+:estTraiteePar rdf:type owl:ObjectProperty ;
+               owl:inverseOf :traite ;
+               rdfs:domain :Maladie ;
+               rdfs:range :Medicament ;
+               rdfs:label "est traitée par"@fr ;
+               rdfs:comment "Une maladie est traitée par un médicament."@fr .
+
+
+###  http://example.org/ontologie-medicale#traite
+:traite rdf:type owl:ObjectProperty ;
+        owl:inverseOf :estTraiteePar ;
+        rdfs:domain :Medicament ;
+        rdfs:range :Maladie ;
+        rdfs:label "traite"@fr ;
+        rdfs:comment "Un médicament traite une maladie. Inverse : estTraiteePar."@fr .
+
+
+###  http://example.org/ontologie-medicale#touche
+:touche rdf:type owl:ObjectProperty ;
+        owl:inverseOf :souffreDe ;
+        rdfs:domain :Maladie ;
+        rdfs:range :Patient ;
+        rdfs:label "touche"@fr ;
+        rdfs:comment "Une maladie touche un patient."@fr .
+
+
+###  http://example.org/ontologie-medicale#souffreDe
+:souffreDe rdf:type owl:ObjectProperty ;
+           owl:inverseOf :touche ;
+           rdfs:domain :Patient ;
+           rdfs:range :Maladie ;
+           rdfs:label "souffre de"@fr ;
+           rdfs:comment "Un patient souffre d'une maladie. Inverse : touche."@fr .
+
+
+###  http://example.org/ontologie-medicale#necessite
+:necessite rdf:type owl:ObjectProperty ;
+           owl:inverseOf :estNecessairePour ;
+           rdfs:domain :Maladie ;
+           rdfs:range :Opération ;
+           rdfs:label "nécessite"@fr ;
+           rdfs:comment "Une maladie nécessite une opération chirurgicale."@fr .
+
+
+###  http://example.org/ontologie-medicale#estNecessairePour
+:estNecessairePour rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :necessite ;
+                   rdfs:domain :Opération ;
+                   rdfs:range :Maladie ;
+                   rdfs:label "est nécessaire pour"@fr ;
+                   rdfs:comment "Une opération est nécessaire pour traiter une maladie. Inverse : necessite."@fr .
+
+
+###  http://example.org/ontologie-medicale#estPrescritePour
+:estPrescritePour rdf:type owl:ObjectProperty ;
+                  owl:inverseOf :concerneMaladie ;
+                  rdfs:domain :Ordonnance ;
+                  rdfs:range :Maladie ;
+                  rdfs:label "est prescrite pour"@fr ;
+                  rdfs:comment "Une ordonnance est prescrite pour une maladie donnée."@fr .
+
+
+###  http://example.org/ontologie-medicale#concerneMaladie
+:concerneMaladie rdf:type owl:ObjectProperty ;
+                 owl:inverseOf :estPrescritePour ;
+                 rdfs:domain :Maladie ;
+                 rdfs:range :Ordonnance ;
+                 rdfs:label "concerne maladie"@fr ;
+                 rdfs:comment "Une maladie est concernée par une ordonnance. Inverse : estPrescritePour."@fr .
+
+
+###  http://example.org/ontologie-medicale#necessiteSuiviPar
+:necessiteSuiviPar rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :suit ;
+                   rdfs:domain :MaladieChronique ;
+                   rdfs:range :Medecin ;
+                   rdfs:label "nécessite suivi par"@fr ;
+                   rdfs:comment "Une maladie chronique nécessite un suivi par un médecin."@fr .
+
+
+###  http://example.org/ontologie-medicale#suit
+:suit rdf:type owl:ObjectProperty ;
+      owl:inverseOf :necessiteSuiviPar ;
+      rdfs:domain :Medecin ;
+      rdfs:range :MaladieChronique ;
+      rdfs:label "suit"@fr ;
+      rdfs:comment "Un médecin suit l'évolution d'une maladie chronique. Inverse : necessiteSuiviPar."@fr .
+
+
+
 #################################################################
 #    Data properties
 #################################################################
@@ -396,6 +505,7 @@ xsd:date rdf:type rdfs:Datatype .
 ###  http://example.org/ontologie-medicale#Agents_de_service_hospitalier
 :Agents_de_service_hospitalier rdf:type owl:Class ;
                                rdfs:subClassOf :Stuff_Médicale .
+
 
 
 ###  http://example.org/ontologie-medicale#Aide_soignant
