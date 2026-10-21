@@ -15,15 +15,24 @@ import pyparsing_patch
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
-from rdflib_service import RDFLibService
+from rdflib_service import RDFLibService, MaladieService
 from fuseki_api import FusekiAPIService
 from ia_service import IAService
+from ia_maladie_service import IAMaladieService
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
+
+# Force UTF-8 sur toutes les réponses
+@app.after_request
+def set_utf8(response):
+    if response.content_type and 'text' in response.content_type and 'charset' not in response.content_type:
+        response.headers['Content-Type'] = response.content_type + '; charset=utf-8'
+    return response
+
 
 # Initialisation des services
 print("[Architecture] Initialisation du Back-end Python + RDFLib...")
@@ -34,6 +43,12 @@ fuseki_service = FusekiAPIService(rdflib_service)
 
 print("[Architecture] Initialisation du module IA...")
 ia_service = IAService(rdflib_service)
+
+print("[Architecture] Initialisation du module Maladie...")
+maladie_service = MaladieService()
+
+print("[Architecture] Initialisation du module IA Maladie...")
+ia_maladie_service = IAMaladieService(maladie_service)
 
 # ----------------------------------------------------------------------
 # Routes Frontend
@@ -105,6 +120,35 @@ def get_summary():
     try:
         data = rdflib_service.get_summary()
         return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/maladies", methods=["GET"])
+def get_all_maladies():
+    try:
+        data = maladie_service.get_all_maladies()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/graph-maladie", methods=["GET"])
+def get_graph_maladie():
+    try:
+        data = maladie_service.get_graph_maladie()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ia-maladie/ask", methods=["POST"])
+def ia_maladie_ask():
+    """Traduit une question NL en SPARQL Maladie et retourne les données."""
+    body = request.get_json(force=True, silent=True) or {}
+    question = body.get("question", "").strip()
+    if not question:
+        return jsonify({"error": "Question vide"}), 400
+    try:
+        result = ia_maladie_service.answer_question(question)
+        return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
