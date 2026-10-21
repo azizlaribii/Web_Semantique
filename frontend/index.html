@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Sémantique Médical — Classe Personne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Vis-network CDN for interactive graph -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="logo-orb">
+                <span class="orb-core"></span>
+            </div>
+            <div class="brand-text">
+                <h1>OntoSanté <span>/ Classe Personne</span></h1>
+                <p class="subtitle">Architecture Web Sémantique : Front-end &bull; IA &bull; Fuseki &bull; RDFLib &bull; Protégé OWL</p>
+            </div>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-pulse" id="backend-status"><span class="dot"></span> Back-end RDFLib Actif</span>
+            <span class="badge badge-cyan" id="triples-count">257 Triplets OWL</span>
+            <span class="badge badge-purple">Scope : Mon Module (Personne)</span>
+        </div>
+    </header>
+
+    <!-- Architecture Visual Pipeline (Live Flow from Slide) -->
+    <section class="architecture-strip">
+        <div class="strip-header">
+            <h3><span class="pulse-icon">⚡</span> Architecture Active du Système (Votre Slide Projet)</h3>
+            <span class="strip-info">Flux temps réel : Front-end ➔ IA ➔ Requête SPARQL ➔ Fuseki ➔ RDFLib ➔ Protégé</span>
+        </div>
+        <div class="pipeline-container" id="pipeline">
+            <div class="node-box active" id="node-frontend">
+                <div class="node-icon">💻</div>
+                <div class="node-title">Front-end</div>
+                <div class="node-sub">Interfaces Utilisateurs</div>
+            </div>
+            <div class="pipe-arrow" id="arrow-1">
+                <span class="arrow-label">Question Utilisateur</span>
+                <span class="arrow-flow">⟶</span>
+            </div>
+            <div class="node-box" id="node-ia">
+                <div class="node-icon">🤖</div>
+                <div class="node-title">Module IA</div>
+                <div class="node-sub">API NLP ➔ SPARQL</div>
+            </div>
+            <div class="pipe-arrow" id="arrow-2">
+                <span class="arrow-label">Requête SPARQL</span>
+                <span class="arrow-flow">⟶</span>
+            </div>
+            <div class="node-box" id="node-fuseki">
+                <div class="node-icon">🗄️</div>
+                <div class="node-title">Fuseki API</div>
+                <div class="node-sub">SPARQL JSON Endpoint</div>
+            </div>
+            <div class="pipe-arrow" id="arrow-3">
+                <span class="arrow-label">SparQL</span>
+                <span class="arrow-flow">⟶</span>
+            </div>
+            <div class="node-box" id="node-backend">
+                <div class="node-icon">🐍</div>
+                <div class="node-title">Back-end</div>
+                <div class="node-sub">Python + RDFLib</div>
+            </div>
+            <div class="pipe-arrow" id="arrow-4">
+                <span class="arrow-label">OWL</span>
+                <span class="arrow-flow">⟵</span>
+            </div>
+            <div class="node-box" id="node-protege">
+                <div class="node-icon">🌐</div>
+                <div class="node-title">Protégé</div>
+                <div class="node-sub">ontologie_personne.owl</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="app-nav">
+        <button class="nav-tab active" data-tab="tab-ia">
+            <span class="tab-icon">✨</span> Assistant IA & SPARQL
+        </button>
+        <button class="nav-tab" data-tab="tab-persons">
+            <span class="tab-icon">👥</span> Individus & Rôles
+        </button>
+        <button class="nav-tab" data-tab="tab-sparql">
+            <span class="tab-icon">⚡</span> Console SPARQL / Fuseki
+        </button>
+        <button class="nav-tab" data-tab="tab-graph">
+            <span class="tab-icon">🕸️</span> Graphe Sémantique
+        </button>
+        <button class="nav-tab" data-tab="tab-arch">
+            <span class="tab-icon">📐</span> Détails Architecture
+        </button>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="main-content">
+        <!-- TAB 1 : Assistant IA (Question -> SPARQL -> Fuseki -> Data) -->
+        <section id="tab-ia" class="tab-pane active">
+            <div class="ia-chat-grid">
+                <!-- Left: Question input & History -->
+                <div class="card ia-card-input">
+                    <div class="card-title">
+                        <h2>Poser une question en langage naturel</h2>
+                        <span class="tag">Traduction sémantique en temps réel</span>
+                    </div>
+                    <p class="card-desc">L'IA convertit votre question en français vers une requête SPARQL formelle sur la classe <strong>Personne</strong>.</p>
+                    
+                    <form id="ia-form" class="question-form">
+                        <div class="input-wrapper">
+                            <input type="text" id="ia-input" placeholder="Ex: Qui soigne Sami ? / Liste des cardiologues..." autocomplete="off">
+                            <button type="submit" id="btn-ask" class="btn btn-primary">
+                                <span>Générer SPARQL</span>
+                                <span class="btn-arrow">➔</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="quick-prompts">
+                        <span class="prompts-label">Exemples rapides à tester :</span>
+                        <div class="prompts-chips">
+                            <button class="chip" data-q="Donne-moi le patient avec le CIN = 00345678">🆔 CIN = 00345678 (Sami)</button>
+                            <button class="chip" data-q="Trier les patients par dossier">📁 Trier par dossier</button>
+                            <button class="chip" data-q="Triage par groupeSanguin">🩸 Trier par groupe sanguin</button>
+                            <button class="chip" data-q="Trier les personnes par nom">🔤 Trier par nom</button>
+                            <button class="chip" data-q="Donne-moi les médecins généralistes">🚑 Médecins généralistes</button>
+                            <button class="chip" data-q="Qui travaille aux urgences ?">🏥 Service Urgences (Dr Fatima)</button>
+                            <button class="chip" data-q="Qui sont les médecins spécialistes ?">🩺 Médecins spécialistes</button>
+                            <button class="chip" data-q="Qui soigne le patient Sami ?">💊 Qui soigne Sami ?</button>
+                            <button class="chip" data-q="Donne-moi les patients entre 5 et 25 ans">📊 Âge 5 à 25 ans</button>
+                            <button class="chip" data-q="Qui sont les stagiaires ?">🎓 Stagiaires</button>
+                            <button class="chip" data-q="Donne-moi les personnes de plus de 30 ans">🎂 Âge > 30 ans</button>
+                        </div>
+                    </div>
+
+                    <div class="ia-steps-summary">
+                        <h4>Flux appliqué :</h4>
+                        <ol>
+                            <li><strong>Front-end :</strong> Envoie la question utilisateur à l'API IA.</li>
+                            <li><strong>Module IA :</strong> Extrait les concepts de l'ontologie et formule la requête SPARQL.</li>
+                            <li><strong>Fuseki API :</strong> Reçoit la requête SPARQL et sollicite le moteur RDFLib.</li>
+                            <li><strong>RDFLib + OWL :</strong> Exécute la requête sur le graphe OWL de <em>Personne</em>.</li>
+                            <li><strong>JSON :</strong> Les données retournées s'affichent ci-contre.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Right: Results display (AI Explanation + Generated SPARQL + JSON / Table) -->
+                <div class="card ia-card-output">
+                    <div class="card-title">
+                        <h2>Résultats & Décomposition du Flux</h2>
+                        <span id="response-status" class="status-pill status-ready">Prêt</span>
+                    </div>
+
+                    <!-- AI Explanation Box -->
+                    <div class="ia-explanation-box" id="ia-explanation-box">
+                        <div class="explanation-header">
+                            <span class="robot-emoji">🤖</span>
+                            <div>
+                                <h4 id="ia-intention">Intention : En attente d'une question</h4>
+                                <p id="ia-explanation">Posez une question ou cliquez sur un des exemples pour voir l'IA formuler la requête SPARQL.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generated SPARQL Box -->
+                    <div class="sparql-output-box">
+                        <div class="code-header">
+                            <span class="code-lang">Requête SPARQL générée par l'IA</span>
+                            <button class="btn-copy" id="btn-copy-ia-sparql">Copier</button>
+                        </div>
+                        <pre><code id="ia-sparql-code"># La requête SPARQL apparaîtra ici après votre question</code></pre>
+                    </div>
+
+                    <!-- Returned Data Tabs (Cards / Table / Raw Fuseki JSON) -->
+                    <div class="results-viewer">
+                        <div class="viewer-tabs">
+                            <button class="viewer-tab active" data-vtab="vtab-table">Vue Tableau</button>
+                            <button class="viewer-tab" data-vtab="vtab-json">JSON Fuseki Brut</button>
+                        </div>
+
+                        <div id="vtab-table" class="vtab-pane active">
+                            <div class="table-responsive" id="ia-table-container">
+                                <p class="placeholder-text">Les données de l'ontologie apparaîtront ici.</p>
+                            </div>
+                        </div>
+
+                        <div id="vtab-json" class="vtab-pane">
+                            <pre><code id="ia-json-raw">{ "head": {}, "results": { "bindings": [] } }</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2 : Individus & Rôles (Personne, Medecin, Patient, etc.) -->
+        <section id="tab-persons" class="tab-pane">
+            <div class="section-toolbar">
+                <div>
+                    <h2>Individus de la Classe Personne</h2>
+                    <p class="subtitle">Médecins, Patients, Stagiaires & Personnel médical définis dans <code>ontologie_personne.owl</code></p>
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="ALL">Tous (<span id="count-all">0</span>)</button>
+                    <button class="filter-btn" data-filter="Medecin">Médecins</button>
+                    <button class="filter-btn" data-filter="Patient">Patients</button>
+                    <button class="filter-btn" data-filter="Stagiaire">Stagiaires</button>
+                </div>
+            </div>
+
+            <div class="cards-grid" id="persons-grid">
+                <!-- Dynamically loaded person cards -->
+                <div class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Chargement des personnes depuis RDFLib...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3 : Console SPARQL / Fuseki -->
+        <section id="tab-sparql" class="tab-pane">
+            <div class="sparql-layout">
+                <div class="card sparql-editor-card">
+                    <div class="card-title">
+                        <h2>Console Directe Fuseki / SPARQL</h2>
+                        <span class="tag">Endpoint : /api/sparql</span>
+                    </div>
+                    <p class="card-desc">Exécutez n'importe quelle requête SPARQL standard sur l'ontologie de la classe Personne.</p>
+
+                    <div class="sample-queries-bar">
+                        <span>Requêtes types :</span>
+                        <button class="btn-sample" data-sample="all-medecins">🩺 Tous les Médecins</button>
+                        <button class="btn-sample" data-sample="all-patients">👤 Patients & Dossiers</button>
+                        <button class="btn-sample" data-sample="soins">🏥 Soins Croisés</button>
+                        <button class="btn-sample" data-sample="symptomes">🌡️ Symptômes</button>
+                        <button class="btn-sample" data-sample="disjoint">🚫 Vérifier Disjonction</button>
+                    </div>
+
+                    <div class="editor-box">
+                        <textarea id="sparql-editor" rows="12" spellcheck="false"></textarea>
+                    </div>
+
+                    <div class="editor-actions">
+                        <button id="btn-run-sparql" class="btn btn-primary">
+                            <span>Exécuter via Fuseki / RDFLib</span>
+                            <span>⚡</span>
+                        </button>
+                        <span id="sparql-timing" class="timing-badge">0 ms</span>
+                    </div>
+                </div>
+
+                <div class="card sparql-results-card">
+                    <div class="card-title">
+                        <h2>Résultats de la requête</h2>
+                        <span class="tag" id="sparql-source-badge">Fuseki / RDFLib</span>
+                    </div>
+                    <div class="table-responsive" id="direct-sparql-table">
+                        <p class="placeholder-text">Cliquez sur « Exécuter » pour interroger l'ontologie.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4 : Graphe Sémantique Interactif -->
+        <section id="tab-graph" class="tab-pane">
+            <div class="card graph-card">
+                <div class="card-title">
+                    <div>
+                        <h2>Graphe Relationnel de la Classe Personne</h2>
+                        <p class="subtitle">Relations <code>soigne</code>, <code>estSoignePar</code>, <code>connait</code>, <code>presente</code>, <code>appartientA</code></p>
+                    </div>
+                    <button class="btn btn-secondary" id="btn-reset-graph">Réinitialiser la vue</button>
+                </div>
+                <div id="network-graph" class="network-container"></div>
+                <div class="graph-legend">
+                    <span class="legend-item"><span class="legend-dot dot-med"></span> Médecins</span>
+                    <span class="legend-item"><span class="legend-dot dot-pat"></span> Patients</span>
+                    <span class="legend-item"><span class="legend-dot dot-sta"></span> Stagiaires</span>
+                    <span class="legend-item"><span class="legend-dot dot-ser"></span> Services & Autres</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5 : Architecture Slide Explanation -->
+        <section id="tab-arch" class="tab-pane">
+            <div class="card arch-detail-card">
+                <div class="card-title">
+                    <h2>Explication de l'Architecture Implémentée</h2>
+                    <span class="tag">Conforme à la diapositive Projet</span>
+                </div>
+                <div class="arch-expl-grid">
+                    <div class="arch-expl-item">
+                        <div class="item-icon">💻</div>
+                        <h3>1. Front-end (Interfaces Utilisateurs)</h3>
+                        <p>Interface web moderne développée en HTML5/CSS3/Vanilla JS. Elle permet à l'utilisateur de poser ses questions en français, d'interroger la base SPARQL et de naviguer dans les fiches de la classe <code>Personne</code>.</p>
+                    </div>
+                    <div class="arch-expl-item">
+                        <div class="item-icon">🤖</div>
+                        <h3>2. Module IA (API NLP ➔ SPARQL)</h3>
+                        <p>Composant d'intelligence artificielle qui traduit la question de l'utilisateur en requête formelle SPARQL conforme aux classes (<code>Medecin</code>, <code>Patient</code>, <code>Stagiaire</code>) et propriétés (<code>soigne</code>, <code>connait</code>, <code>age</code>) de l'ontologie.</p>
+                    </div>
+                    <div class="arch-expl-item">
+                        <div class="item-icon">🗄️</div>
+                        <h3>3. Fuseki (API SPARQL JSON)</h3>
+                        <p>Endpoint HTTP SPARQL normalisé (identique à Apache Jena Fuseki). Il reçoit les requêtes SPARQL issues de l'IA ou du Front-end et renvoie les réponses sous format JSON standardisé (<code>head/vars</code> et <code>results/bindings</code>).</p>
+                    </div>
+                    <div class="arch-expl-item">
+                        <div class="item-icon">🐍</div>
+                        <h3>4. Back-end (Python + RDFLib)</h3>
+                        <p>Serveur Python (Flask + RDFLib) assurant la gestion du graphe RDF/OWL en mémoire, l'exécution des requêtes SPARQL et le calcul des inférences de symétrie et de transitivité.</p>
+                    </div>
+                    <div class="arch-expl-item">
+                        <div class="item-icon">🌐</div>
+                        <h3>5. Protégé & OWL (Classe Personne)</h3>
+                        <p>Le fichier <code>ontologie_personne.owl</code> conçu sous Protégé / Owlready2, contenant les classes, sous-classes, disjonctions, propriétés objet et de données propres au module <strong>Personne</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>Projet Web Sémantique Médical &bull; Module : <strong>Classe Personne</strong> &bull; Intégration globale selon architecture Front-end / IA / Fuseki / RDFLib / Protégé</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

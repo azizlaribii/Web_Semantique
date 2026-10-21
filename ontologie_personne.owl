@@ -1,0 +1,385 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://example.org/ontologie-medicale"
+         xmlns="http://example.org/ontologie-medicale#">
+
+<owl:Ontology rdf:about="http://example.org/ontologie-medicale"/>
+
+<owl:ObjectProperty rdf:about="#joueLeRoleDe">
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="#Role"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">joue le role de</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estSoignePar">
+  <rdfs:domain rdf:resource="#Patient"/>
+  <rdfs:range rdf:resource="#Medecin"/>
+  <owl:inverseOf rdf:resource="#soigne"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est soigne par</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#soigne">
+  <rdfs:domain rdf:resource="#Medecin"/>
+  <rdfs:range rdf:resource="#Patient"/>
+  <owl:inverseOf rdf:resource="#estSoignePar"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">soigne</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#connait">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="#Personne"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">connait</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#aConsulte">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="#Personne"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a consulte</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#presente">
+  <rdfs:domain rdf:resource="#Patient"/>
+  <rdfs:range rdf:resource="#Symptome"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">presente</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#realise">
+  <rdfs:domain rdf:resource="#Medecin"/>
+  <rdfs:range rdf:resource="#Consultation"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#redige">
+  <rdfs:domain rdf:resource="#Medecin"/>
+  <rdfs:range rdf:resource="#Ordonnance"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#diagnostique">
+  <rdfs:domain rdf:resource="#Medecin"/>
+  <rdfs:range rdf:resource="#Maladie"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#appartientA">
+  <rdfs:domain rdf:resource="#Medecin"/>
+  <rdfs:range rdf:resource="#Service"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estPrisEnChargePar">
+  <rdfs:domain rdf:resource="#Patient"/>
+  <rdfs:range rdf:resource="#Service"/>
+</owl:ObjectProperty>
+
+<owl:DatatypeProperty rdf:about="#nom">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nom</rdfs:label>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#prenom">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#age">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">age</rdfs:label>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#dateNaissance">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#telephone">
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#email">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#adresse">
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#numeroCIN">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Personne"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">numero CIN</rdfs:label>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#specialite">
+  <rdfs:domain rdf:resource="#MedecinSpecialiste"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#numeroOrdre">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medecin"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#groupeSanguin">
+  <rdfs:domain rdf:resource="#Patient"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">groupe sanguin</rdfs:label>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#numeroDossier">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Patient"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">numero de dossier</rdfs:label>
+</owl:DatatypeProperty>
+
+<owl:Class rdf:about="#Personne">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Personne</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Toute entite humaine dans le systeme medical.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Role">
+  <rdfs:subClassOf rdf:resource="#Personne"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Role</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#Medecin">
+  <rdfs:subClassOf rdf:resource="#Role"/>
+  <owl:disjointWith rdf:resource="#Patient"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medecin</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Professionnel de sante autorise a pratiquer la medecine.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#MedecinGeneraliste">
+  <rdfs:subClassOf rdf:resource="#Medecin"/>
+  <owl:disjointWith rdf:resource="#MedecinSpecialiste"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MedecinSpecialiste">
+  <rdfs:subClassOf rdf:resource="#Medecin"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Cardiologue">
+  <rdfs:subClassOf rdf:resource="#MedecinSpecialiste"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Patient">
+  <rdfs:subClassOf rdf:resource="#Role"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Patient</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Personne recevant des soins medicaux.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PatientAdulte">
+  <rdfs:subClassOf rdf:resource="#Patient"/>
+  <owl:disjointWith rdf:resource="#PatientEnfant"/>
+</owl:Class>
+
+<owl:Class rdf:about="#PatientEnfant">
+  <rdfs:subClassOf rdf:resource="#Patient"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Stagiaire">
+  <rdfs:subClassOf rdf:resource="#Role"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Stuff_Medicale">
+  <rdfs:subClassOf rdf:resource="#Role"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Infirmier">
+  <rdfs:subClassOf rdf:resource="#Stuff_Medicale"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Maladie">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MaladieInfectieuse">
+  <rdfs:subClassOf rdf:resource="#Maladie"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Symptome">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Service">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Ordonnance">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<owl:Class rdf:about="#Consultation">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<owl:Class rdf:about="#MedecinActif">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#Medecin"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#realise"/>
+          <owl:someValuesFrom rdf:resource="#Consultation"/>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medecin actif</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie (Medecin qui realise au moins une Consultation).</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PatientEnregistre">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#Patient"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#numeroDossier"/>
+          <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Patient enregistre</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie (Patient qui possede un numero de dossier).</rdfs:comment>
+</owl:Class>
+
+<owl:NamedIndividual rdf:about="#Dr_Ahmed">
+  <rdf:type rdf:resource="#Medecin"/>
+  <appartientA rdf:resource="#Service_Cardio"/>
+  <diagnostique rdf:resource="#Grippe_Sami"/>
+  <realise rdf:resource="#Consultation_1"/>
+  <soigne rdf:resource="#Sami"/>
+  <connait rdf:resource="#Dr_Karim"/>
+  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Ahmed Ben Salah</nom>
+  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ahmed</prenom>
+  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">50</age>
+  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 001</telephone>
+  <email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ahmed.bensalah@hopital.tn</email>
+  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00123456</numeroCIN>
+  <numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-001</numeroOrdre>
+  <adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3 Avenue Habib Bourguiba, Tunis</adresse>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Dr_Karim">
+  <rdf:type rdf:resource="#MedecinSpecialiste"/>
+  <appartientA rdf:resource="#Service_Cardio"/>
+  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Karim Mansour</nom>
+  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Karim</prenom>
+  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">40</age>
+  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 002</telephone>
+  <email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">karim.mansour@hopital.tn</email>
+  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00234567</numeroCIN>
+  <specialite rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologie</specialite>
+  <numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-002</numeroOrdre>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Sami">
+  <rdf:type rdf:resource="#PatientAdulte"/>
+  <estPrisEnChargePar rdf:resource="#Service_Cardio"/>
+  <presente rdf:resource="#Fievre_Sami"/>
+  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami Trabelsi</nom>
+  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami</prenom>
+  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">32</age>
+  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 22 333 444</telephone>
+  <numeroDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PAT-001</numeroDossier>
+  <groupeSanguin rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A+</groupeSanguin>
+  <adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">12 Rue de la Republique, Tunis</adresse>
+  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00345678</numeroCIN>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Amina">
+  <rdf:type rdf:resource="#PatientEnfant"/>
+  <estPrisEnChargePar rdf:resource="#Service_Urgences"/>
+  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amina Gharbi</nom>
+  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amina</prenom>
+  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">8</age>
+  <numeroDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PAT-002</numeroDossier>
+  <groupeSanguin rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O+</groupeSanguin>
+  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00456789</numeroCIN>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Ali_Stagiaire">
+  <rdf:type rdf:resource="#Stagiaire"/>
+  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ali Ben Romdhane</nom>
+  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ali</prenom>
+  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</age>
+  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 55 000 111</telephone>
+  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00567890</numeroCIN>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Service_Cardio">
+  <rdf:type rdf:resource="#Service"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Service_Urgences">
+  <rdf:type rdf:resource="#Service"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Consultation_1">
+  <rdf:type rdf:resource="#Consultation"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Grippe_Sami">
+  <rdf:type rdf:resource="#MaladieInfectieuse"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Fievre_Sami">
+  <rdf:type rdf:resource="#Symptome"/>
+</owl:NamedIndividual>
+
+
+<owl:NamedIndividual rdf:about="#Dr_Fatima">
+  <rdf:type rdf:resource="#MedecinGeneraliste"/>
+  <appartientA rdf:resource="#Service_Urgences"/>
+  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Fatima Benali</nom>
+  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fatima</prenom>
+  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">35</age>
+  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 003</telephone>
+  <email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fatima.benali@hopital.tn</email>
+  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00678901</numeroCIN>
+  <numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-003</numeroOrdre>
+  <adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">7 Rue Ibn Khaldoun, Tunis</adresse>
+</owl:NamedIndividual>
+
+<owl:AllDifferent>
+  <owl:distinctMembers rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Dr_Ahmed"/>
+    <rdf:Description rdf:about="#Dr_Karim"/>
+    <rdf:Description rdf:about="#Dr_Fatima"/>
+    <rdf:Description rdf:about="#Sami"/>
+    <rdf:Description rdf:about="#Amina"/>
+    <rdf:Description rdf:about="#Ali_Stagiaire"/>
+  </owl:distinctMembers>
+</owl:AllDifferent>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Medecin"/>
+    <rdf:Description rdf:about="#Patient"/>
+    <rdf:Description rdf:about="#Stagiaire"/>
+    <rdf:Description rdf:about="#Stuff_Medicale"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+
+</rdf:RDF>
