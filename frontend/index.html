@@ -92,6 +92,9 @@
         <button class="nav-tab" data-tab="tab-maladies">
             <span class="tab-icon">&#129440;</span> Module Maladie
         </button>
+        <button class="nav-tab" data-tab="tab-medicaments">
+            <span class="tab-icon">&#128138;</span> Module Médicament
+        </button>
         <button class="nav-tab" data-tab="tab-sparql">
             <span class="tab-icon">&#9889;</span> Console SPARQL / Fuseki
         </button>
@@ -364,6 +367,151 @@
             </div>
         </section>
 
+        <!-- TAB MÉDICAMENT : Module Médicament -->
+        <section id="tab-medicaments" class="tab-pane">
+
+            <!-- === BLOC IA MÉDICAMENT === -->
+            <div class="ia-chat-grid" style="margin-bottom:2rem">
+                <!-- Gauche : Question -->
+                <div class="card ia-card-input">
+                    <div class="card-title">
+                        <h2>Poser une question sur les Médicaments</h2>
+                        <span class="tag tag-med">Module Médicament &#128138;</span>
+                    </div>
+                    <p class="card-desc">L'IA convertit votre question en français vers une requête SPARQL sur l'ontologie <strong>Médicament</strong> : molécules, effets secondaires, contre-indications, interactions et données cliniques.</p>
+
+                    <form id="med-ia-form" class="question-form">
+                        <div class="input-wrapper">
+                            <input type="text" id="med-ia-input" placeholder="Ex: Effets secondaires du Brufen ? / Je suis enceinte, quels médicaments éviter ?" autocomplete="off">
+                            <button type="submit" id="med-btn-ask" class="btn btn-primary btn-med">
+                                <span>Générer SPARQL</span>
+                                <span class="btn-arrow">&#10132;</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="quick-prompts">
+                        <span class="prompts-label">Exemples rapides :</span>
+                        <div class="prompts-chips">
+                            <button class="chip med-chip" data-medq="Tous les médicaments">&#128138; Tous les médicaments</button>
+                            <button class="chip med-chip" data-medq="Quels sont les effets secondaires du Brufen ?">&#9888;&#65039; Effets du Brufen</button>
+                            <button class="chip med-chip" data-medq="Quels sont les effets secondaires graves ?">&#128308; Effets graves</button>
+                            <button class="chip med-chip" data-medq="Quels médicaments provoquent des saignements ?">&#129656; Saignements</button>
+                            <button class="chip med-chip" data-medq="Quelles sont les contre-indications de l'Aspegic ?">&#128683; Contre-indications Aspegic</button>
+                            <button class="chip med-chip" data-medq="Je suis enceinte, quels médicaments éviter ?">&#129328; Grossesse</button>
+                            <button class="chip med-chip" data-medq="Médicaments contre-indiqués pour l'ulcère">&#129440; Contre-indiqués (ulcère)</button>
+                            <button class="chip med-chip" data-medq="Y a-t-il une interaction entre Coumadine et Aspegic ?">&#128260; Coumadine + Aspegic</button>
+                            <button class="chip med-chip" data-medq="Toutes les interactions médicamenteuses">&#128260; Toutes les interactions</button>
+                            <button class="chip med-chip" data-medq="Quels médicaments contiennent de l'ibuprofène ?">&#9879;&#65039; Molécule ibuprofène</button>
+                            <button class="chip med-chip" data-medq="Quel médicament pour la grippe ?">&#129319; Traiter la grippe</button>
+                            <button class="chip med-chip" data-medq="Quels sont les essais cliniques ?">&#128202; Essais cliniques</button>
+                            <button class="chip med-chip" data-medq="Quel est le médicament le plus efficace ?">&#127942; Plus efficace</button>
+                            <button class="chip med-chip" data-medq="Quels médicaments sont à risque ?">&#129504; À risque (inféré)</button>
+                            <button class="chip med-chip" data-medq="Médicaments sans ordonnance">&#128275; Sans ordonnance</button>
+                            <button class="chip med-chip" data-medq="Trier les médicaments du moins cher au plus cher">&#128176; Trier par prix</button>
+                        </div>
+                    </div>
+
+                    <div class="ia-steps-summary">
+                        <h4>Flux appliqué :</h4>
+                        <ol>
+                            <li><strong>Front-end :</strong> Envoie la question à l'API IA Médicament.</li>
+                            <li><strong>Module IA :</strong> Reconnaît les médicaments, molécules et maladies cités, puis formule la requête SPARQL.</li>
+                            <li><strong>Back-end :</strong> Exécute la requête sur <em>ontologie_medicament.owl</em> (+ <em>ontologie_maladie.owl</em> pour les liens croisés).</li>
+                            <li><strong>JSON :</strong> Les données s'affichent ci-contre.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Droite : Résultats -->
+                <div class="card ia-card-output">
+                    <div class="card-title">
+                        <h2>Résultats &amp; SPARQL généré</h2>
+                        <span id="med-response-status" class="status-pill status-ready">Prêt</span>
+                    </div>
+
+                    <div class="ia-explanation-box">
+                        <div class="explanation-header">
+                            <span class="robot-emoji">&#128138;</span>
+                            <div>
+                                <h4 id="med-ia-intention">Intention : En attente d'une question</h4>
+                                <p id="med-ia-explanation">Posez une question ou cliquez sur un exemple ci-contre.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sparql-output-box">
+                        <div class="code-header">
+                            <span class="code-lang">Requête SPARQL générée — Module Médicament</span>
+                            <button class="btn-copy" id="med-btn-copy-sparql">Copier</button>
+                        </div>
+                        <pre><code id="med-ia-sparql-code"># La requête SPARQL apparaîtra ici</code></pre>
+                    </div>
+
+                    <div class="results-viewer">
+                        <div class="viewer-tabs">
+                            <button class="viewer-tab active" data-vtab="med-vtab-table">Vue Tableau</button>
+                            <button class="viewer-tab" data-vtab="med-vtab-json">JSON Brut</button>
+                        </div>
+                        <div id="med-vtab-table" class="vtab-pane active">
+                            <div class="table-responsive" id="med-ia-table-container">
+                                <p class="placeholder-text">Les données apparaîtront ici.</p>
+                            </div>
+                        </div>
+                        <div id="med-vtab-json" class="vtab-pane">
+                            <pre><code id="med-ia-json-raw">{ "head": {}, "results": { "bindings": [] } }</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- === FIN BLOC IA === -->
+
+            <div class="section-toolbar">
+                <div>
+                    <h2>Individus Médicament</h2>
+                    <p class="subtitle">Médicaments, molécules, effets secondaires et contre-indications définis dans <code>ontologie_medicament.owl</code></p>
+                </div>
+                <div class="filter-group" id="med-filters">
+                    <button class="med-filter-btn active" data-medfilter="ALL">Tous (<span id="med-count-all">0</span>)</button>
+                    <button class="med-filter-btn" data-medfilter="Antalgique">Antalgiques</button>
+                    <button class="med-filter-btn" data-medfilter="AntiInflammatoire">Anti-inflammatoires</button>
+                    <button class="med-filter-btn" data-medfilter="Antibiotique">Antibiotiques</button>
+                    <button class="med-filter-btn" data-medfilter="Antidiabetique">Antidiabétiques</button>
+                    <button class="med-filter-btn" data-medfilter="Antihypertenseur">Antihypertenseurs</button>
+                    <button class="med-filter-btn" data-medfilter="AntiUlcereux">Anti-ulcéreux</button>
+                    <button class="med-filter-btn" data-medfilter="Anticoagulant">Anticoagulants</button>
+                    <button class="med-filter-btn" data-medfilter="MedicamentARisque" title="Classe définie, inférée par le raisonneur HermiT">&#129504; À risque</button>
+                    <button class="med-filter-btn" data-medfilter="SANS_ORDONNANCE">&#128275; Sans ordonnance</button>
+                </div>
+            </div>
+
+            <div class="cards-grid med-grid" id="medicaments-grid">
+                <div class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Chargement des médicaments depuis ontologie_medicament.owl...</p>
+                </div>
+            </div>
+
+            <!-- Graphe Médicament -->
+            <div class="card graph-card" style="margin-top:2rem">
+                <div class="card-title">
+                    <div>
+                        <h2>Graphe des Relations — Module Médicament</h2>
+                        <p class="subtitle">Relations <code>contientMolecule</code>, <code>peutProvoquer</code>, <code>traite</code>, <code>estContreIndiquePour</code>, <code>estContreIndiqueEn</code>, <code>interagitAvec</code></p>
+                    </div>
+                    <button class="btn btn-secondary" id="btn-reset-graph-med">Réinitialiser</button>
+                </div>
+                <div id="network-graph-med" class="network-container"></div>
+                <div class="graph-legend">
+                    <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span> Médicaments</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span> Molécules</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#f97316"></span> Effets secondaires</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Maladies (module Maladie)</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#a855f7"></span> Conditions cliniques</span>
+                </div>
+            </div>
+        </section>
+
         <!-- TAB 3 : Console SPARQL / Fuseki -->
         <section id="tab-sparql" class="tab-pane">
             <div class="sparql-layout">
@@ -471,5 +619,6 @@
     </footer>
 
     <script src="app.js"></script>
+    <script src="medicament.js"></script>
 </body>
 </html>

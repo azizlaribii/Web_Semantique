@@ -39,6 +39,7 @@ if __name__ == "__main__":
     print(f"  • IA API    : Traduction Question Utilisateur -> Requête SPARQL")
     print(f"  • Fuseki    : Endpoint SPARQL compatible Apache Jena")
     print(f"  • Back-end  : Python + RDFLib (ontologie_personne.owl)")
+    print(f"  • Modules   : Maladie (ontologie_maladie.owl) + Médicament (ontologie_medicament.owl)")
     print(f"  • URL       : {URL}")
     print("=" * 65)
 

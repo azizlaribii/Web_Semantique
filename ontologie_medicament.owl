@@ -1,0 +1,897 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://example.org/ontologie-medicament"
+         xmlns="http://example.org/ontologie-medicament#">
+
+<owl:Ontology rdf:about="http://example.org/ontologie-medicament"/>
+
+<owl:ObjectProperty rdf:about="#contientMolecule">
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="#Molecule"/>
+  <owl:inverseOf rdf:resource="#estPrincipeActifDe"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">contient molecule</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estPrincipeActifDe">
+  <rdfs:domain rdf:resource="#Molecule"/>
+  <rdfs:range rdf:resource="#Medicament"/>
+  <owl:inverseOf rdf:resource="#contientMolecule"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est principe actif de</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#peutProvoquer">
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="#EffetSecondaire"/>
+  <owl:inverseOf rdf:resource="#estProvoquePar"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">peut provoquer</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estProvoquePar">
+  <rdfs:domain rdf:resource="#EffetSecondaire"/>
+  <rdfs:range rdf:resource="#Medicament"/>
+  <owl:inverseOf rdf:resource="#peutProvoquer"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est provoque par</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#traite">
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://example.org/ontologie-maladie#Maladie"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">traite</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estContreIndiquePour">
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://example.org/ontologie-maladie#Maladie"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est contre-indique pour</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estContreIndiqueEn">
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="#ConditionClinique"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est contre-indique en cas de</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#interagitAvec">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">interagit avec</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#impliqueMedicament">
+  <rdfs:domain rdf:resource="#InteractionMedicamenteuse"/>
+  <rdfs:range rdf:resource="#Medicament"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#evalue">
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="#Medicament"/>
+  <owl:inverseOf rdf:resource="#estEvaluePar"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">evalue</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#estEvaluePar">
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="#EssaiClinique"/>
+  <owl:inverseOf rdf:resource="#evalue"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est evalue par</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#aObserveEffet">
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="#EffetSecondaire"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a observe l'effet</rdfs:label>
+</owl:ObjectProperty>
+
+<owl:DatatypeProperty rdf:about="#nomCommercial">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#dosage">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#formeGalenique">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#voieAdministration">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#posologie">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#codeATC">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#prixTND">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#necessiteOrdonnance">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Medicament"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#nomMolecule">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Molecule"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#formuleBrute">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Molecule"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#masseMolaire">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#Molecule"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#nomEffet">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EffetSecondaire"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#frequence">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EffetSecondaire"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#graviteEffet">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EffetSecondaire"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#nomCondition">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#ConditionClinique"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#niveauRisque">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#InteractionMedicamenteuse"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#descriptionInteraction">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#InteractionMedicamenteuse"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#phase">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#nombrePatients">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#tauxEfficacite">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#anneeEssai">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="#objectifEssai">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:domain rdf:resource="#EssaiClinique"/>
+  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</owl:DatatypeProperty>
+
+<owl:Class rdf:about="#Medicament">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#contientMolecule"/>
+      <owl:someValuesFrom rdf:resource="#Molecule"/>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medicament</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Produit pharmaceutique commercialise, contenant au moins une molecule active.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#Antalgique">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Antalgique</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#AntiInflammatoire">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Anti-inflammatoire</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#Antibiotique">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Antibiotique</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#Antidiabetique">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Antidiabetique</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#Antihypertenseur">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Antihypertenseur</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#AntiUlcereux">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Anti-ulcereux</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#Anticoagulant">
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Anticoagulant</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#Molecule">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Molecule</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Principe actif contenu dans un medicament.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetSecondaire">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Effet secondaire</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Effet indesirable pouvant etre provoque par un medicament.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetDigestif">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetNeurologique">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetCutane">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetCardiovasculaire">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetHepatique">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetHematologique">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetMetabolique">
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+</owl:Class>
+
+<owl:Class rdf:about="#ConditionClinique">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Condition clinique</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Situation du patient qui contre-indique un medicament (grossesse, allergie, ...).</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#InteractionMedicamenteuse">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Interaction medicamenteuse</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#EssaiClinique">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Essai clinique</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Donnees cliniques evaluant un medicament (valeurs pedagogiques fictives).</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#EffetGrave">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#EffetSecondaire"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#graviteEffet"/>
+          <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</owl:hasValue>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf rdf:resource="#EffetSecondaire"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Effet grave</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie : EffetSecondaire dont la gravite vaut 3.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#MedicamentARisque">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#Medicament"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#peutProvoquer"/>
+          <owl:someValuesFrom rdf:resource="#EffetGrave"/>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medicament a risque</rdfs:label>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie : Medicament pouvant provoquer un EffetGrave.</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#MedicamentSurOrdonnance">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#Medicament"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#necessiteOrdonnance"/>
+          <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:hasValue>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medicament sur ordonnance</rdfs:label>
+</owl:Class>
+
+<owl:Class rdf:about="#MedicamentEvalueCliniquement">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#Medicament"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#estEvaluePar"/>
+          <owl:someValuesFrom rdf:resource="#EssaiClinique"/>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf rdf:resource="#Medicament"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medicament evalue cliniquement</rdfs:label>
+</owl:Class>
+
+<owl:NamedIndividual rdf:about="#Mol_Paracetamol">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Paracetamol</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C8H9NO2</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">151.16</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Ibuprofene">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ibuprofene</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C13H18O2</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">206.28</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Amoxicilline">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amoxicilline</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C16H19N3O5S</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">365.4</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Metformine">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Metformine</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C4H11N5</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">129.16</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Amlodipine">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amlodipine</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C20H25ClN2O5</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">408.88</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Omeprazole">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Omeprazole</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C17H19N3O3S</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">345.42</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Acide_Acetylsalicylique">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Acide acetylsalicylique</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C9H8O4</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">180.16</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mol_Warfarine">
+  <rdf:type rdf:resource="#Molecule"/>
+  <nomMolecule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Warfarine</nomMolecule>
+  <formuleBrute rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C19H16O4</formuleBrute>
+  <masseMolaire rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">308.33</masseMolaire>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Hepatotoxicite">
+  <rdf:type rdf:resource="#EffetHepatique"/>
+  <rdf:type rdf:resource="#EffetGrave"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hepatotoxicite (surdosage)</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rare</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Nausee_Effet">
+  <rdf:type rdf:resource="#EffetDigestif"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Nausees</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Diarrhee">
+  <rdf:type rdf:resource="#EffetDigestif"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Diarrhee</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tres frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Douleur_Gastrique">
+  <rdf:type rdf:resource="#EffetDigestif"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Douleurs et brulures d'estomac</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Hemorragie_Digestive">
+  <rdf:type rdf:resource="#EffetHematologique"/>
+  <rdf:type rdf:resource="#EffetGrave"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hemorragie digestive</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rare</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Saignement">
+  <rdf:type rdf:resource="#EffetHematologique"/>
+  <rdf:type rdf:resource="#EffetGrave"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Saignements (gencives, nez, hematomes)</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Eruption_Cutanee">
+  <rdf:type rdf:resource="#EffetCutane"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Eruption cutanee / urticaire</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Oedeme_Chevilles">
+  <rdf:type rdf:resource="#EffetCardiovasculaire"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Oedemes des chevilles</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tres frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Bouffees_Chaleur">
+  <rdf:type rdf:resource="#EffetCardiovasculaire"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bouffees de chaleur</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Cephalee_Effet">
+  <rdf:type rdf:resource="#EffetNeurologique"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Maux de tete</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Vertige_Effet">
+  <rdf:type rdf:resource="#EffetNeurologique"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Vertiges</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Peu frequent</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Acidose_Lactique">
+  <rdf:type rdf:resource="#EffetMetabolique"/>
+  <rdf:type rdf:resource="#EffetGrave"/>
+  <nomEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Acidose lactique</nomEffet>
+  <frequence rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tres rare</frequence>
+  <graviteEffet rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</graviteEffet>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Grossesse">
+  <rdf:type rdf:resource="#ConditionClinique"/>
+  <nomCondition rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Grossesse</nomCondition>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Insuffisance_Hepatique_Severe">
+  <rdf:type rdf:resource="#ConditionClinique"/>
+  <nomCondition rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Insuffisance hepatique severe</nomCondition>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Insuffisance_Renale_Severe">
+  <rdf:type rdf:resource="#ConditionClinique"/>
+  <nomCondition rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Insuffisance renale severe</nomCondition>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Allergie_Penicilline">
+  <rdf:type rdf:resource="#ConditionClinique"/>
+  <nomCondition rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Allergie aux penicillines</nomCondition>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Enfant_Infection_Virale">
+  <rdf:type rdf:resource="#ConditionClinique"/>
+  <nomCondition rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Enfant avec infection virale (risque de syndrome de Reye)</nomCondition>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Hypotension_Severe">
+  <rdf:type rdf:resource="#ConditionClinique"/>
+  <nomCondition rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hypotension severe / choc</nomCondition>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Doliprane">
+  <rdf:type rdf:resource="#Antalgique"/>
+  <contientMolecule rdf:resource="#Mol_Paracetamol"/>
+  <peutProvoquer rdf:resource="#Nausee_Effet"/>
+  <peutProvoquer rdf:resource="#Hepatotoxicite"/>
+  <estContreIndiqueEn rdf:resource="#Insuffisance_Hepatique_Severe"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Grippe_Saisonniere"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Angine_Streptocoque"/>
+  <rdf:type rdf:resource="#MedicamentARisque"/>
+  <rdf:type rdf:resource="#MedicamentEvalueCliniquement"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Doliprane</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1000 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comprime</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 comprime toutes les 6 h, maximum 4 g par jour</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">N02BE01</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">3.2</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Brufen">
+  <rdf:type rdf:resource="#AntiInflammatoire"/>
+  <rdf:type rdf:resource="#Antalgique"/>
+  <contientMolecule rdf:resource="#Mol_Ibuprofene"/>
+  <peutProvoquer rdf:resource="#Cephalee_Effet"/>
+  <peutProvoquer rdf:resource="#Hemorragie_Digestive"/>
+  <peutProvoquer rdf:resource="#Douleur_Gastrique"/>
+  <estContreIndiqueEn rdf:resource="#Grossesse"/>
+  <estContreIndiqueEn rdf:resource="#Insuffisance_Renale_Severe"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Grippe_Saisonniere"/>
+  <estContreIndiquePour rdf:resource="http://example.org/ontologie-maladie#Hypertension_Arterielle"/>
+  <estContreIndiquePour rdf:resource="http://example.org/ontologie-maladie#Ulcere_Gastrique_Sami"/>
+  <interagitAvec rdf:resource="#Aspegic"/>
+  <interagitAvec rdf:resource="#Amlor"/>
+  <rdf:type rdf:resource="#MedicamentARisque"/>
+  <rdf:type rdf:resource="#MedicamentEvalueCliniquement"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Brufen</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">400 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comprime pellicule</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 comprime 3 fois par jour au cours des repas</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">M01AE01</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.8</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Clamoxyl">
+  <rdf:type rdf:resource="#Antibiotique"/>
+  <contientMolecule rdf:resource="#Mol_Amoxicilline"/>
+  <peutProvoquer rdf:resource="#Diarrhee"/>
+  <peutProvoquer rdf:resource="#Nausee_Effet"/>
+  <peutProvoquer rdf:resource="#Eruption_Cutanee"/>
+  <estContreIndiqueEn rdf:resource="#Allergie_Penicilline"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Angine_Streptocoque"/>
+  <rdf:type rdf:resource="#MedicamentSurOrdonnance"/>
+  <rdf:type rdf:resource="#MedicamentEvalueCliniquement"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Clamoxyl</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 g</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comprime dispersible</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 g 2 a 3 fois par jour pendant 6 a 10 jours</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">J01CA04</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9.5</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Glucophage">
+  <rdf:type rdf:resource="#Antidiabetique"/>
+  <contientMolecule rdf:resource="#Mol_Metformine"/>
+  <peutProvoquer rdf:resource="#Diarrhee"/>
+  <peutProvoquer rdf:resource="#Nausee_Effet"/>
+  <peutProvoquer rdf:resource="#Acidose_Lactique"/>
+  <estContreIndiqueEn rdf:resource="#Insuffisance_Renale_Severe"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Diabete_Type2"/>
+  <rdf:type rdf:resource="#MedicamentSurOrdonnance"/>
+  <rdf:type rdf:resource="#MedicamentARisque"/>
+  <rdf:type rdf:resource="#MedicamentEvalueCliniquement"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Glucophage</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">850 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comprime pellicule</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 comprime 2 a 3 fois par jour pendant les repas</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A10BA02</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">6.4</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Amlor">
+  <rdf:type rdf:resource="#Antihypertenseur"/>
+  <contientMolecule rdf:resource="#Mol_Amlodipine"/>
+  <peutProvoquer rdf:resource="#Cephalee_Effet"/>
+  <peutProvoquer rdf:resource="#Vertige_Effet"/>
+  <peutProvoquer rdf:resource="#Oedeme_Chevilles"/>
+  <peutProvoquer rdf:resource="#Bouffees_Chaleur"/>
+  <estContreIndiqueEn rdf:resource="#Hypotension_Severe"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Hypertension_Arterielle"/>
+  <rdf:type rdf:resource="#MedicamentSurOrdonnance"/>
+  <rdf:type rdf:resource="#MedicamentEvalueCliniquement"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amlor</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gelule</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 gelule par jour</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">C08CA01</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Mopral">
+  <rdf:type rdf:resource="#AntiUlcereux"/>
+  <contientMolecule rdf:resource="#Mol_Omeprazole"/>
+  <peutProvoquer rdf:resource="#Cephalee_Effet"/>
+  <peutProvoquer rdf:resource="#Diarrhee"/>
+  <peutProvoquer rdf:resource="#Vertige_Effet"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Ulcere_Gastrique_Sami"/>
+  <rdf:type rdf:resource="#MedicamentSurOrdonnance"/>
+  <rdf:type rdf:resource="#MedicamentEvalueCliniquement"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mopral</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">20 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gelule gastro-resistante</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 gelule par jour avant le repas, 4 a 8 semaines</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A02BC01</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">14.9</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Aspegic">
+  <rdf:type rdf:resource="#Antalgique"/>
+  <rdf:type rdf:resource="#AntiInflammatoire"/>
+  <contientMolecule rdf:resource="#Mol_Acide_Acetylsalicylique"/>
+  <peutProvoquer rdf:resource="#Hemorragie_Digestive"/>
+  <peutProvoquer rdf:resource="#Saignement"/>
+  <peutProvoquer rdf:resource="#Douleur_Gastrique"/>
+  <estContreIndiqueEn rdf:resource="#Enfant_Infection_Virale"/>
+  <estContreIndiqueEn rdf:resource="#Grossesse"/>
+  <traite rdf:resource="http://example.org/ontologie-maladie#Grippe_Saisonniere"/>
+  <estContreIndiquePour rdf:resource="http://example.org/ontologie-maladie#Ulcere_Gastrique_Sami"/>
+  <rdf:type rdf:resource="#MedicamentARisque"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aspegic</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">500 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sachet</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1 sachet toutes les 4 a 6 h, maximum 3 g par jour</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">N02BA01</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.1</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Coumadine">
+  <rdf:type rdf:resource="#Anticoagulant"/>
+  <contientMolecule rdf:resource="#Mol_Warfarine"/>
+  <peutProvoquer rdf:resource="#Saignement"/>
+  <peutProvoquer rdf:resource="#Hemorragie_Digestive"/>
+  <estContreIndiqueEn rdf:resource="#Grossesse"/>
+  <estContreIndiquePour rdf:resource="http://example.org/ontologie-maladie#Ulcere_Gastrique_Sami"/>
+  <interagitAvec rdf:resource="#Aspegic"/>
+  <interagitAvec rdf:resource="#Brufen"/>
+  <interagitAvec rdf:resource="#Doliprane"/>
+  <rdf:type rdf:resource="#MedicamentSurOrdonnance"/>
+  <rdf:type rdf:resource="#MedicamentARisque"/>
+  <nomCommercial rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coumadine</nomCommercial>
+  <dosage rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5 mg</dosage>
+  <formeGalenique rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comprime secable</formeGalenique>
+  <voieAdministration rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Orale</voieAdministration>
+  <posologie rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dose adaptee selon l'INR, 1 prise par jour</posologie>
+  <codeATC rdf:datatype="http://www.w3.org/2001/XMLSchema#string">B01AA03</codeATC>
+  <prixTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">8.3</prixTND>
+  <necessiteOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</necessiteOrdonnance>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Interaction_Coumadine_Aspegic">
+  <rdf:type rdf:resource="#InteractionMedicamenteuse"/>
+  <impliqueMedicament rdf:resource="#Aspegic"/>
+  <impliqueMedicament rdf:resource="#Coumadine"/>
+  <niveauRisque rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Eleve</niveauRisque>
+  <descriptionInteraction rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Association deconseillee : risque hemorragique fortement augmente.</descriptionInteraction>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Interaction_Coumadine_Brufen">
+  <rdf:type rdf:resource="#InteractionMedicamenteuse"/>
+  <impliqueMedicament rdf:resource="#Brufen"/>
+  <impliqueMedicament rdf:resource="#Coumadine"/>
+  <niveauRisque rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Eleve</niveauRisque>
+  <descriptionInteraction rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AINS + anticoagulant : risque d'hemorragie digestive.</descriptionInteraction>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Interaction_Brufen_Aspegic">
+  <rdf:type rdf:resource="#InteractionMedicamenteuse"/>
+  <impliqueMedicament rdf:resource="#Aspegic"/>
+  <impliqueMedicament rdf:resource="#Brufen"/>
+  <niveauRisque rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Modere</niveauRisque>
+  <descriptionInteraction rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Deux AINS associes : toxicite digestive cumulee.</descriptionInteraction>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Interaction_Brufen_Amlor">
+  <rdf:type rdf:resource="#InteractionMedicamenteuse"/>
+  <impliqueMedicament rdf:resource="#Amlor"/>
+  <impliqueMedicament rdf:resource="#Brufen"/>
+  <niveauRisque rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Modere</niveauRisque>
+  <descriptionInteraction rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Les AINS diminuent l'effet antihypertenseur.</descriptionInteraction>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Interaction_Coumadine_Doliprane">
+  <rdf:type rdf:resource="#InteractionMedicamenteuse"/>
+  <impliqueMedicament rdf:resource="#Coumadine"/>
+  <impliqueMedicament rdf:resource="#Doliprane"/>
+  <niveauRisque rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Faible</niveauRisque>
+  <descriptionInteraction rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Paracetamol a forte dose prolonge : surveiller l'INR.</descriptionInteraction>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Essai_Doliprane_Fievre">
+  <rdf:type rdf:resource="#EssaiClinique"/>
+  <evalue rdf:resource="#Doliprane"/>
+  <aObserveEffet rdf:resource="#Nausee_Effet"/>
+  <phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">4</phase>
+  <nombrePatients rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">320</nombrePatients>
+  <tauxEfficacite rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">87.5</tauxEfficacite>
+  <anneeEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2021</anneeEssai>
+  <objectifEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Baisse de la fievre en moins de 4 heures</objectifEssai>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Essai_Brufen_Douleur">
+  <rdf:type rdf:resource="#EssaiClinique"/>
+  <evalue rdf:resource="#Brufen"/>
+  <aObserveEffet rdf:resource="#Cephalee_Effet"/>
+  <aObserveEffet rdf:resource="#Douleur_Gastrique"/>
+  <phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">4</phase>
+  <nombrePatients rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">410</nombrePatients>
+  <tauxEfficacite rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">82.0</tauxEfficacite>
+  <anneeEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2020</anneeEssai>
+  <objectifEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Soulagement des douleurs inflammatoires</objectifEssai>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Essai_Clamoxyl_Angine">
+  <rdf:type rdf:resource="#EssaiClinique"/>
+  <evalue rdf:resource="#Clamoxyl"/>
+  <aObserveEffet rdf:resource="#Diarrhee"/>
+  <aObserveEffet rdf:resource="#Eruption_Cutanee"/>
+  <phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</phase>
+  <nombrePatients rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">250</nombrePatients>
+  <tauxEfficacite rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">91.0</tauxEfficacite>
+  <anneeEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2019</anneeEssai>
+  <objectifEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Guerison de l'angine a streptocoque</objectifEssai>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Essai_Glucophage_HbA1c">
+  <rdf:type rdf:resource="#EssaiClinique"/>
+  <evalue rdf:resource="#Glucophage"/>
+  <aObserveEffet rdf:resource="#Diarrhee"/>
+  <aObserveEffet rdf:resource="#Nausee_Effet"/>
+  <phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">4</phase>
+  <nombrePatients rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1200</nombrePatients>
+  <tauxEfficacite rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">74.0</tauxEfficacite>
+  <anneeEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2022</anneeEssai>
+  <objectifEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Controle de l'HbA1c chez le diabetique de type 2</objectifEssai>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Essai_Amlor_Tension">
+  <rdf:type rdf:resource="#EssaiClinique"/>
+  <evalue rdf:resource="#Amlor"/>
+  <aObserveEffet rdf:resource="#Cephalee_Effet"/>
+  <aObserveEffet rdf:resource="#Oedeme_Chevilles"/>
+  <phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</phase>
+  <nombrePatients rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">540</nombrePatients>
+  <tauxEfficacite rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">79.5</tauxEfficacite>
+  <anneeEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2021</anneeEssai>
+  <objectifEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Normalisation de la pression arterielle</objectifEssai>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#Essai_Mopral_Ulcere">
+  <rdf:type rdf:resource="#EssaiClinique"/>
+  <evalue rdf:resource="#Mopral"/>
+  <aObserveEffet rdf:resource="#Cephalee_Effet"/>
+  <phase rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</phase>
+  <nombrePatients rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">300</nombrePatients>
+  <tauxEfficacite rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">93.0</tauxEfficacite>
+  <anneeEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2018</anneeEssai>
+  <objectifEssai rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cicatrisation de l'ulcere gastrique</objectifEssai>
+</owl:NamedIndividual>
+
+<owl:AllDifferent>
+  <owl:distinctMembers rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Doliprane"/>
+    <rdf:Description rdf:about="#Brufen"/>
+    <rdf:Description rdf:about="#Clamoxyl"/>
+    <rdf:Description rdf:about="#Glucophage"/>
+    <rdf:Description rdf:about="#Amlor"/>
+    <rdf:Description rdf:about="#Mopral"/>
+    <rdf:Description rdf:about="#Aspegic"/>
+    <rdf:Description rdf:about="#Coumadine"/>
+  </owl:distinctMembers>
+</owl:AllDifferent>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Medicament"/>
+    <rdf:Description rdf:about="#Molecule"/>
+    <rdf:Description rdf:about="#EffetSecondaire"/>
+    <rdf:Description rdf:about="#ConditionClinique"/>
+    <rdf:Description rdf:about="#InteractionMedicamenteuse"/>
+    <rdf:Description rdf:about="#EssaiClinique"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#EffetDigestif"/>
+    <rdf:Description rdf:about="#EffetNeurologique"/>
+    <rdf:Description rdf:about="#EffetCutane"/>
+    <rdf:Description rdf:about="#EffetCardiovasculaire"/>
+    <rdf:Description rdf:about="#EffetHepatique"/>
+    <rdf:Description rdf:about="#EffetHematologique"/>
+    <rdf:Description rdf:about="#EffetMetabolique"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+<owl:AllDisjointClasses>
+  <owl:members rdf:parseType="Collection">
+    <rdf:Description rdf:about="#Antibiotique"/>
+    <rdf:Description rdf:about="#Antidiabetique"/>
+    <rdf:Description rdf:about="#Antihypertenseur"/>
+    <rdf:Description rdf:about="#AntiUlcereux"/>
+    <rdf:Description rdf:about="#Anticoagulant"/>
+  </owl:members>
+</owl:AllDisjointClasses>
+
+
+</rdf:RDF>
