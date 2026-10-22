@@ -167,8 +167,10 @@ function initTabs() {
 function initViewerTabs() {
     document.querySelectorAll('.viewer-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            document.querySelectorAll('.viewer-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.vtab-pane').forEach(p => p.classList.remove('active'));
+            // Limité au bloc de résultats courant (sinon les onglets des autres modules se désactivent)
+            const viewer = tab.closest('.results-viewer') || document;
+            viewer.querySelectorAll('.viewer-tab').forEach(t => t.classList.remove('active'));
+            viewer.querySelectorAll('.vtab-pane').forEach(p => p.classList.remove('active'));
 
             tab.classList.add('active');
             document.getElementById(tab.dataset.vtab).classList.add('active');
@@ -248,7 +250,7 @@ async function askIA(question) {
 }
 
 function initQuickPrompts() {
-    document.querySelectorAll('.chip:not(.mal-chip)').forEach(chip => {
+    document.querySelectorAll('.chip:not(.mal-chip):not(.med-chip)').forEach(chip => {
         chip.addEventListener('click', (e) => {
             e.stopPropagation();
             const q = chip.dataset.q;

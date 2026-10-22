@@ -19,6 +19,8 @@ from rdflib_service import RDFLibService, MaladieService
 from fuseki_api import FusekiAPIService
 from ia_service import IAService
 from ia_maladie_service import IAMaladieService
+from medicament_service import MedicamentService
+from ia_medicament_service import IAMedicamentService
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
@@ -49,6 +51,12 @@ maladie_service = MaladieService()
 
 print("[Architecture] Initialisation du module IA Maladie...")
 ia_maladie_service = IAMaladieService(maladie_service)
+
+print("[Architecture] Initialisation du module Médicament...")
+medicament_service = MedicamentService()
+
+print("[Architecture] Initialisation du module IA Médicament...")
+ia_medicament_service = IAMedicamentService(medicament_service)
 
 # ----------------------------------------------------------------------
 # Routes Frontend
@@ -152,6 +160,42 @@ def ia_maladie_ask():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# ----------------------------------------------------------------------
+# Routes Module Médicament (ontologie_medicament.owl)
+# ----------------------------------------------------------------------
+@app.route("/api/medicaments", methods=["GET"])
+def get_all_medicaments():
+    try:
+        return jsonify(medicament_service.get_all_medicaments())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/graph-medicament", methods=["GET"])
+def get_graph_medicament():
+    try:
+        return jsonify(medicament_service.get_graph_medicament())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/summary-medicament", methods=["GET"])
+def get_summary_medicament():
+    try:
+        return jsonify(medicament_service.get_summary())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ia-medicament/ask", methods=["POST"])
+def ia_medicament_ask():
+    """Traduit une question NL en SPARQL Médicament et retourne les données."""
+    body = request.get_json(force=True, silent=True) or {}
+    question = body.get("question", "").strip()
+    if not question:
+        return jsonify({"error": "Question vide"}), 400
+    try:
+        return jsonify(ia_medicament_service.answer_question(question))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/status", methods=["GET"])
 def get_status():
     """Retourne l'état de chaque brique de l'architecture."""
@@ -162,6 +206,8 @@ def get_status():
         "fuseki_api": "Actif" + (" (Connecté à Fuseki distant)" if fuseki_alive else " (Mode Émulation RDFLib local)"),
         "backend": f"Actif (Python {sys.version.split()[0]} + RDFLib {rdflib_service.graph.__module__})",
         "protege_owl": f"Chargé ({len(rdflib_service.graph)} triplets depuis ontologie_personne.owl)",
+        "medicament_owl": (f"Chargé ({len(medicament_service.graph)} triplets depuis ontologie_medicament.owl)"
+                           if medicament_service.loaded else "Non chargé (lancez medicament_owlready2.py)"),
         "target_class": "Personne (Médecins, Patients, Stagiaires, Stuff Médical)"
     })
 

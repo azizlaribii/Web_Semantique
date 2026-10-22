@@ -116,3 +116,57 @@ Pour fusionner les classes des autres membres (ex: `Maladie`, `Consultation`, `M
 1. Ils ajoutent leurs classes et triplets dans l'ontologie globale ou fournissent leur fichier OWL.
 2. Le moteur `rdflib_service.py` charge directement le fichier complet sans modification de code nécessaire.
 3. Le module IA peut être enrichi de nouvelles règles de mots-clés dans `ia_service.py` pour leurs classes respectives.
+
+---
+
+# 💊 Module Médicament
+
+Le module Médicament suit la même architecture que les modules Personne et Maladie :
+**Front-end → Module IA → SPARQL → RDFLib → `ontologie_medicament.owl`**.
+
+## Fichiers ajoutés
+
+```
+web_sémantique/
+├── medicament_owlready2.py         # Script Owlready2 : crée l'ontologie + raisonneur HermiT
+├── ontologie_medicament.owl        # Ontologie générée (ouvrable dans Protégé)
+├── backend/
+│   ├── medicament_service.py       # Service RDFLib (médicaments, graphe, résumé)
+│   ├── ia_medicament_service.py    # Module IA : question en français -> SPARQL
+│   └── test_ia_medicament.py       # 30 tests de l'IA (SPARQL + nombre de résultats)
+└── frontend/
+    └── medicament.js               # Onglet « Module Médicament » (IA, fiches, filtres, graphe)
+```
+
+Fichiers modifiés : `backend/app.py` (routes), `frontend/index.html` (onglet), `frontend/style.css` (styles),
+`frontend/app.js` (onglets de résultats limités à leur module), `run_app.py` (message de démarrage).
+
+## Ontologie (`http://example.org/ontologie-medicament#`, préfixe `mdc:`)
+
+- **Classes** : `Medicament` (sous-classes `Antalgique`, `AntiInflammatoire`, `Antibiotique`, `Antidiabetique`,
+  `Antihypertenseur`, `AntiUlcereux`, `Anticoagulant`), `Molecule`, `EffetSecondaire` (7 familles),
+  `ConditionClinique`, `InteractionMedicamenteuse`, `EssaiClinique`.
+- **Propriétés d'objet** : `contientMolecule`, `peutProvoquer`, `traite` et `estContreIndiquePour` (vers les maladies
+  `mal:` du module Maladie), `estContreIndiqueEn`, `interagitAvec` (symétrique), `impliqueMedicament`, `evalue`, `aObserveEffet`.
+- **Propriétés de données** : `nomCommercial`, `dosage`, `formeGalenique`, `posologie`, `codeATC`, `prixTND`,
+  `necessiteOrdonnance`, `formuleBrute`, `masseMolaire`, `frequence`, `graviteEffet`, `phase`, `tauxEfficacite`…
+- **Classes définies (inférées par HermiT)** : `EffetGrave`, `MedicamentARisque`, `MedicamentSurOrdonnance`,
+  `MedicamentEvalueCliniquement`.
+- Les données des essais cliniques et les prix sont des valeurs **pédagogiques fictives**.
+
+## Routes API
+
+| Route | Méthode | Rôle |
+|---|---|---|
+| `/api/medicaments` | GET | Fiches complètes des médicaments |
+| `/api/graph-medicament` | GET | Nœuds et liens du graphe |
+| `/api/summary-medicament` | GET | Statistiques du module |
+| `/api/ia-medicament/ask` | POST `{"question": "..."}` | Question en français → SPARQL → résultats |
+
+## Régénérer l'ontologie et tester
+
+```powershell
+python medicament_owlready2.py        # régénère ontologie_medicament.owl (Java requis pour HermiT)
+python backend/test_ia_medicament.py  # vérifie l'IA Médicament
+python run_app.py                     # lance l'application
+```
