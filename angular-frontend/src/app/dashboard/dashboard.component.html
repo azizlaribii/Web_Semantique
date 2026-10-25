@@ -1,0 +1,817 @@
+<div class="dashboard-page">
+  <div class="bg-glow-layer"></div>
+  <div class="bg-grid-layer"></div>
+
+  <!-- Shared Navbar -->
+  <app-navbar />
+
+  <!-- Main Container -->
+  <main class="dashboard-main">
+
+    <!-- Top Welcome Banner -->
+    <section class="welcome-banner glass-panel">
+      <div class="welcome-left">
+        <div class="welcome-tag">
+          <span class="live-dot"></span>
+          <span>Système Actif • Ontologie RDFLib &amp; OWL Protégé</span>
+        </div>
+        <h1 class="welcome-title">
+          Bonjour, <span class="gradient-name">{{ currentUser()?.prenom }} {{ currentUser()?.nom }}</span>
+        </h1>
+        <p class="welcome-desc">
+          Connecté en tant que <span class="role-highlight">{{ currentUser()?.role }}</span>. Votre identité est intégrée dans le graphe sémantique OWL.
+        </p>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-num">{{ personnes().length }}</span>
+          <span class="metric-label">Personnes</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-num cyan">{{ countMedecins() }}</span>
+          <span class="metric-label">Médecins</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-num emerald">{{ countPatients() }}</span>
+          <span class="metric-label">Patients</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-num purple">{{ maladies().length }}</span>
+          <span class="metric-label">Maladies</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-num amber">{{ medicaments().length }}</span>
+          <span class="metric-label">Médicaments</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="dash-tabs-bar">
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'personnes'" (click)="setTab('personnes')">
+        <span class="tab-icon">👥</span><span>Personnes</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'ia-personnes'" (click)="setTab('ia-personnes')">
+        <span class="tab-icon">🤖</span><span>IA — Personnes</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'ia-maladies'" (click)="setTab('ia-maladies')">
+        <span class="tab-icon">🧬</span><span>IA — Maladies</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'ia-medicaments'" (click)="setTab('ia-medicaments')">
+        <span class="tab-icon">💊</span><span>IA — Médicaments</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'maladies'" (click)="setTab('maladies')">
+        <span class="tab-icon">📋</span><span>Catalogue</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'sparql'" (click)="setTab('sparql')">
+        <span class="tab-icon">⚡</span><span>SPARQL</span>
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'profil'" (click)="setTab('profil')">
+        <span class="tab-icon">🆔</span><span>Mon Profil</span>
+      </button>
+    </nav>
+
+    <!-- ============================================================ -->
+    <!-- TAB: PERSONNES                                               -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'personnes') {
+      <section class="tab-content">
+        <div class="content-toolbar glass-panel">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="input-glass search-input"
+              placeholder="Rechercher par nom, CIN, spécialité, téléphone..."
+              [ngModel]="personneSearch()" (ngModelChange)="personneSearch.set($event)" />
+          </div>
+          <div class="role-filter-group">
+            <button type="button" class="filter-pill" [class.active]="selectedRoleFilter() === 'ALL'" (click)="selectedRoleFilter.set('ALL')">Tous ({{ personnes().length }})</button>
+            <button type="button" class="filter-pill" [class.active]="selectedRoleFilter() === 'Medecin'" (click)="selectedRoleFilter.set('Medecin')">Médecins ({{ countMedecins() }})</button>
+            <button type="button" class="filter-pill" [class.active]="selectedRoleFilter() === 'Patient'" (click)="selectedRoleFilter.set('Patient')">Patients ({{ countPatients() }})</button>
+            <button type="button" class="filter-pill" [class.active]="selectedRoleFilter() === 'Stagiaire'" (click)="selectedRoleFilter.set('Stagiaire')">Stagiaires ({{ countStagiaires() }})</button>
+          </div>
+        </div>
+
+        <div class="glass-panel table-wrapper">
+          @if (loadingPersonnes()) {
+            <div class="state-box"><span class="spinner-dot"></span><p>Chargement des individus...</p></div>
+          } @else if (filteredPersonnes().length === 0) {
+            <div class="state-box empty"><span>🔎</span><p>Aucun individu trouvé.</p></div>
+          } @else {
+            <table class="onto-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Nom &amp; Prénom</th><th>Rôle</th>
+                  <th>CIN</th><th>Téléphone</th><th>Spécialité</th><th>Groupe Sanguin</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of filteredPersonnes(); track p.id) {
+                  <tr>
+                    <td class="col-id"><span class="id-tag">{{ p.id }}</span></td>
+                    <td class="col-name">
+                      <div class="person-name-cell">
+                        <div class="person-mini-orb">{{ (p.prenom ? p.prenom[0] : (p.nom ? p.nom[0] : 'P')).toUpperCase() }}</div>
+                        <div class="person-name-info">
+                          <span class="name-text">{{ p.nom }}</span>
+                          <span class="uri-subtext">{{ p.uri }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge" [ngClass]="getTypeBadgeClass(p)">{{ getPrimaryType(p) }}</span></td>
+                    <td class="col-text">{{ p.cin || '—' }}</td>
+                    <td class="col-text">{{ p.telephone || '—' }}</td>
+                    <td class="col-text">
+                      @if (p.specialite) { <span class="badge badge-purple">{{ p.specialite }}</span> } @else { <span>—</span> }
+                    </td>
+                    <td class="col-text">
+                      @if (p.groupeSanguin) { <span class="badge badge-rose">{{ p.groupeSanguin }}</span> } @else { <span>—</span> }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TAB: IA — PERSONNES                                          -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'ia-personnes') {
+      <section class="tab-content ia-view">
+        <div class="ia-module-header">
+          <div class="ia-module-badge ia-badge-blue">🤖 IA</div>
+          <div>
+            <h2 class="ia-module-title">Assistant IA — Personnes &amp; Rôles</h2>
+            <p class="ia-module-desc">Posez des questions sur les médecins, patients, stagiaires et leur attributs (spécialité, âge, CIN, groupe sanguin…)</p>
+          </div>
+        </div>
+
+        <div class="ia-layout">
+          <!-- Input Panel -->
+          <div class="ia-panel glass-panel">
+            <textarea class="input-glass ia-textarea" rows="3"
+              placeholder="Ex : Qui a pour spécialité Cardiologie ? / Patients de plus de 30 ans..."
+              [(ngModel)]="iaPersonneQuestion"
+              (keydown.enter)="$event.preventDefault(); onAskPersonnes()">
+            </textarea>
+            <button type="button" class="btn-primary ask-btn"
+              (click)="onAskPersonnes()"
+              [disabled]="iaPersonneLoading() || !iaPersonneQuestion.trim()">
+              @if (iaPersonneLoading()) { <span class="spinner-dot-sm"></span><span>Analyse...</span> }
+              @else { <span>🔍 Interroger l'Ontologie</span> }
+            </button>
+
+            <div class="suggestions-box">
+              <span class="sugg-title">Suggestions Personnes</span>
+              <div class="sugg-pills">
+                @for (prompt of iaPersonnePrompts; track prompt) {
+                  <button type="button" class="sugg-pill" (click)="onAskPersonnes(prompt)">{{ prompt }}</button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Panel -->
+          <div class="ia-results-panel glass-panel">
+            @if (iaPersonneLoading()) {
+              <div class="state-box"><span class="spinner-dot"></span><p>Génération SPARQL et interrogation du graphe...</p></div>
+            } @else if (iaPersonneError()) {
+              <div class="alert alert-error"><span>⚠️</span><span>{{ iaPersonneError() }}</span></div>
+            } @else if (iaPersonneResult()) {
+              <div class="result-details">
+                <div class="response-header">
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <span class="badge badge-emerald">✓ Réponse IA</span>
+                    <span class="badge badge-cyan">Module Personnes</span>
+                  </div>
+                  <span class="res-count">{{ iaPersonneResult().count || 0 }} résultat(s)</span>
+                </div>
+                <div class="ia-human-response">{{ iaPersonneResult().reponse }}</div>
+                @if (iaPersonneResult().sparql) {
+                  <div class="sparql-preview-box">
+                    <div class="sparql-code-bar"><span class="sparql-code-tag">SPARQL Généré</span></div>
+                    <pre class="sparql-code"><code>{{ iaPersonneResult().sparql }}</code></pre>
+                  </div>
+                }
+                @if (iaPersonneResult().donnees?.length > 0) {
+                  <!-- ── CAS 1 : VUE SOUS-CLASSES (PAS DE TABLEAU !) ── -->
+                  @if (iaPersonneResult().result_type === 'subclasses' || iaPersonneResult().donnees[0]?.estDirecte !== undefined || iaPersonneResult().donnees[0]?.sousClasse !== undefined) {
+                    <div class="subclasses-view-container">
+                      <div class="view-panel-header">
+                        <div class="view-panel-title">
+                          <span class="view-icon">🌳</span>
+                          <div>
+                            <h4>Hiérarchie des Sous-classes</h4>
+                            <span class="view-subtitle">{{ iaPersonneResult().count }} sous-classes répertoriées dans l'ontologie</span>
+                          </div>
+                        </div>
+                        <div class="view-panel-actions">
+                          <input type="text" class="input-glass search-mini"
+                            placeholder="Filtrer les sous-classes..."
+                            [ngModel]="subclassSearch()"
+                            (ngModelChange)="subclassSearch.set($event)">
+                        </div>
+                      </div>
+
+                      <!-- Sous-classes directes -->
+                      @if (getDirectSubclasses(iaPersonneResult().donnees).length > 0) {
+                        <div class="subclass-section">
+                          <div class="subclass-section-header">
+                            <span class="badge badge-emerald">Directe(s)</span>
+                            <span class="subclass-section-title">Sous-classes immédiates (rdfs:subClassOf direct)</span>
+                          </div>
+                          <div class="subclass-cards-grid">
+                            @for (sc of getDirectSubclasses(iaPersonneResult().donnees); track sc.nom) {
+                              <div class="subclass-card direct-card" (click)="copyText(sc.nom)">
+                                <div class="card-top">
+                                  <span class="class-pill-icon">🏷️</span>
+                                  <span class="class-name">{{ sc.nom }}</span>
+                                  <span class="badge badge-emerald">Directe</span>
+                                </div>
+                                <div class="card-meta">
+                                  <span class="subclass-parent-link">↳ subClassOf <strong>{{ sc.parent || 'Parent' }}</strong></span>
+                                  @if (sc.description || sc.label) {
+                                    <p class="subclass-desc">{{ sc.description || sc.label }}</p>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Sous-classes dérivées / spécialisations -->
+                      @if (getDescendantSubclasses(iaPersonneResult().donnees).length > 0) {
+                        <div class="subclass-section" style="margin-top:20px;">
+                          <div class="subclass-section-header">
+                            <span class="badge badge-cyan">Hiérarchie &amp; Spécialisations</span>
+                            <span class="subclass-section-title">Descendants dans la hiérarchie ontologique</span>
+                          </div>
+                          <div class="subclass-chips-wrap">
+                            @for (sc of getDescendantSubclasses(iaPersonneResult().donnees); track sc.nom) {
+                              <div class="subclass-chip" (click)="copyText(sc.nom)">
+                                <div class="chip-main">
+                                  <span class="chip-dot"></span>
+                                  <span class="chip-name">{{ sc.nom }}</span>
+                                  <span class="chip-parent">↳ {{ sc.parent }}</span>
+                                </div>
+                                @if (sc.label && sc.label !== sc.nom) {
+                                  <span class="chip-label">{{ sc.label }}</span>
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Fallback si filtre ne trouve rien -->
+                      @if (getAllSubclassesFiltered(iaPersonneResult().donnees).length === 0) {
+                        <div class="empty-filter-state">
+                          <span>🔍 Aucun concept ne correspond à « {{ subclassSearch() }} »</span>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- ── CAS 2 : VUE CLASSES GLOBALES (PAS DE TABLEAU !) ── -->
+                  @else if (iaPersonneResult().result_type === 'classes' || (iaPersonneResult().donnees[0]?.classe !== undefined && iaPersonneResult().donnees[0]?.sousClasse === undefined)) {
+                    <div class="classes-view-container">
+                      <div class="view-panel-header">
+                        <div class="view-panel-title">
+                          <span class="view-icon">🏛️</span>
+                          <div>
+                            <h4>Catalogue des Classes de l'Ontologie (owl:Class)</h4>
+                            <span class="view-subtitle">{{ iaPersonneResult().count }} classes définies dans le modèle</span>
+                          </div>
+                        </div>
+                        <div class="view-panel-actions">
+                          <input type="text" class="input-glass search-mini"
+                            placeholder="Rechercher une classe..."
+                            [ngModel]="classSearch()"
+                            (ngModelChange)="classSearch.set($event)">
+                        </div>
+                      </div>
+
+                      <div class="class-category-filters">
+                        <button type="button" class="filter-chip" [class.active]="classCategoryFilter() === 'ALL'" (click)="classCategoryFilter.set('ALL')">Toutes ({{ iaPersonneResult().count }})</button>
+                        <button type="button" class="filter-chip" [class.active]="classCategoryFilter() === 'PERSONNES'" (click)="classCategoryFilter.set('PERSONNES')">Personnes &amp; Rôles</button>
+                        <button type="button" class="filter-chip" [class.active]="classCategoryFilter() === 'SOINS'" (click)="classCategoryFilter.set('SOINS')">Soins &amp; Maladies</button>
+                        <button type="button" class="filter-chip" [class.active]="classCategoryFilter() === 'MEDICAMENTS'" (click)="classCategoryFilter.set('MEDICAMENTS')">Médicaments</button>
+                        <button type="button" class="filter-chip" [class.active]="classCategoryFilter() === 'SERVICES'" (click)="classCategoryFilter.set('SERVICES')">Services</button>
+                      </div>
+
+                      <div class="classes-cards-grid">
+                        @for (cl of getFilteredClasses(iaPersonneResult().donnees); track cl.nom || cl.classe) {
+                          <div class="class-concept-card" (click)="copyText(cl.nom || cl.classe)">
+                            <div class="concept-head">
+                              <span class="concept-icon">🏷️</span>
+                              <span class="concept-title">{{ cl.nom || cl.classe }}</span>
+                            </div>
+                            <div class="concept-body">
+                              <span class="concept-parent">↳ subClassOf <strong>{{ cl.parent || 'owl:Thing' }}</strong></span>
+                              @if (cl.description || cl.label) {
+                                <p class="concept-desc">{{ cl.description || cl.label }}</p>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- ── CAS 3 : FICHE PROFIL INDIVIDU UNIQUE ── -->
+                  @else if (iaPersonneResult().result_type === 'personne_single') {
+                    <div class="single-profile-view">
+                      <div class="profile-highlight-card">
+                        <div class="profile-highlight-top">
+                          <div class="avatar-circle">
+                            {{ (iaPersonneResult().donnees[0]?.nom || 'P').substring(0, 2).toUpperCase() }}
+                          </div>
+                          <div class="profile-title-block">
+                            <h3 class="profile-name">{{ iaPersonneResult().donnees[0]?.nom }}</h3>
+                            <div class="profile-badges-bar">
+                              <span class="badge badge-cyan">{{ iaPersonneResult().donnees[0]?.specialite || iaPersonneResult().donnees[0]?.role || 'Médecin' }}</span>
+                              @if (iaPersonneResult().donnees[0]?.numeroOrdre) {
+                                <span class="badge badge-purple">Ordre : {{ iaPersonneResult().donnees[0]?.numeroOrdre }}</span>
+                              }
+                              @if (iaPersonneResult().donnees[0]?.dossier || iaPersonneResult().donnees[0]?.numeroDossier) {
+                                <span class="badge badge-emerald">Dossier : {{ iaPersonneResult().donnees[0]?.dossier || iaPersonneResult().donnees[0]?.numeroDossier }}</span>
+                              }
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="profile-attributes-grid">
+                          @if (iaPersonneResult().donnees[0]?.age) {
+                            <div class="attr-box">
+                              <span class="attr-label">Âge</span>
+                              <span class="attr-val">{{ iaPersonneResult().donnees[0]?.age }} ans</span>
+                            </div>
+                          }
+                          @if (iaPersonneResult().donnees[0]?.cin) {
+                            <div class="attr-box">
+                              <span class="attr-label">Numéro CIN</span>
+                              <span class="attr-val mono">{{ iaPersonneResult().donnees[0]?.cin }}</span>
+                            </div>
+                          }
+                          @if (iaPersonneResult().donnees[0]?.email) {
+                            <div class="attr-box">
+                              <span class="attr-label">Email</span>
+                              <span class="attr-val">{{ iaPersonneResult().donnees[0]?.email }}</span>
+                            </div>
+                          }
+                          @if (iaPersonneResult().donnees[0]?.telephone) {
+                            <div class="attr-box">
+                              <span class="attr-label">Téléphone</span>
+                              <span class="attr-val">{{ iaPersonneResult().donnees[0]?.telephone }}</span>
+                            </div>
+                          }
+                          @if (iaPersonneResult().donnees[0]?.groupeSanguin) {
+                            <div class="attr-box">
+                              <span class="attr-label">Groupe Sanguin</span>
+                              <span class="attr-val badge badge-rose">{{ iaPersonneResult().donnees[0]?.groupeSanguin }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- ── CAS 4 : VUE TABLEAU POUR LISTES MULTIPLES D'INDIVIDUS ── -->
+                  @else {
+                    <div class="ia-data-table-wrap">
+                      <div class="table-head-bar">
+                        <h4>Résultats extraits de l'ontologie :</h4>
+                        <span class="table-count-badge">{{ iaPersonneResult().donnees?.length }} élément(s)</span>
+                      </div>
+                      <table class="onto-table">
+                        <thead>
+                          <tr>
+                            @if (iaPersonneResult().donnees[0]?.propriete || iaPersonneResult().donnees[0]?.domaine || iaPersonneResult().donnees[0]?.typePropriete) {
+                              <th>Propriété</th>
+                              <th>Type OWL</th>
+                              <th>Domaine (Source)</th>
+                              <th>Portée / Range (Cible)</th>
+                              <th>Description</th>
+                            } @else if (iaPersonneResult().donnees[0]?.typeAnnotation || iaPersonneResult().donnees[0]?.valeurAnnotation) {
+                              <th>Entité</th>
+                              <th>Type d'Annotation</th>
+                              <th colspan="3">Valeur / Commentaire</th>
+                            } @else {
+                              <th>Nom &amp; Prénom</th>
+                              <th>Rôle / Spécialité</th>
+                              @if (iaPersonneResult().donnees[0]?.age !== undefined) {
+                                <th>Âge</th>
+                              }
+                              <th>Email</th>
+                              <th>CIN</th>
+                              <th>Téléphone</th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (item of iaPersonneResult().donnees; track $index) {
+                            <tr>
+                              @if (item.propriete !== undefined || item.domaine !== undefined || item.typePropriete !== undefined) {
+                                <td class="col-name"><span class="name-text">{{ item.nom || item.propriete || '—' }}</span></td>
+                                <td><span class="badge" [class.badge-purple]="item.typePropriete === 'DatatypeProperty' || item.range === 'string' || item.range === 'integer' || item.range === 'boolean'" [class.badge-cyan]="item.typePropriete !== 'DatatypeProperty'">{{ item.typePropriete || (item.range === 'string' || item.range === 'integer' || item.range === 'boolean' || item.range === 'date' ? 'DatatypeProperty' : 'ObjectProperty') }}</span></td>
+                                <td class="col-text">{{ item.domaine || 'Thing' }}</td>
+                                <td class="col-text"><span class="badge badge-amber">{{ item.range || 'Thing' }}</span></td>
+                                <td class="col-text">{{ item.description || item.label || '—' }}</td>
+                              } @else if (item.typeAnnotation !== undefined || item.valeurAnnotation !== undefined) {
+                                <td class="col-name"><span class="name-text">{{ item.nom || item.entite || '—' }}</span></td>
+                                <td><span class="badge badge-cyan">{{ item.typeAnnotation || 'rdfs:comment' }}</span></td>
+                                <td class="col-text" colspan="3">{{ item.valeurAnnotation || item.valeur || '—' }}</td>
+                              } @else {
+                                <td class="col-name"><span class="name-text">{{ item.nom || item.nomDisplay || item.nomClean || '—' }}</span></td>
+                                <td>
+                                  <span class="badge badge-cyan">{{ item.specialite || item.role || item.type || 'Personne' }}</span>
+                                  @if (item.numeroOrdre) { <span class="id-tag" style="margin-left:6px;">{{ item.numeroOrdre }}</span> }
+                                  @if (item.numeroDossier) { <span class="id-tag" style="margin-left:6px;">{{ item.numeroDossier }}</span> }
+                                </td>
+                                @if (iaPersonneResult().donnees[0]?.age !== undefined) {
+                                  <td class="col-text"><span class="badge badge-amber">{{ item.age ? item.age + ' ans' : '—' }}</span></td>
+                                }
+                                <td class="col-text">{{ item.email || '—' }}</td>
+                                <td class="col-text">{{ item.cin || '—' }}</td>
+                                <td class="col-text">{{ item.telephone || item.tel || '—' }}</td>
+                              }
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                }
+              </div>
+            } @else {
+              <div class="state-box empty ia-empty-state">
+                <span class="ia-empty-icon">👥</span>
+                <p class="ia-empty-title">Interrogez l'ontologie des Personnes</p>
+                <p class="ia-empty-hint">Médecins, patients, stagiaires, spécialités, âges, groupes sanguins…</p>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TAB: IA — MALADIES                                           -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'ia-maladies') {
+      <section class="tab-content ia-view">
+        <div class="ia-module-header">
+          <div class="ia-module-badge ia-badge-rose">🧬 IA</div>
+          <div>
+            <h2 class="ia-module-title">Assistant IA — Maladies &amp; Pathologies</h2>
+            <p class="ia-module-desc">Explorez les maladies, symptômes, agents pathogènes, traitements, gravités et patients affectés.</p>
+          </div>
+        </div>
+
+        <div class="ia-layout">
+          <!-- Input Panel -->
+          <div class="ia-panel glass-panel">
+            <textarea class="input-glass ia-textarea" rows="3"
+              placeholder="Ex : Quels sont les symptômes du diabète ? / Maladies contagieuses..."
+              [(ngModel)]="iaMaladieQuestion"
+              (keydown.enter)="$event.preventDefault(); onAskMaladies()">
+            </textarea>
+            <button type="button" class="btn-primary-rose ask-btn"
+              (click)="onAskMaladies()"
+              [disabled]="iaMaladieLoading() || !iaMaladieQuestion.trim()">
+              @if (iaMaladieLoading()) { <span class="spinner-dot-sm"></span><span>Analyse...</span> }
+              @else { <span>🧬 Interroger l'Ontologie</span> }
+            </button>
+
+            <div class="suggestions-box">
+              <span class="sugg-title">Suggestions Maladies</span>
+              <div class="sugg-pills">
+                @for (prompt of iaMaladiePrompts; track prompt) {
+                  <button type="button" class="sugg-pill sugg-pill-rose" (click)="onAskMaladies(prompt)">{{ prompt }}</button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Panel -->
+          <div class="ia-results-panel glass-panel">
+            @if (iaMaladieLoading()) {
+              <div class="state-box"><span class="spinner-dot spinner-rose"></span><p>Interrogation de l'ontologie des maladies...</p></div>
+            } @else if (iaMaladieError()) {
+              <div class="alert alert-error"><span>⚠️</span><span>{{ iaMaladieError() }}</span></div>
+            } @else if (iaMaladieResult()) {
+              <div class="result-details">
+                <div class="response-header">
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <span class="badge badge-emerald">✓ Réponse IA</span>
+                    <span class="badge badge-rose">Module Maladies</span>
+                  </div>
+                  <span class="res-count">{{ iaMaladieResult().count || 0 }} résultat(s)</span>
+                </div>
+                <div class="ia-human-response">{{ iaMaladieResult().reponse }}</div>
+                @if (iaMaladieResult().sparql) {
+                  <div class="sparql-preview-box">
+                    <div class="sparql-code-bar"><span class="sparql-code-tag">SPARQL Généré</span></div>
+                    <pre class="sparql-code sparql-code-rose"><code>{{ iaMaladieResult().sparql }}</code></pre>
+                  </div>
+                }
+                @if (iaMaladieResult().donnees?.length > 0) {
+                  <div class="ia-data-table-wrap">
+                    <h4>Résultats extraits de l'ontologie :</h4>
+                    <table class="onto-table">
+                      <thead>
+                        <tr>
+                          @if (iaMaladieResult().donnees[0]?.maladie || iaMaladieResult().donnees[0]?.nom) {
+                            <th>Maladie / Entité</th>
+                            <th>Symptôme / Type</th>
+                            <th>Code CIM</th>
+                            <th>Gravité</th>
+                            <th>Contagieuse</th>
+                          } @else if (iaMaladieResult().donnees[0]?.symptome) {
+                            <th>Symptôme</th><th>Nom</th>
+                          } @else if (iaMaladieResult().donnees[0]?.medicament) {
+                            <th>Médicament</th><th>Maladie traitée</th>
+                          } @else {
+                            <th>Entité</th><th>Valeur</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of iaMaladieResult().donnees; track $index) {
+                          <tr>
+                            @if (item.maladie !== undefined || item.nom !== undefined) {
+                              <td class="col-name"><span class="name-text">{{ item.nom || item.maladie || '—' }}</span></td>
+                              <td><span class="badge badge-rose">{{ item.symptome || item.type || item.description || 'Maladie' }}</span></td>
+                              <td class="col-text">{{ item.codeCIM || '—' }}</td>
+                              <td class="col-text">{{ item.gravite || '—' }}</td>
+                              <td class="col-text">
+                                @if (item.contagieuse === 'true') { <span class="badge badge-amber">⚠ Oui</span> }
+                                @else if (item.contagieuse === 'false') { <span class="badge badge-dim">Non</span> }
+                                @else { <span>—</span> }
+                              </td>
+                            } @else if (item.symptome !== undefined) {
+                              <td class="col-name"><span class="name-text">{{ item.symptome }}</span></td>
+                              <td class="col-text">{{ item.nom || '—' }}</td>
+                            } @else if (item.medicament !== undefined) {
+                              <td class="col-name"><span class="name-text">{{ item.medicament }}</span></td>
+                              <td class="col-text">{{ item.maladie || item.nomMaladie || '—' }}</td>
+                            } @else {
+                              @for (kv of item | keyvalue; track kv.key) {
+                                <td class="col-text">{{ kv.value }}</td>
+                              }
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="state-box empty ia-empty-state">
+                <span class="ia-empty-icon">🧬</span>
+                <p class="ia-empty-title">Interrogez l'ontologie des Maladies</p>
+                <p class="ia-empty-hint">Symptômes, traitements, agents pathogènes, codes CIM-10…</p>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TAB: IA — MÉDICAMENTS                                        -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'ia-medicaments') {
+      <section class="tab-content ia-view">
+        <div class="ia-module-header">
+          <div class="ia-module-badge ia-badge-purple">💊 IA</div>
+          <div>
+            <h2 class="ia-module-title">Assistant IA — Médicaments &amp; Pharmacologie</h2>
+            <p class="ia-module-desc">Explorez les médicaments, molécules actives, dosages, formes pharmaceutiques et codes ATC.</p>
+          </div>
+        </div>
+
+        <div class="ia-layout">
+          <!-- Input Panel -->
+          <div class="ia-panel glass-panel">
+            <textarea class="input-glass ia-textarea" rows="3"
+              placeholder="Ex : Quels sont les antibiotiques ? / Dosage du paracétamol..."
+              [(ngModel)]="iaMedicamentQuestion"
+              (keydown.enter)="$event.preventDefault(); onAskMedicaments()">
+            </textarea>
+            <button type="button" class="btn-primary-purple ask-btn"
+              (click)="onAskMedicaments()"
+              [disabled]="iaMedicamentLoading() || !iaMedicamentQuestion.trim()">
+              @if (iaMedicamentLoading()) { <span class="spinner-dot-sm"></span><span>Analyse...</span> }
+              @else { <span>💊 Interroger l'Ontologie</span> }
+            </button>
+
+            <div class="suggestions-box">
+              <span class="sugg-title">Suggestions Médicaments</span>
+              <div class="sugg-pills">
+                @for (prompt of iaMedicamentPrompts; track prompt) {
+                  <button type="button" class="sugg-pill sugg-pill-purple" (click)="onAskMedicaments(prompt)">{{ prompt }}</button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Panel -->
+          <div class="ia-results-panel glass-panel">
+            @if (iaMedicamentLoading()) {
+              <div class="state-box"><span class="spinner-dot spinner-purple"></span><p>Interrogation de l'ontologie des médicaments...</p></div>
+            } @else if (iaMedicamentError()) {
+              <div class="alert alert-error"><span>⚠️</span><span>{{ iaMedicamentError() }}</span></div>
+            } @else if (iaMedicamentResult()) {
+              <div class="result-details">
+                <div class="response-header">
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <span class="badge badge-emerald">✓ Réponse IA</span>
+                    <span class="badge badge-purple">Module Médicaments</span>
+                  </div>
+                  <span class="res-count">{{ iaMedicamentResult().count || 0 }} résultat(s)</span>
+                </div>
+                <div class="ia-human-response">{{ iaMedicamentResult().reponse }}</div>
+                @if (iaMedicamentResult().sparql) {
+                  <div class="sparql-preview-box">
+                    <div class="sparql-code-bar"><span class="sparql-code-tag">SPARQL Généré</span></div>
+                    <pre class="sparql-code sparql-code-purple"><code>{{ iaMedicamentResult().sparql }}</code></pre>
+                  </div>
+                }
+                @if (iaMedicamentResult().donnees?.length > 0) {
+                  <div class="ia-data-table-wrap">
+                    <h4>Résultats extraits de l'ontologie :</h4>
+                    <table class="onto-table">
+                      <thead>
+                        <tr>
+                          <th>Médicament</th>
+                          <th>Molécule Active</th>
+                          <th>Forme</th>
+                          <th>Dosage</th>
+                          <th>Code ATC</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of iaMedicamentResult().donnees; track $index) {
+                          <tr>
+                            <td class="col-name"><span class="name-text">{{ item.medicament || item.nom || item.antibiotique || item.antalgique || '—' }}</span></td>
+                            <td><span class="badge badge-purple">{{ item.molecule || item['molécule'] || item.principe || '—' }}</span></td>
+                            <td class="col-text">{{ item.forme || '—' }}</td>
+                            <td class="col-text">{{ item.dosage || '—' }}</td>
+                            <td class="col-text"><span class="id-tag">{{ item.codeATC || item.code || '—' }}</span></td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="state-box empty ia-empty-state">
+                <span class="ia-empty-icon">💊</span>
+                <p class="ia-empty-title">Interrogez l'ontologie des Médicaments</p>
+                <p class="ia-empty-hint">Molécules, dosages, formes pharmaceutiques, codes ATC…</p>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TAB: CATALOGUE (Maladies + Médicaments)                      -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'maladies') {
+      <section class="tab-content catalog-view">
+        <div class="catalog-grid">
+          <!-- Maladies -->
+          <div class="glass-panel catalog-card">
+            <div class="catalog-head">
+              <span class="panel-icon">🦠</span>
+              <div>
+                <h2>Ontologie des Maladies</h2>
+                <span class="badge badge-rose">{{ maladies().length }} Entités</span>
+              </div>
+            </div>
+            <div class="catalog-list">
+              @for (m of maladies(); track m.id || $index) {
+                <div class="catalog-item">
+                  <div class="item-name">{{ m.nom || m.label || m.id }}</div>
+                  <div class="item-meta">{{ m.description || m.type || 'Entité ontologique' }}</div>
+                </div>
+              } @empty {
+                <p class="empty-msg">Aucune maladie chargée.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Medicaments -->
+          <div class="glass-panel catalog-card">
+            <div class="catalog-head">
+              <span class="panel-icon">💊</span>
+              <div>
+                <h2>Ontologie des Médicaments</h2>
+                <span class="badge badge-cyan">{{ medicaments().length }} Entités</span>
+              </div>
+            </div>
+            <div class="catalog-list">
+              @for (med of medicaments(); track med.id || $index) {
+                <div class="catalog-item">
+                  <div class="item-name">{{ med.nom || med.label || med.id }}</div>
+                  <div class="item-meta">{{ med.forme || med.dosage || med.type || 'Produit pharmaceutique' }}</div>
+                </div>
+              } @empty {
+                <p class="empty-msg">Aucun médicament chargé.</p>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TAB: CONSOLE SPARQL                                          -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'sparql') {
+      <section class="tab-content">
+        <div class="sparql-console glass-panel">
+          <div class="console-header">
+            <div>
+              <h2>Console SPARQL Endpoint</h2>
+              <p class="panel-sub">Exécutez vos requêtes SPARQL directement sur le graphe RDFLib.</p>
+            </div>
+            <button type="button" class="btn-primary" (click)="onExecuteSparql()" [disabled]="sparqlLoading()">
+              <span>▶ Exécuter</span>
+            </button>
+          </div>
+
+          <textarea class="sparql-editor" rows="10" [(ngModel)]="sparqlQuery" placeholder="Entrez votre requête SPARQL..."></textarea>
+
+          @if (sparqlLoading()) {
+            <div class="state-box"><span class="spinner-dot"></span><p>Exécution SPARQL...</p></div>
+          } @else if (sparqlError()) {
+            <div class="alert alert-error"><span>⚠️</span><span>{{ sparqlError() }}</span></div>
+          } @else if (sparqlResult()) {
+            <div class="sparql-res-wrap">
+              <h4>Résultats :</h4>
+              <pre class="json-code"><code>{{ sparqlResult() | json }}</code></pre>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TAB: MON PROFIL OWL                                          -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'profil') {
+      <section class="tab-content profile-view">
+        <div class="profile-card glass-panel">
+          <div class="profile-top">
+            <div class="profile-avatar-large">
+              {{ (currentUser()?.prenom ? currentUser()?.prenom![0] : 'U').toUpperCase() }}
+            </div>
+            <div class="profile-title-block">
+              <h2>{{ currentUser()?.prenom }} {{ currentUser()?.nom }}</h2>
+              <span class="badge badge-cyan">{{ currentUser()?.role }}</span>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <div class="prop-item">
+              <span class="prop-label">Identifiant Ontologique</span>
+              <span class="prop-val mono">{{ currentUser()?.id }}</span>
+            </div>
+            <div class="prop-item">
+              <span class="prop-label">URI Sémantique (Protégé OWL)</span>
+              <span class="prop-val mono">{{ currentUser()?.uri || 'http://example.org/ontologie-medicale#' + currentUser()?.id }}</span>
+            </div>
+            <div class="prop-item">
+              <span class="prop-label">Adresse Email</span>
+              <span class="prop-val">{{ currentUser()?.email }}</span>
+            </div>
+            <div class="prop-item">
+              <span class="prop-label">Rôle / Classe RDF</span>
+              <span class="prop-val">{{ currentUser()?.role }}</span>
+            </div>
+            <div class="prop-item">
+              <span class="prop-label">Sécurité Mot de Passe</span>
+              <span class="prop-val badge badge-emerald">✓ Hashé avec bcrypt (Stocké dans OWL)</span>
+            </div>
+            <div class="prop-item">
+              <span class="prop-label">Statut Session</span>
+              <span class="prop-val badge badge-purple">Actif (Bearer Token)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+  </main>
+</div>

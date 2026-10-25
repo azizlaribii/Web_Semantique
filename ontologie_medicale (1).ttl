@@ -11,6 +11,22 @@
                                          rdfs:label "Ontologie médicale : médecin, patient, ordonnance"@fr .
 
 #################################################################
+#    Annotation properties
+#################################################################
+
+###  http://example.org/ontologie-medicale#estPrisEnChargePar
+:estPrisEnChargePar rdf:type owl:AnnotationProperty .
+
+
+###  http://example.org/ontologie-medicale#motDePasse
+:motDePasse rdf:type owl:AnnotationProperty .
+
+
+###  http://example.org/ontologie-medicale#telephone
+:telephone rdf:type owl:AnnotationProperty .
+
+
+#################################################################
 #    Datatypes
 #################################################################
 
@@ -22,50 +38,28 @@ xsd:date rdf:type rdfs:Datatype .
 #    Object Properties
 #################################################################
 
-###  http://example.org/ontologie-medicale#a_lieu_dans
-:a_lieu_dans rdf:type owl:ObjectProperty ;
-             rdfs:domain :Consultation ;
-             rdfs:range :Dossier_patient .
-
-
-###  http://example.org/ontologie-medicale#soigne
-###  (Inverse de estSoignePar — ajouté pour la classe Personne)
-:soigne rdf:type owl:ObjectProperty ;
-        owl:inverseOf :estSoignePar ;
-        rdfs:domain :Medecin ;
-        rdfs:range :Patient ;
-        rdfs:label "soigne"@fr ;
-        rdfs:comment "Un médecin soigne un patient. Inverse : estSoignePar."@fr .
-
-
-###  http://example.org/ontologie-medicale#estSoignePar
-:estSoignePar rdf:type owl:ObjectProperty ;
-              owl:inverseOf :soigne ;
-              rdfs:domain :Patient ;
-              rdfs:range :Medecin ;
-              rdfs:label "est soigné par"@fr ;
-              rdfs:comment "Un patient est soigné par un médecin. Inverse : soigne."@fr .
-
-
-###  http://example.org/ontologie-medicale#connait
-###  (Propriété SYMÉTRIQUE — Personne connaît Personne)
-:connait rdf:type owl:ObjectProperty ,
-                  owl:SymmetricProperty ;
-         rdfs:domain :Personne ;
-         rdfs:range :Personne ;
-         rdfs:label "connaît"@fr ;
-         rdfs:comment "Relation symétrique : si A connaît B, alors B connaît A."@fr .
-
-
 ###  http://example.org/ontologie-medicale#aConsulte
-###  (Propriété TRANSITIVE — Personne a consulté Personne)
 :aConsulte rdf:type owl:ObjectProperty ,
                     owl:TransitiveProperty ;
            rdfs:domain :Personne ;
            rdfs:range :Personne ;
-           rdfs:label "a consulté"@fr ;
-           rdfs:comment "Relation transitive : A a consulté B qui a consulté C → A a consulté C."@fr .
+           rdfs:comment "Relation transitive : A a consulté B qui a consulté C → A a consulté C."@fr ;
+           rdfs:label "a consulté"@fr .
 
+
+###  http://example.org/ontologie-medicale#aPourSymptome
+:aPourSymptome rdf:type owl:ObjectProperty ;
+               owl:inverseOf :estSymptomeDe ;
+               rdfs:domain :Maladie ;
+               rdfs:range :Symptome ;
+               rdfs:comment "Une maladie se manifeste par un ou plusieurs symptômes."@fr ;
+               rdfs:label "a pour symptôme"@fr .
+
+
+###  http://example.org/ontologie-medicale#a_lieu_dans
+:a_lieu_dans rdf:type owl:ObjectProperty ;
+             rdfs:domain :Consultation ;
+             rdfs:range :Dossier_patient .
 
 
 ###  http://example.org/ontologie-medicale#appartient_à
@@ -78,6 +72,24 @@ xsd:date rdf:type rdfs:Datatype .
 :concerne rdf:type owl:ObjectProperty ;
           rdfs:domain :Consultation ;
           rdfs:range :Maladie .
+
+
+###  http://example.org/ontologie-medicale#concerneMaladie
+:concerneMaladie rdf:type owl:ObjectProperty ;
+                 owl:inverseOf :estPrescritePour ;
+                 rdfs:domain :Maladie ;
+                 rdfs:range :Ordonnance ;
+                 rdfs:comment "Une maladie est concernée par une ordonnance. Inverse : estPrescritePour."@fr ;
+                 rdfs:label "concerne maladie"@fr .
+
+
+###  http://example.org/ontologie-medicale#connait
+:connait rdf:type owl:ObjectProperty ,
+                  owl:SymmetricProperty ;
+         rdfs:domain :Personne ;
+         rdfs:range :Personne ;
+         rdfs:comment "Relation symétrique : si A connaît B, alors B connaît A."@fr ;
+         rdfs:label "connaît"@fr .
 
 
 ###  http://example.org/ontologie-medicale#contient
@@ -122,11 +134,54 @@ xsd:date rdf:type rdfs:Datatype .
               rdfs:label "est destinée à"@fr .
 
 
+###  http://example.org/ontologie-medicale#estNecessairePour
+:estNecessairePour rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :necessite ;
+                   rdfs:domain :Opération ;
+                   rdfs:range :Maladie ;
+                   rdfs:comment "Une opération est nécessaire pour traiter une maladie. Inverse : necessite."@fr ;
+                   rdfs:label "est nécessaire pour"@fr .
+
+
+###  http://example.org/ontologie-medicale#estPrescritePour
+:estPrescritePour rdf:type owl:ObjectProperty ;
+                  rdfs:domain :Ordonnance ;
+                  rdfs:range :Maladie ;
+                  rdfs:comment "Une ordonnance est prescrite pour une maladie donnée."@fr ;
+                  rdfs:label "est prescrite pour"@fr .
+
+
 ###  http://example.org/ontologie-medicale#estRealiseePar
 :estRealiseePar rdf:type owl:ObjectProperty ;
                 owl:inverseOf :realise ;
                 rdfs:range :Medecin ;
                 rdfs:label "est réalisée par"@fr .
+
+
+###  http://example.org/ontologie-medicale#estSoignePar
+:estSoignePar rdf:type owl:ObjectProperty ;
+              owl:inverseOf :soigne ;
+              rdfs:domain :Patient ;
+              rdfs:range :Medecin ;
+              rdfs:comment "Un patient est soigné par un médecin. Inverse : soigne."@fr ;
+              rdfs:label "est soigné par"@fr .
+
+
+###  http://example.org/ontologie-medicale#estSymptomeDe
+:estSymptomeDe rdf:type owl:ObjectProperty ;
+               rdfs:domain :Symptome ;
+               rdfs:range :Maladie ;
+               rdfs:comment "Un symptôme est associé à une maladie. Inverse : aPourSymptome."@fr ;
+               rdfs:label "est symptôme de"@fr .
+
+
+###  http://example.org/ontologie-medicale#estTraiteePar
+:estTraiteePar rdf:type owl:ObjectProperty ;
+               owl:inverseOf :traite ;
+               rdfs:domain :Maladie ;
+               rdfs:range :Medicament ;
+               rdfs:comment "Une maladie est traitée par un médicament."@fr ;
+               rdfs:label "est traitée par"@fr .
 
 
 ###  http://example.org/ontologie-medicale#est_destinée_à
@@ -151,6 +206,30 @@ xsd:date rdf:type rdfs:Datatype .
 :joueLeRôleDe rdf:type owl:ObjectProperty ;
               rdfs:domain :Personne ;
               rdfs:range :Role .
+
+
+###  http://example.org/ontologie-medicale#necessite
+:necessite rdf:type owl:ObjectProperty ;
+           rdfs:domain :Maladie ;
+           rdfs:range :Opération ;
+           rdfs:comment "Une maladie nécessite une opération chirurgicale."@fr ;
+           rdfs:label "nécessite"@fr .
+
+
+###  http://example.org/ontologie-medicale#necessiteSuiviPar
+:necessiteSuiviPar rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :suit ;
+                   rdfs:domain :MaladieChronique ;
+                   rdfs:range :Medecin ;
+                   rdfs:comment "Une maladie chronique nécessite un suivi par un médecin."@fr ;
+                   rdfs:label "nécessite suivi par"@fr .
+
+
+###  http://example.org/ontologie-medicale#numeroCIN
+:numeroCIN rdf:type owl:ObjectProperty ,
+                    owl:FunctionalProperty ,
+                    owl:InverseFunctionalProperty ;
+           rdfs:domain :Personne .
 
 
 ###  http://example.org/ontologie-medicale#participeA
@@ -205,55 +284,12 @@ xsd:date rdf:type rdfs:Datatype .
                  rdfs:domain :Opération .
 
 
-###  http://example.org/ontologie-medicale#subit
-:subit rdf:type owl:ObjectProperty ;
-       rdfs:domain :Patient ;
-       rdfs:range :Opération .
-
-
-###  http://example.org/ontologie-medicale#aPourSymptome
-:aPourSymptome rdf:type owl:ObjectProperty ;
-               owl:inverseOf :estSymptomeDe ;
-               rdfs:domain :Maladie ;
-               rdfs:range :Symptome ;
-               rdfs:label "a pour symptôme"@fr ;
-               rdfs:comment "Une maladie se manifeste par un ou plusieurs symptômes."@fr .
-
-
-###  http://example.org/ontologie-medicale#estSymptomeDe
-:estSymptomeDe rdf:type owl:ObjectProperty ;
-               owl:inverseOf :aPourSymptome ;
-               rdfs:domain :Symptome ;
-               rdfs:range :Maladie ;
-               rdfs:label "est symptôme de"@fr ;
-               rdfs:comment "Un symptôme est associé à une maladie. Inverse : aPourSymptome."@fr .
-
-
-###  http://example.org/ontologie-medicale#estTraiteePar
-:estTraiteePar rdf:type owl:ObjectProperty ;
-               owl:inverseOf :traite ;
-               rdfs:domain :Maladie ;
-               rdfs:range :Medicament ;
-               rdfs:label "est traitée par"@fr ;
-               rdfs:comment "Une maladie est traitée par un médicament."@fr .
-
-
-###  http://example.org/ontologie-medicale#traite
-:traite rdf:type owl:ObjectProperty ;
-        owl:inverseOf :estTraiteePar ;
-        rdfs:domain :Medicament ;
-        rdfs:range :Maladie ;
-        rdfs:label "traite"@fr ;
-        rdfs:comment "Un médicament traite une maladie. Inverse : estTraiteePar."@fr .
-
-
-###  http://example.org/ontologie-medicale#touche
-:touche rdf:type owl:ObjectProperty ;
-        owl:inverseOf :souffreDe ;
-        rdfs:domain :Maladie ;
+###  http://example.org/ontologie-medicale#soigne
+:soigne rdf:type owl:ObjectProperty ;
+        rdfs:domain :Medecin ;
         rdfs:range :Patient ;
-        rdfs:label "touche"@fr ;
-        rdfs:comment "Une maladie touche un patient."@fr .
+        rdfs:comment "Un médecin soigne un patient. Inverse : estSoignePar."@fr ;
+        rdfs:label "soigne"@fr .
 
 
 ###  http://example.org/ontologie-medicale#souffreDe
@@ -261,101 +297,43 @@ xsd:date rdf:type rdfs:Datatype .
            owl:inverseOf :touche ;
            rdfs:domain :Patient ;
            rdfs:range :Maladie ;
-           rdfs:label "souffre de"@fr ;
-           rdfs:comment "Un patient souffre d'une maladie. Inverse : touche."@fr .
+           rdfs:comment "Un patient souffre d'une maladie. Inverse : touche."@fr ;
+           rdfs:label "souffre de"@fr .
 
 
-###  http://example.org/ontologie-medicale#necessite
-:necessite rdf:type owl:ObjectProperty ;
-           owl:inverseOf :estNecessairePour ;
-           rdfs:domain :Maladie ;
-           rdfs:range :Opération ;
-           rdfs:label "nécessite"@fr ;
-           rdfs:comment "Une maladie nécessite une opération chirurgicale."@fr .
-
-
-###  http://example.org/ontologie-medicale#estNecessairePour
-:estNecessairePour rdf:type owl:ObjectProperty ;
-                   owl:inverseOf :necessite ;
-                   rdfs:domain :Opération ;
-                   rdfs:range :Maladie ;
-                   rdfs:label "est nécessaire pour"@fr ;
-                   rdfs:comment "Une opération est nécessaire pour traiter une maladie. Inverse : necessite."@fr .
-
-
-###  http://example.org/ontologie-medicale#estPrescritePour
-:estPrescritePour rdf:type owl:ObjectProperty ;
-                  owl:inverseOf :concerneMaladie ;
-                  rdfs:domain :Ordonnance ;
-                  rdfs:range :Maladie ;
-                  rdfs:label "est prescrite pour"@fr ;
-                  rdfs:comment "Une ordonnance est prescrite pour une maladie donnée."@fr .
-
-
-###  http://example.org/ontologie-medicale#concerneMaladie
-:concerneMaladie rdf:type owl:ObjectProperty ;
-                 owl:inverseOf :estPrescritePour ;
-                 rdfs:domain :Maladie ;
-                 rdfs:range :Ordonnance ;
-                 rdfs:label "concerne maladie"@fr ;
-                 rdfs:comment "Une maladie est concernée par une ordonnance. Inverse : estPrescritePour."@fr .
-
-
-###  http://example.org/ontologie-medicale#necessiteSuiviPar
-:necessiteSuiviPar rdf:type owl:ObjectProperty ;
-                   owl:inverseOf :suit ;
-                   rdfs:domain :MaladieChronique ;
-                   rdfs:range :Medecin ;
-                   rdfs:label "nécessite suivi par"@fr ;
-                   rdfs:comment "Une maladie chronique nécessite un suivi par un médecin."@fr .
+###  http://example.org/ontologie-medicale#subit
+:subit rdf:type owl:ObjectProperty ;
+       rdfs:domain :Patient ;
+       rdfs:range :Opération .
 
 
 ###  http://example.org/ontologie-medicale#suit
 :suit rdf:type owl:ObjectProperty ;
-      owl:inverseOf :necessiteSuiviPar ;
       rdfs:domain :Medecin ;
       rdfs:range :MaladieChronique ;
-      rdfs:label "suit"@fr ;
-      rdfs:comment "Un médecin suit l'évolution d'une maladie chronique. Inverse : necessiteSuiviPar."@fr .
+      rdfs:comment "Un médecin suit l'évolution d'une maladie chronique. Inverse : necessiteSuiviPar."@fr ;
+      rdfs:label "suit"@fr .
 
+
+###  http://example.org/ontologie-medicale#touche
+:touche rdf:type owl:ObjectProperty ;
+        rdfs:domain :Maladie ;
+        rdfs:range :Patient ;
+        rdfs:comment "Une maladie touche un patient."@fr ;
+        rdfs:label "touche"@fr .
+
+
+###  http://example.org/ontologie-medicale#traite
+:traite rdf:type owl:ObjectProperty ;
+        rdfs:domain :Medicament ;
+        rdfs:range :Maladie ;
+        rdfs:comment "Un médicament traite une maladie. Inverse : estTraiteePar."@fr ;
+        rdfs:label "traite"@fr .
 
 
 #################################################################
 #    Data properties
 #################################################################
-
-###  http://example.org/ontologie-medicale#age
-:age rdf:type owl:DatatypeProperty ,
-              owl:FunctionalProperty ;
-     rdfs:domain :Personne ;
-     rdfs:range xsd:integer ;
-     rdfs:label "âge"@fr ;
-     rdfs:comment "Âge de la personne (entier, fonctionnel)."@fr .
-
-
-###  http://example.org/ontologie-medicale#prenom
-:prenom rdf:type owl:DatatypeProperty ,
-                 owl:FunctionalProperty ;
-        rdfs:domain :Personne ;
-        rdfs:range xsd:string ;
-        rdfs:label "prénom"@fr .
-
-
-###  http://example.org/ontologie-medicale#dateNaissance
-:dateNaissance rdf:type owl:DatatypeProperty ,
-                        owl:FunctionalProperty ;
-               rdfs:domain :Personne ;
-               rdfs:range xsd:date ;
-               rdfs:label "date de naissance"@fr .
-
-
-###  http://example.org/ontologie-medicale#email
-:email rdf:type owl:DatatypeProperty ,
-                owl:FunctionalProperty ;
-       rdfs:domain :Personne ;
-       rdfs:range xsd:string ;
-       rdfs:label "e-mail"@fr .
-
 
 ###  http://example.org/ontologie-medicale#adresse
 :adresse rdf:type owl:DatatypeProperty ;
@@ -364,38 +342,13 @@ xsd:date rdf:type rdfs:Datatype .
          rdfs:label "adresse"@fr .
 
 
-###  http://example.org/ontologie-medicale#numeroCIN
-:numeroCIN rdf:type owl:DatatypeProperty ,
-                    owl:FunctionalProperty ,
-                    owl:InverseFunctionalProperty ;
-           rdfs:domain :Personne ;
-           rdfs:range xsd:string ;
-           rdfs:label "numéro CIN"@fr ;
-           rdfs:comment "Identifiant unique de la personne (Fonctionnel + InverseFonctionnel)."@fr .
-
-
-###  http://example.org/ontologie-medicale#numeroOrdre
-:numeroOrdre rdf:type owl:DatatypeProperty ,
-                      owl:FunctionalProperty ;
-             rdfs:domain :Medecin ;
-             rdfs:range xsd:string ;
-             rdfs:label "numéro d'ordre"@fr ;
-             rdfs:comment "Numéro d'ordre professionnel du médecin."@fr .
-
-
-###  http://example.org/ontologie-medicale#groupeSanguin
-:groupeSanguin rdf:type owl:DatatypeProperty ;
-               rdfs:domain :Patient ;
-               rdfs:range xsd:string ;
-               rdfs:label "groupe sanguin"@fr .
-
-
-###  http://example.org/ontologie-medicale#numeroDossier
-:numeroDossier rdf:type owl:DatatypeProperty ,
-                        owl:FunctionalProperty ;
-               rdfs:domain :Patient ;
-               rdfs:range xsd:string ;
-               rdfs:label "numéro de dossier"@fr .
+###  http://example.org/ontologie-medicale#age
+:age rdf:type owl:DatatypeProperty ,
+              owl:FunctionalProperty ;
+     rdfs:domain :Personne ;
+     rdfs:range xsd:integer ;
+     rdfs:comment "Âge de la personne (entier, fonctionnel)."@fr ;
+     rdfs:label "âge"@fr .
 
 
 ###  http://example.org/ontologie-medicale#capacité
@@ -408,6 +361,14 @@ xsd:date rdf:type rdfs:Datatype .
 :dateConsultation rdf:type owl:DatatypeProperty ;
                   rdfs:range xsd:date ;
                   rdfs:label "date de la consultation"@fr .
+
+
+###  http://example.org/ontologie-medicale#dateNaissance
+:dateNaissance rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :Personne ;
+               rdfs:range xsd:date ;
+               rdfs:label "date de naissance"@fr .
 
 
 ###  http://example.org/ontologie-medicale#dateOrdonnance
@@ -429,10 +390,25 @@ xsd:date rdf:type rdfs:Datatype .
                    rdfs:range xsd:integer .
 
 
+###  http://example.org/ontologie-medicale#email
+:email rdf:type owl:DatatypeProperty ,
+                owl:FunctionalProperty ;
+       rdfs:domain :Personne ;
+       rdfs:range xsd:string ;
+       rdfs:label "e-mail"@fr .
+
+
 ###  http://example.org/ontologie-medicale#est_urgent
 :est_urgent rdf:type owl:DatatypeProperty ;
             rdfs:domain :Opération ;
             rdfs:range xsd:boolean .
+
+
+###  http://example.org/ontologie-medicale#groupeSanguin
+:groupeSanguin rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Patient ;
+               rdfs:range xsd:string ;
+               rdfs:label "groupe sanguin"@fr .
 
 
 ###  http://example.org/ontologie-medicale#nom
@@ -448,6 +424,29 @@ xsd:date rdf:type rdfs:Datatype .
                 rdfs:range xsd:string .
 
 
+###  http://example.org/ontologie-medicale#numeroCIN
+:numeroCIN rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           rdfs:range xsd:string .
+
+
+###  http://example.org/ontologie-medicale#numeroDossier
+:numeroDossier rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :Patient ;
+               rdfs:range xsd:string ;
+               rdfs:label "numéro de dossier"@fr .
+
+
+###  http://example.org/ontologie-medicale#numeroOrdre
+:numeroOrdre rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+             rdfs:domain :Medecin ;
+             rdfs:range xsd:string ;
+             rdfs:comment "Numéro d'ordre professionnel du médecin."@fr ;
+             rdfs:label "numéro d'ordre"@fr .
+
+
 ###  http://example.org/ontologie-medicale#numéro_de_salle
 :numéro_de_salle rdf:type owl:DatatypeProperty ;
                  rdfs:domain :Dossier_patient ;
@@ -459,6 +458,14 @@ xsd:date rdf:type rdfs:Datatype .
            rdfs:domain :Medicament ;
            rdfs:range xsd:string ;
            rdfs:label "posologie"@fr .
+
+
+###  http://example.org/ontologie-medicale#prenom
+:prenom rdf:type owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+        rdfs:domain :Personne ;
+        rdfs:range xsd:string ;
+        rdfs:label "prénom"@fr .
 
 
 ###  http://example.org/ontologie-medicale#specialite
@@ -505,7 +512,6 @@ xsd:date rdf:type rdfs:Datatype .
 ###  http://example.org/ontologie-medicale#Agents_de_service_hospitalier
 :Agents_de_service_hospitalier rdf:type owl:Class ;
                                rdfs:subClassOf :Stuff_Médicale .
-
 
 
 ###  http://example.org/ontologie-medicale#Aide_soignant
@@ -736,9 +742,24 @@ xsd:date rdf:type rdfs:Datatype .
          rdfs:label "Médecin"@fr .
 
 
+###  http://example.org/ontologie-medicale#MedecinActif
+:MedecinActif rdf:type owl:Class ;
+              owl:equivalentClass [ owl:intersectionOf ( :Medecin
+                                                         [ rdf:type owl:Restriction ;
+                                                           owl:onProperty :realise ;
+                                                           owl:someValuesFrom :Consultation
+                                                         ]
+                                                       ) ;
+                                    rdf:type owl:Class
+                                  ] ;
+              rdfs:comment "Classe definie: Medecin qui realise au moins une Consultation."@fr ;
+              rdfs:label "Medecin actif"@fr .
+
+
 ###  http://example.org/ontologie-medicale#MedecinGeneraliste
 :MedecinGeneraliste rdf:type owl:Class ;
                     rdfs:subClassOf :Medecin ;
+                    owl:disjointWith :MedecinSpecialiste ;
                     rdfs:label "Médecin généraliste"@fr .
 
 
@@ -864,6 +885,7 @@ xsd:date rdf:type rdfs:Datatype .
 ###  http://example.org/ontologie-medicale#PatientAdulte
 :PatientAdulte rdf:type owl:Class ;
                rdfs:subClassOf :Patient ;
+               owl:disjointWith :PatientEnfant ;
                rdfs:label "Patient adulte"@fr .
 
 
@@ -873,6 +895,20 @@ xsd:date rdf:type rdfs:Datatype .
                rdfs:label "Patient enfant"@fr .
 
 
+###  http://example.org/ontologie-medicale#PatientEnregistre
+:PatientEnregistre rdf:type owl:Class ;
+                   owl:equivalentClass [ owl:intersectionOf ( :Patient
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty :numeroDossier ;
+                                                                owl:someValuesFrom xsd:string
+                                                              ]
+                                                            ) ;
+                                         rdf:type owl:Class
+                                       ] ;
+                   rdfs:comment "Classe definie: Patient qui possede un numero de dossier."@fr ;
+                   rdfs:label "Patient enregistre"@fr .
+
+
 ###  http://example.org/ontologie-medicale#Penicilline
 :Penicilline rdf:type owl:Class ;
              rdfs:subClassOf :Antibiotique ;
@@ -880,49 +916,9 @@ xsd:date rdf:type rdfs:Datatype .
 
 
 ###  http://example.org/ontologie-medicale#Personne
-#
-#  ── Classe Personne (enrichie) ──────────────────────────────────────
-#
-#  Object Properties dont le domaine est Personne (ou une sous-classe) :
-#    • joueLeRôleDe          Personne  → Role
-#    • estSoignePar           Patient  → Medecin         (inverse : soigne)
-#    • soigne                 Medecin  → Patient          (inverse : estSoignePar, ajouté ici)
-#    • presente               Patient  → Symptome
-#    • connait                Personne → Personne         (Symétrique)
-#    • aConsulte              Personne → Personne         (Transitive)
-#    • realise                Medecin  → Consultation
-#    • redige                 Medecin  → Ordonnance
-#    • diagnostique           Medecin  → Maladie
-#    • appartient_à           Medecin  → Service
-#    • est_pris_en_charge_par Patient  → Service
-#
-#  Data Properties dont le domaine est Personne (ou sous-classe) :
-#    • nom            xsd:string   (FunctionalProperty)
-#    • prenom         xsd:string   (FunctionalProperty)
-#    • age            xsd:integer  (FunctionalProperty)
-#    • dateNaissance  xsd:date     (FunctionalProperty)
-#    • telephone      xsd:string
-#    • email          xsd:string   (FunctionalProperty)
-#    • adresse        xsd:string
-#    • numeroCIN      xsd:string   (Functional + InverseFunctional)
-#    • specialite     xsd:string   (domain: MedecinSpecialiste)
-#    • numeroOrdre    xsd:string   (domain: Medecin, Functional)
-#    • groupeSanguin  xsd:string   (domain: Patient)
-#    • numeroDossier  xsd:string   (domain: Patient, Functional)
-#
-#  DisjointWith :
-#    Medecin ⊓ Patient = ⊥   (déjà déclaré sur Medecin, réaffirmé ici)
-#    Medecin ⊓ Patient ⊓ Stagiaire ⊓ Stuff_Médicale = ⊥
-#    MedecinGeneraliste ⊓ MedecinSpecialiste = ⊥
-#    PatientAdulte ⊓ PatientEnfant = ⊥
-#
-#  EquivalentTo :
-#    MedecinActif      ≡ Medecin ⊓ ∃ realise.Consultation
-#    PatientEnregistre ≡ Patient ⊓ ∃ numeroDossier.xsd:string
-#
 :Personne rdf:type owl:Class ;
-          rdfs:label   "Personne"@fr ;
-          rdfs:comment "Toute entité humaine présente dans le système médical (médecin, patient, stagiaire …)."@fr .
+          rdfs:comment "Toute entité humaine présente dans le système médical (médecin, patient, stagiaire …)."@fr ;
+          rdfs:label "Personne"@fr .
 
 
 ###  http://example.org/ontologie-medicale#Pneumologue
@@ -1075,85 +1071,42 @@ xsd:date rdf:type rdfs:Datatype .
               rdfs:subClassOf :Stuff_Médicale .
 
 
-
-#################################################################
-#    Disjoint Axioms  (owl:AllDisjointClasses)
-#    -- hierarchie Personne --
-#################################################################
-
-###  Medecin et Patient sont disjoints
-[] rdf:type owl:AllDisjointClasses ;
-   owl:members ( :Medecin :Patient ) .
-
-###  Tous les roles directs sous Role sont disjoints
-[] rdf:type owl:AllDisjointClasses ;
-   owl:members ( :Medecin :Patient :Stagiaire :Stuff_Médicale ) .
-
-###  Sous-classes de Medecin disjointes
-[] rdf:type owl:AllDisjointClasses ;
-   owl:members ( :MedecinGeneraliste :MedecinSpecialiste ) .
-
-###  Sous-classes de Patient disjointes
-[] rdf:type owl:AllDisjointClasses ;
-   owl:members ( :PatientAdulte :PatientEnfant ) .
-
-
-#################################################################
-#    Classes Equivalentes  (owl:equivalentClass)
-#    -- Defined Classes pour Personne --
-#################################################################
-
-###  MedecinActif  =  Medecin AND (realise SOME Consultation)
-:MedecinActif rdf:type owl:Class ;
-              owl:equivalentClass [
-                  rdf:type owl:Class ;
-                  owl:intersectionOf (
-                      :Medecin
-                      [ rdf:type owl:Restriction ;
-                        owl:onProperty :realise ;
-                        owl:someValuesFrom :Consultation ]
-                  )
-              ] ;
-              rdfs:label "Medecin actif"@fr ;
-              rdfs:comment "Classe definie: Medecin qui realise au moins une Consultation."@fr .
-
-
-###  PatientEnregistre  =  Patient AND (numeroDossier SOME xsd:string)
-:PatientEnregistre rdf:type owl:Class ;
-                   owl:equivalentClass [
-                       rdf:type owl:Class ;
-                       owl:intersectionOf (
-                           :Patient
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty :numeroDossier ;
-                             owl:someValuesFrom xsd:string ]
-                       )
-                   ] ;
-                   rdfs:label "Patient enregistre"@fr ;
-                   rdfs:comment "Classe definie: Patient qui possede un numero de dossier."@fr .
-
-
-###  AllDifferent sur les individus Personne
-[] rdf:type owl:AllDifferent ;
-   owl:distinctMembers ( :Dr_Ahmed :Dr_Karim :Dr_Fatima :Sami :Amina :Ali_Stagiaire ) .
-
 #################################################################
 #    Individuals
 #################################################################
+
+###  http://example.org/ontologie-medicale#Ali_Stagiaire
+:Ali_Stagiaire rdf:type owl:NamedIndividual ,
+                        :Stagiaire ;
+               :age 25 ;
+               :nom "Ali Ben Romdhane" ;
+               :numeroCIN "00567890" ;
+               :prenom "Ali" ;
+               :telephone "+216 55 000 111" ;
+               rdfs:comment "Stagiaire en medecine, individu de la classe Stagiaire (sous Personne)."@fr ;
+               rdfs:label "Ali Ben Romdhane (Stagiaire)"@fr .
+
 
 ###  http://example.org/ontologie-medicale#Amina
 :Amina rdf:type owl:NamedIndividual ,
                 :PatientEnfant ;
        :est_pris_en_charge_par :Service_Urgences ;
-       :estPrisEnChargePar :Service_Urgences ;
        :subit :Operation_2 ;
        :age 8 ;
+       :email "aminagharbi@gmail.com" ;
+       :groupeSanguin "O+" ;
        :nom "Amina Gharbi" ;
-       :prenom "Amina" ;
        :numeroCIN "00456789" ;
        :numeroDossier "PAT-002" ;
-       :groupeSanguin "O+" ;
+       :prenom "Amina" ;
+       :estPrisEnChargePar :Service_Urgences ;
+       :motDePasse "amina123" ;
        rdfs:label "Amina Gharbi (PatientEnfant)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Asma
+:Asma rdf:type owl:NamedIndividual ,
+               :Agents_de_service_hospitalier .
 
 
 ###  http://example.org/ontologie-medicale#Brufen
@@ -1183,40 +1136,91 @@ xsd:date rdf:type rdfs:Datatype .
 :Dr_Ahmed rdf:type owl:NamedIndividual ,
                    :MedecinGeneraliste ;
           :appartient_à :Service_Cardio ;
+          :connait :Dr_Karim ;
           :diagnostique :Grippe_Sami ;
           :realise :Consultation_1 ;
           :redige :Ordonnance_1 ;
           :rédige :Ordonnance_1 ;
           :soigne :Sami ;
-          :connait :Dr_Karim ;
-          :nom "Dr Ahmed Ben Salah" ;
-          :prenom "Ahmed" ;
-          :age 50 ;
-          :telephone "+216 71 000 001" ;
-          :email "ahmed.bensalah@hopital.tn" ;
           :adresse "3 Avenue Habib Bourguiba, Tunis" ;
+          :age 50 ;
+          :email "ahmed.bensalah@hopital.tn" ;
+          :nom "Dr Ahmed Ben Salah" ;
           :numeroCIN "00123456" ;
           :numeroOrdre "MED-001" ;
+          :prenom "Ahmed" ;
           :specialite "Médecine générale" ;
+          :telephone "+216 71 000 001" ;
           rdfs:label "Dr Ahmed Ben Salah (Médecin Généraliste)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Aziz_Laribi
+:Dr_Aziz_Laribi rdf:type owl:NamedIndividual ,
+                         :MedecinGeneraliste ;
+                :age 25 ;
+                :email "Azizlaribi@gmail.com" ;
+                :nom "Aziz Laribi" ;
+                :specialite "Médecine Générale" ;
+                :motDePasse "aziz123" ;
+                :telephone "+216 99 888 777" ;
+                rdfs:label "Aziz Laribi" .
+
+
+###  http://example.org/ontologie-medicale#Dr_Fatima
+:Dr_Fatima rdf:type owl:NamedIndividual ,
+                    :MedecinGeneraliste ;
+           :appartient_à :Service_Urgences ;
+           :adresse "7 Rue Ibn Khaldoun, Tunis" ;
+           :age 35 ;
+           :email "fatima.benali@hopital.tn" ;
+           :nom "Dr Fatima Benali" ;
+           :numeroCIN "00678901" ;
+           :numeroOrdre "MED-003" ;
+           :prenom "Fatima" ;
+           :specialite "Médecine générale" ;
+           :telephone "+216 71 000 003" ;
+           rdfs:comment "Médecin généraliste affectée au service des urgences."@fr ;
+           rdfs:label "Dr Fatima Benali (Médecin Généraliste - Urgences)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Jean_Testeur
+:Dr_Jean_Testeur rdf:type owl:NamedIndividual ,
+                          :MedecinSpecialiste ;
+                 :email "jean.test@hopital.fr" ;
+                 :nom "Testeur" ;
+                 :prenom "Jean" ;
+                 :specialite "Cardiologie" ;
+                 :motDePasse "$2b$12$q.D6880kjN8aYhmN42Phye11Lg6AAmlAUmSXKPWcRYYHQOqVvf9Q2" ;
+                 rdfs:label "Jean Testeur" .
 
 
 ###  http://example.org/ontologie-medicale#Dr_Karim
 :Dr_Karim rdf:type owl:NamedIndividual ,
                    :MedecinSpecialiste ;
           :appartient_à :Service_Cardio ;
+          :connait :Dr_Karim ;
           :diagnostique :Grippe_Sami ;
           :realise :Consultation_1 ;
-          :connait :Dr_Karim ;
-          :nom "Dr Karim Mansour" ;
-          :prenom "Karim" ;
           :age 40 ;
-          :telephone "+216 71 000 002" ;
           :email "karim.mansour@hopital.tn" ;
+          :nom "Dr Karim Mansour" ;
           :numeroCIN "00234567" ;
-          :specialite "Cardiologie" ;
           :numeroOrdre "MED-002" ;
+          :prenom "Karim" ;
+          :specialite "Cardiologie" ;
+          :telephone "+216 71 000 002" ;
           rdfs:label "Dr Karim Mansour (Cardiologue)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Sophie_Martin
+:Dr_Sophie_Martin rdf:type owl:NamedIndividual ,
+                           :Cardiologue ;
+                  :email "sophie.martin@hopital.fr" ;
+                  :nom "Martin" ;
+                  :prenom "Sophie" ;
+                  :specialite "Cardiologie" ;
+                  :motDePasse "$2b$12$ak.f1UPxMVNhVP78zWr03.Um8Fl50YRK4bovBZc6A0tQrPdOs/ZC2" ;
+                  rdfs:label "Sophie Martin" .
 
 
 ###  http://example.org/ontologie-medicale#Fievre_Sami
@@ -1228,6 +1232,16 @@ xsd:date rdf:type rdfs:Datatype .
 :Grippe_Sami rdf:type owl:NamedIndividual ,
                       :Grippe ;
              :provoque :Fievre_Sami .
+
+
+###  http://example.org/ontologie-medicale#Ind_Jihene_Ounis
+:Ind_Jihene_Ounis rdf:type owl:NamedIndividual ,
+                           :Stagiaire ;
+                  :age 23 ;
+                  :nom "Jihene Ounis" ;
+                  :numeroCIN "09876543" ;
+                  :telephone "+216 98 111 222" ;
+                  rdfs:label "Jihene Ounis" .
 
 
 ###  http://example.org/ontologie-medicale#Mol_Ibuprofene
@@ -1290,31 +1304,19 @@ xsd:date rdf:type rdfs:Datatype .
 ###  http://example.org/ontologie-medicale#Sami
 :Sami rdf:type owl:NamedIndividual ,
                :PatientAdulte ;
+      :estSoignePar :Dr_Ahmed ;
       :participeA :Consultation_1 ;
       :presente :Fievre_Sami ;
-      :estSoignePar :Dr_Ahmed ;
-      :estPrisEnChargePar :Service_Cardio ;
+      :adresse "12 Rue de la Republique, Tunis" ;
       :age 32 ;
+      :groupeSanguin "A+" ;
       :nom "Sami Trabelsi" ;
-      :prenom "Sami" ;
-      :telephone "+216 22 333 444" ;
       :numeroCIN "00345678" ;
       :numeroDossier "PAT-001" ;
-      :groupeSanguin "A+" ;
-      :adresse "12 Rue de la Republique, Tunis" ;
+      :prenom "Sami" ;
+      :estPrisEnChargePar :Service_Cardio ;
+      :telephone "+216 22 333 444" ;
       rdfs:label "Sami Trabelsi (PatientAdulte)"@fr .
-
-
-###  http://example.org/ontologie-medicale#Ali_Stagiaire
-:Ali_Stagiaire rdf:type owl:NamedIndividual ,
-                        :Stagiaire ;
-               :nom "Ali Ben Romdhane" ;
-               :prenom "Ali" ;
-               :age 25 ;
-               :numeroCIN "00567890" ;
-               :telephone "+216 55 000 111" ;
-               rdfs:label "Ali Ben Romdhane (Stagiaire)"@fr ;
-               rdfs:comment "Stagiaire en medecine, individu de la classe Stagiaire (sous Personne)."@fr .
 
 
 ###  http://example.org/ontologie-medicale#Service_Cardio
@@ -1327,8 +1329,6 @@ xsd:date rdf:type rdfs:Datatype .
                            :Urgences .
 
 
-
-
 ###  http://example.org/ontologie-medicale#Ulcere_Exemple
 :Ulcere_Exemple rdf:type owl:NamedIndividual ,
                          :UlcereGastrique .
@@ -1339,21 +1339,46 @@ xsd:date rdf:type rdfs:Datatype .
                             :Vomissement .
 
 
-###  http://example.org/ontologie-medicale#Dr_Fatima
-:Dr_Fatima rdf:type owl:NamedIndividual ,
-                    :MedecinGeneraliste ;
-           :appartient_à :Service_Urgences ;
-           :nom "Dr Fatima Benali" ;
-           :prenom "Fatima" ;
-           :age 35 ;
-           :telephone "+216 71 000 003" ;
-           :email "fatima.benali@hopital.tn" ;
-           :adresse "7 Rue Ibn Khaldoun, Tunis" ;
-           :numeroCIN "00678901" ;
-           :numeroOrdre "MED-003" ;
-           :specialite "Médecine générale" ;
-           rdfs:label "Dr Fatima Benali (Médecin Généraliste - Urgences)"@fr ;
-           rdfs:comment "Médecin généraliste affectée au service des urgences."@fr .
+#################################################################
+#    Annotations
+#################################################################
+
+:numeroCIN rdfs:comment "Identifiant unique de la personne (Fonctionnel + InverseFonctionnel)."@fr ;
+           rdfs:label "numéro CIN"@fr .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Medecin
+                :Patient
+                :Stagiaire
+                :Stuff_Médicale
+              )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :Ali_Stagiaire
+                        :Amina
+                        :Dr_Ahmed
+                        :Dr_Fatima
+                        :Dr_Karim
+                        :Sami
+                      )
+] .
 
 
 ###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
+
+
+###  http://example.org/ontologie-medicale#Pat_maryem_laribi
+:Pat_maryem_laribi rdf:type owl:NamedIndividual ,
+                     :Patient ;
+            rdfs:label "maryem laribi" ;
+            :nom "laribi" ;
+            :prenom "maryem" ;
+            :email "maryem@gmail.com" ;
+            :motDePasse "$2b$12$5vT8hAeL1rABqqp0lHsnFOVN8JLinOrkev7dA8w2oPng.JYlDllBW" .

@@ -1,0 +1,53 @@
+<header class="app-nav">
+  <div class="nav-container">
+    <!-- Brand / Logo -->
+    <div class="nav-brand">
+      <div class="brand-logo-glow">
+        <span class="logo-emoji">🏥</span>
+      </div>
+      <div class="brand-titles">
+        <span class="brand-title">OntoSanté</span>
+        <span class="brand-tag">Web Sémantique OWL</span>
+      </div>
+    </div>
+
+    <!-- Right Side Actions & User Menu -->
+    <div class="nav-actions">
+      <!-- Hot Reload Button -->
+      <button 
+        type="button" 
+        class="btn-reload" 
+        (click)="onReload()" 
+        [disabled]="isReloading()"
+        title="Recharger toutes les ontologies OWL depuis le disque">
+        <span class="reload-icon" [class.spinning]="isReloading()">🔄</span>
+        <span class="reload-text">{{ isReloading() ? 'Rechargement...' : 'Recharger OWL' }}</span>
+      </button>
+
+      @if (reloadMessage()) {
+        <span class="reload-feedback">{{ reloadMessage() }}</span>
+      }
+
+      <!-- User Info Badge -->
+      @if (user()) {
+        <div class="user-pill">
+          <div class="user-avatar">{{ userInitial }}</div>
+          <div class="user-meta">
+            <span class="user-fullname">{{ user()?.prenom }} {{ user()?.nom }}</span>
+            <span class="badge" [ngClass]="roleBadgeClass">{{ user()?.role }}</span>
+          </div>
+        </div>
+
+        <!-- Logout Button -->
+        <button type="button" class="btn-logout" (click)="onLogout()" title="Se déconnecter">
+          <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Déconnexion</span>
+        </button>
+      }
+    </div>
+  </div>
+</header>

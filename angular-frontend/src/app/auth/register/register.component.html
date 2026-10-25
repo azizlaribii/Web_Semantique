@@ -1,0 +1,449 @@
+<div class="register-studio-page">
+  <!-- Dynamic Glow & Grid Backdrop -->
+  <div class="ambient-glow-orb-1"></div>
+  <div class="ambient-glow-orb-2"></div>
+  <div class="grid-backdrop"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="studio-header">
+    <div class="header-content">
+      <a routerLink="/" class="brand-link">
+        <div class="logo-orb">🏥</div>
+        <div class="brand-names">
+          <span class="brand-name">Onto<span class="text-gradient">Santé</span></span>
+          <span class="brand-subtitle">Web Sémantique OWL & RDFLib</span>
+        </div>
+      </a>
+      <div class="header-right">
+        <span class="tag-live">● Ontologie Connectée</span>
+        <a routerLink="/login" class="btn-ghost">Déjà inscrit ? Connexion →</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dual-Column Content -->
+  <main class="studio-container">
+
+    <!-- LEFT COLUMN: Ontological Entity Preview & Architecture -->
+    <aside class="studio-left-panel">
+      <!-- Title Block -->
+      <div class="panel-hero">
+        <div class="pill-badge">
+          <span>🧬 Enregistrement d'Individu Sémantique</span>
+        </div>
+        <h1 class="hero-title">
+          Rejoignez le Graphe Médical <span class="text-gradient">OntoSanté</span>
+        </h1>
+        <p class="hero-desc">
+          Votre compte n'est pas une simple ligne en base de données : vous devenez une entité formelle 
+          (<code>owl:NamedIndividual</code>) typée selon les standards du W3C.
+        </p>
+      </div>
+
+      <!-- Live Identity Card -->
+      <div class="id-card-preview glass-card">
+        <div class="card-glow-edge"></div>
+        <div class="id-card-top">
+          <div class="avatar-ring">
+            <span class="avatar-letter">
+              {{ (prenom ? prenom[0] : (nom ? nom[0] : 'U')).toUpperCase() }}
+            </span>
+          </div>
+          <div class="id-meta">
+            <h3 class="id-name">{{ prenom || 'Prénom' }} {{ nom || 'Nom' }}</h3>
+            <div class="id-badges">
+              <span class="badge" [ngClass]="'badge-' + currentRole().badgeColor">
+                {{ currentRole().icon }} {{ currentRole().label }}
+              </span>
+              <span class="badge badge-dim">OWL DL</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="id-card-body">
+          <div class="info-row">
+            <span class="info-label">URI Sémantique (Protégé)</span>
+            <span class="info-val font-mono">{{ computedUri() }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Identifiant Unique</span>
+            <span class="info-val font-mono">{{ computedUri().split('#')[1] }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Contact / Email</span>
+            <span class="info-val">{{ email || 'non renseigné' }}</span>
+          </div>
+          @if (specialite) {
+            <div class="info-row">
+              <span class="info-label">Spécialité Médicale</span>
+              <span class="info-val highlight-val">{{ specialite }}</span>
+            </div>
+          }
+          @if (cin) {
+            <div class="info-row">
+              <span class="info-label">Numéro CIN</span>
+              <span class="info-val font-mono">{{ cin }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Live Turtle Triplets -->
+        <div class="turtle-preview-container">
+          <div class="turtle-bar">
+            <span class="turtle-title">Aperçu Triplet RDF/Turtle (En direct)</span>
+            <span class="turtle-sync-dot" title="Généré en temps réel"></span>
+          </div>
+          <pre class="turtle-code"><code>{{ liveRdfSnippet() }}</code></pre>
+        </div>
+      </div>
+
+      <!-- Semantic Benefits List -->
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-icon-wrap">🔒</div>
+          <div class="feature-text">
+            <h4>Sécurité Hachée Bcrypt</h4>
+            <p>Le mot de passe est crypté avant toute écriture dans l'ontologie OWL.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap">⚡</div>
+          <div class="feature-text">
+            <h4>Raisonnement Logique Automatique</h4>
+            <p>Compatible avec les raisonneurs HermiT et Pellet sous Protégé.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap">🔄</div>
+          <div class="feature-text">
+            <h4>Hot-Reload sans Redémarrage</h4>
+            <p>Immédiatement interrogeable via l'Assistant IA et SPARQL.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT COLUMN: Registration Form Studio -->
+    <section class="studio-right-panel">
+      <div class="form-card glass-card">
+
+        <!-- SUCCESS STATE -->
+        @if (success()) {
+          <div class="success-screen">
+            <div class="success-animation-orb">
+              <span class="success-check">✓</span>
+            </div>
+            <h2 class="success-heading">Bienvenue dans l'Ontologie !</h2>
+            <p class="success-message">{{ successMsg() }}</p>
+
+            <div class="success-details-box">
+              <div class="success-detail-row">
+                <span>Rôle attribué :</span>
+                <strong>{{ selectedRole() }}</strong>
+              </div>
+              <div class="success-detail-row">
+                <span>URI Ontologique :</span>
+                <code class="font-mono">{{ computedUri() }}</code>
+              </div>
+              <div class="success-detail-row">
+                <span>Statut RDFLib :</span>
+                <span class="badge badge-emerald">Persisté dans ontologie_personne.owl</span>
+              </div>
+            </div>
+
+            <div class="success-actions">
+              <a routerLink="/login" class="btn-primary-glow btn-block">
+                <span>Accéder à la Connexion →</span>
+              </a>
+            </div>
+          </div>
+        } @else {
+
+          <!-- Form Header -->
+          <div class="form-header">
+            <h2 class="form-title">Créer votre Compte Sémantique</h2>
+            <p class="form-desc">Complétez vos coordonnées pour générer votre entité médicale.</p>
+          </div>
+
+          <form (ngSubmit)="onSubmit()" class="studio-form">
+
+            <!-- STEP 1: Interactive Role Selector -->
+            <div class="form-section">
+              <div class="section-label-bar">
+                <span class="step-num">1</span>
+                <span class="section-title">Sélectionnez votre Rôle dans l'Établissement</span>
+                <span class="required-star">*</span>
+              </div>
+
+              <div class="role-cards-grid">
+                @for (role of roles; track role.value) {
+                  <button
+                    type="button"
+                    class="role-card-btn"
+                    [class.active]="selectedRole() === role.value"
+                    (click)="selectRole(role.value)">
+                    <div class="role-icon-box">{{ role.icon }}</div>
+                    <div class="role-info">
+                      <span class="role-card-label">{{ role.label }}</span>
+                      <span class="role-card-desc">{{ role.desc }}</span>
+                    </div>
+                    <div class="radio-indicator"></div>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- STEP 2: Personal & Access Info -->
+            <div class="form-section">
+              <div class="section-label-bar">
+                <span class="step-num">2</span>
+                <span class="section-title">Identité & Informations de Connexion</span>
+                <span class="required-star">*</span>
+              </div>
+
+              <!-- Prénom & Nom -->
+              <div class="grid-2-col">
+                <div class="field-wrap">
+                  <label for="prenom">Prénom <span class="required-star">*</span></label>
+                  <div class="input-container">
+                    <span class="input-icon">👤</span>
+                    <input
+                      id="prenom"
+                      type="text"
+                      class="custom-input"
+                      placeholder="Ex: Sophie"
+                      [(ngModel)]="prenom"
+                      name="prenom"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="field-wrap">
+                  <label for="nom">Nom de Famille <span class="required-star">*</span></label>
+                  <div class="input-container">
+                    <span class="input-icon">👤</span>
+                    <input
+                      id="nom"
+                      type="text"
+                      class="custom-input"
+                      placeholder="Ex: Martin"
+                      [(ngModel)]="nom"
+                      name="nom"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="field-wrap">
+                <label for="email">Adresse Email Universitaire / Professionnelle <span class="required-star">*</span></label>
+                <div class="input-container">
+                  <span class="input-icon">📧</span>
+                  <input
+                    id="email"
+                    type="email"
+                    class="custom-input"
+                    placeholder="sophie.martin@hopital.fr"
+                    [(ngModel)]="email"
+                    name="email"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="field-wrap">
+                <div class="label-row">
+                  <label for="motDePasse">Mot de Passe <span class="required-star">*</span></label>
+                  @if (motDePasse) {
+                    <span class="pwd-status-text" [ngClass]="pwdStrengthClass">
+                      {{ pwdStrengthLabel }}
+                    </span>
+                  }
+                </div>
+                <div class="input-container">
+                  <span class="input-icon">🔒</span>
+                  <input
+                    id="motDePasse"
+                    [type]="showPwd ? 'text' : 'password'"
+                    class="custom-input"
+                    placeholder="Min. 6 caractères"
+                    [(ngModel)]="motDePasse"
+                    name="motDePasse"
+                    (input)="checkPwdStrength(motDePasse)"
+                    required
+                    minlength="6"
+                  />
+                  <button type="button" class="btn-toggle-eye" (click)="togglePwd()" title="Afficher/masquer">
+                    {{ showPwd ? '🙈' : '👁️' }}
+                  </button>
+                </div>
+
+                <!-- Password Strength Progress Meter -->
+                @if (motDePasse) {
+                  <div class="strength-meter-bar">
+                    <div class="strength-track">
+                      <div class="strength-fill" [ngClass]="pwdStrengthClass"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- STEP 3: Optional Clinical & Administrative Details -->
+            <div class="form-section">
+              <button 
+                type="button" 
+                class="clinical-accordion-trigger" 
+                (click)="toggleClinical()">
+                <div class="accordion-left">
+                  <span class="step-num optional-num">3</span>
+                  <span class="section-title">Attributs Cliniques & Compléments Ontologiques</span>
+                  <span class="badge badge-dim">Optionnel</span>
+                </div>
+                <span class="accordion-arrow" [class.open]="showClinicalFields()">▼</span>
+              </button>
+
+              @if (showClinicalFields()) {
+                <div class="clinical-fields-drawer">
+                  <!-- Spécialité médicale pour médecins -->
+                  @if (isDoctor()) {
+                    <div class="field-wrap">
+                      <label for="specialite">Spécialité Médicale</label>
+                      <div class="input-container">
+                        <span class="input-icon">🩺</span>
+                        <input
+                          id="specialite"
+                          type="text"
+                          class="custom-input"
+                          placeholder="Ex: Cardiologie, Radiologie, Médecine Générale"
+                          [(ngModel)]="specialite"
+                          name="specialite"
+                        />
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Âge & CIN -->
+                  <div class="grid-2-col">
+                    <div class="field-wrap">
+                      <label for="age">Âge</label>
+                      <div class="input-container">
+                        <span class="input-icon">🎂</span>
+                        <input
+                          id="age"
+                          type="number"
+                          class="custom-input"
+                          placeholder="Ex: 34"
+                          [(ngModel)]="age"
+                          name="age"
+                          min="0"
+                          max="125"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="field-wrap">
+                      <label for="cin">Numéro CIN</label>
+                      <div class="input-container">
+                        <span class="input-icon">🪪</span>
+                        <input
+                          id="cin"
+                          type="text"
+                          class="custom-input"
+                          placeholder="Ex: 00123456"
+                          [(ngModel)]="cin"
+                          name="cin"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Téléphone & Groupe Sanguin -->
+                  <div class="grid-2-col">
+                    <div class="field-wrap">
+                      <label for="telephone">Numéro Téléphone</label>
+                      <div class="input-container">
+                        <span class="input-icon">📞</span>
+                        <input
+                          id="telephone"
+                          type="tel"
+                          class="custom-input"
+                          placeholder="Ex: +216 99 888 777"
+                          [(ngModel)]="telephone"
+                          name="telephone"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="field-wrap">
+                      <label for="groupeSanguin">Groupe Sanguin</label>
+                      <div class="input-container">
+                        <span class="input-icon">🩸</span>
+                        <select
+                          id="groupeSanguin"
+                          class="custom-select"
+                          [(ngModel)]="groupeSanguin"
+                          name="groupeSanguin">
+                          <option value="">Sélectionner</option>
+                          @for (bg of bloodGroups; track bg) {
+                            <option [value]="bg">{{ bg }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Adresse -->
+                  <div class="field-wrap">
+                    <label for="adresse">Adresse Résidentielle / Cabinet</label>
+                    <div class="input-container">
+                      <span class="input-icon">📍</span>
+                      <input
+                        id="adresse"
+                        type="text"
+                        class="custom-input"
+                        placeholder="Ex: 12 Rue Ibn Khaldoun, Tunis"
+                        [(ngModel)]="adresse"
+                        name="adresse"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Error Banner -->
+            @if (errorMsg()) {
+              <div class="alert-box-error">
+                <span class="alert-icon">⚠️</span>
+                <span class="alert-text">{{ errorMsg() }}</span>
+              </div>
+            }
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="btn-primary-glow btn-block"
+              [disabled]="loading()">
+              @if (loading()) {
+                <span class="spinner-inline"></span>
+                <span>Enregistrement dans l'Ontologie OWL...</span>
+              } @else {
+                <span>Créer mon Compte & Intégrer l'Ontologie →</span>
+              }
+            </button>
+          </form>
+
+          <!-- Footer Switch -->
+          <div class="form-footer">
+            <span class="footer-text">Déjà enregistré dans l'ontologie ?</span>
+            <a routerLink="/login" class="link-cyan">Se connecter</a>
+          </div>
+        }
+      </div>
+    </section>
+  </main>
+</div>

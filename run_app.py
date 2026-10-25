@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print("=" * 65)
     print("  ARCHITECTURE PROJET WEB SÉMANTIQUE — CLASSE PERSONNE")
     print("=" * 65)
-    print(f"  • Front-end : Interface utilisateur moderne (HTML/CSS/JS)")
+    print(f"  • Front-end : Interface Angular 18 Moderne (SPA)")
     print(f"  • IA API    : Traduction Question Utilisateur -> Requête SPARQL")
     print(f"  • Fuseki    : Endpoint SPARQL compatible Apache Jena")
     print(f"  • Back-end  : Python + RDFLib (ontologie_personne.owl)")
