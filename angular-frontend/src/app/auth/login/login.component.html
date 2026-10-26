@@ -1,0 +1,84 @@
+<div class="auth-page">
+  <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
+
+  <div class="auth-wrapper">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="logo-orb">🏥</div>
+      <div class="brand-text">
+        <h1>Onto<span>Santé</span></h1>
+        <p>Système Web Sémantique Médical</p>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+      <div class="card-header">
+        <h2>Bon retour 👋</h2>
+        <p>Connectez-vous pour accéder à l'application</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="auth-form">
+
+        <!-- Email or Username -->
+        <div class="form-group">
+          <label for="email">Email ou Nom d'utilisateur</label>
+          <div class="input-wrap">
+            <span class="icon">👤</span>
+            <input
+              id="email"
+              type="text"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="exemple@hopital.fr ou Jihene Ounis"
+              required>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <div class="input-wrap">
+            <span class="icon">🔒</span>
+            <input
+              id="password"
+              [type]="showPwd ? 'text' : 'password'"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required>
+            <button type="button" class="eye-btn" (click)="togglePwd()">
+              {{ showPwd ? '🙈' : '👁' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        @if (errorMsg()) {
+          <div class="alert alert-error">
+            <span>⚠️</span> {{ errorMsg() }}
+          </div>
+        }
+
+        <!-- Submit -->
+        <button type="submit" class="btn-submit" [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner"></span> Connexion en cours...
+          } @else {
+            Se connecter →
+          }
+        </button>
+      </form>
+
+      <p class="switch-link">
+        Pas encore de compte ?
+        <a routerLink="/register">Créer un compte</a>
+      </p>
+    </div>
+
+    <p class="footer-note">OntoSanté v2.0 · RDFLib + OWL · Flask</p>
+  </div>
+</div>

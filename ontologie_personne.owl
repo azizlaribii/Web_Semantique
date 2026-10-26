@@ -1,385 +1,2227 @@
-<?xml version="1.0"?>
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-         xmlns:owl="http://www.w3.org/2002/07/owl#"
-         xml:base="http://example.org/ontologie-medicale"
-         xmlns="http://example.org/ontologie-medicale#">
-
-<owl:Ontology rdf:about="http://example.org/ontologie-medicale"/>
-
-<owl:ObjectProperty rdf:about="#joueLeRoleDe">
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="#Role"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">joue le role de</rdfs:label>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#estSoignePar">
-  <rdfs:domain rdf:resource="#Patient"/>
-  <rdfs:range rdf:resource="#Medecin"/>
-  <owl:inverseOf rdf:resource="#soigne"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est soigne par</rdfs:label>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#soigne">
-  <rdfs:domain rdf:resource="#Medecin"/>
-  <rdfs:range rdf:resource="#Patient"/>
-  <owl:inverseOf rdf:resource="#estSoignePar"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">soigne</rdfs:label>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#connait">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="#Personne"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">connait</rdfs:label>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#aConsulte">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="#Personne"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a consulte</rdfs:label>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#presente">
-  <rdfs:domain rdf:resource="#Patient"/>
-  <rdfs:range rdf:resource="#Symptome"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">presente</rdfs:label>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#realise">
-  <rdfs:domain rdf:resource="#Medecin"/>
-  <rdfs:range rdf:resource="#Consultation"/>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#redige">
-  <rdfs:domain rdf:resource="#Medecin"/>
-  <rdfs:range rdf:resource="#Ordonnance"/>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#diagnostique">
-  <rdfs:domain rdf:resource="#Medecin"/>
-  <rdfs:range rdf:resource="#Maladie"/>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#appartientA">
-  <rdfs:domain rdf:resource="#Medecin"/>
-  <rdfs:range rdf:resource="#Service"/>
-</owl:ObjectProperty>
-
-<owl:ObjectProperty rdf:about="#estPrisEnChargePar">
-  <rdfs:domain rdf:resource="#Patient"/>
-  <rdfs:range rdf:resource="#Service"/>
-</owl:ObjectProperty>
-
-<owl:DatatypeProperty rdf:about="#nom">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nom</rdfs:label>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#prenom">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#age">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">age</rdfs:label>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#dateNaissance">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#telephone">
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#email">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#adresse">
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#numeroCIN">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Personne"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">numero CIN</rdfs:label>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#specialite">
-  <rdfs:domain rdf:resource="#MedecinSpecialiste"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#numeroOrdre">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Medecin"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#groupeSanguin">
-  <rdfs:domain rdf:resource="#Patient"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">groupe sanguin</rdfs:label>
-</owl:DatatypeProperty>
-
-<owl:DatatypeProperty rdf:about="#numeroDossier">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  <rdfs:domain rdf:resource="#Patient"/>
-  <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">numero de dossier</rdfs:label>
-</owl:DatatypeProperty>
-
-<owl:Class rdf:about="#Personne">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Personne</rdfs:label>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Toute entite humaine dans le systeme medical.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#Role">
-  <rdfs:subClassOf rdf:resource="#Personne"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Role</rdfs:label>
-</owl:Class>
-
-<owl:Class rdf:about="#Medecin">
-  <rdfs:subClassOf rdf:resource="#Role"/>
-  <owl:disjointWith rdf:resource="#Patient"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medecin</rdfs:label>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Professionnel de sante autorise a pratiquer la medecine.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#MedecinGeneraliste">
-  <rdfs:subClassOf rdf:resource="#Medecin"/>
-  <owl:disjointWith rdf:resource="#MedecinSpecialiste"/>
-</owl:Class>
-
-<owl:Class rdf:about="#MedecinSpecialiste">
-  <rdfs:subClassOf rdf:resource="#Medecin"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Cardiologue">
-  <rdfs:subClassOf rdf:resource="#MedecinSpecialiste"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Patient">
-  <rdfs:subClassOf rdf:resource="#Role"/>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Patient</rdfs:label>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Personne recevant des soins medicaux.</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#PatientAdulte">
-  <rdfs:subClassOf rdf:resource="#Patient"/>
-  <owl:disjointWith rdf:resource="#PatientEnfant"/>
-</owl:Class>
-
-<owl:Class rdf:about="#PatientEnfant">
-  <rdfs:subClassOf rdf:resource="#Patient"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Stagiaire">
-  <rdfs:subClassOf rdf:resource="#Role"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Stuff_Medicale">
-  <rdfs:subClassOf rdf:resource="#Role"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Infirmier">
-  <rdfs:subClassOf rdf:resource="#Stuff_Medicale"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Maladie">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-</owl:Class>
-
-<owl:Class rdf:about="#MaladieInfectieuse">
-  <rdfs:subClassOf rdf:resource="#Maladie"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Symptome">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Service">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Ordonnance">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-</owl:Class>
-
-<owl:Class rdf:about="#Consultation">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-</owl:Class>
-
-<owl:Class rdf:about="#MedecinActif">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-  <owl:equivalentClass>
-    <owl:Class>
-      <owl:intersectionOf rdf:parseType="Collection">
-        <rdf:Description rdf:about="#Medecin"/>
-        <owl:Restriction>
-          <owl:onProperty rdf:resource="#realise"/>
-          <owl:someValuesFrom rdf:resource="#Consultation"/>
-        </owl:Restriction>
-      </owl:intersectionOf>
-    </owl:Class>
-  </owl:equivalentClass>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medecin actif</rdfs:label>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie (Medecin qui realise au moins une Consultation).</rdfs:comment>
-</owl:Class>
-
-<owl:Class rdf:about="#PatientEnregistre">
-  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-  <owl:equivalentClass>
-    <owl:Class>
-      <owl:intersectionOf rdf:parseType="Collection">
-        <rdf:Description rdf:about="#Patient"/>
-        <owl:Restriction>
-          <owl:onProperty rdf:resource="#numeroDossier"/>
-          <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-        </owl:Restriction>
-      </owl:intersectionOf>
-    </owl:Class>
-  </owl:equivalentClass>
-  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Patient enregistre</rdfs:label>
-  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie (Patient qui possede un numero de dossier).</rdfs:comment>
-</owl:Class>
-
-<owl:NamedIndividual rdf:about="#Dr_Ahmed">
-  <rdf:type rdf:resource="#Medecin"/>
-  <appartientA rdf:resource="#Service_Cardio"/>
-  <diagnostique rdf:resource="#Grippe_Sami"/>
-  <realise rdf:resource="#Consultation_1"/>
-  <soigne rdf:resource="#Sami"/>
-  <connait rdf:resource="#Dr_Karim"/>
-  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Ahmed Ben Salah</nom>
-  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ahmed</prenom>
-  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">50</age>
-  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 001</telephone>
-  <email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ahmed.bensalah@hopital.tn</email>
-  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00123456</numeroCIN>
-  <numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-001</numeroOrdre>
-  <adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3 Avenue Habib Bourguiba, Tunis</adresse>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Dr_Karim">
-  <rdf:type rdf:resource="#MedecinSpecialiste"/>
-  <appartientA rdf:resource="#Service_Cardio"/>
-  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Karim Mansour</nom>
-  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Karim</prenom>
-  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">40</age>
-  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 002</telephone>
-  <email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">karim.mansour@hopital.tn</email>
-  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00234567</numeroCIN>
-  <specialite rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologie</specialite>
-  <numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-002</numeroOrdre>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Sami">
-  <rdf:type rdf:resource="#PatientAdulte"/>
-  <estPrisEnChargePar rdf:resource="#Service_Cardio"/>
-  <presente rdf:resource="#Fievre_Sami"/>
-  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami Trabelsi</nom>
-  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami</prenom>
-  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">32</age>
-  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 22 333 444</telephone>
-  <numeroDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PAT-001</numeroDossier>
-  <groupeSanguin rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A+</groupeSanguin>
-  <adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">12 Rue de la Republique, Tunis</adresse>
-  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00345678</numeroCIN>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Amina">
-  <rdf:type rdf:resource="#PatientEnfant"/>
-  <estPrisEnChargePar rdf:resource="#Service_Urgences"/>
-  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amina Gharbi</nom>
-  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amina</prenom>
-  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">8</age>
-  <numeroDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PAT-002</numeroDossier>
-  <groupeSanguin rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O+</groupeSanguin>
-  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00456789</numeroCIN>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Ali_Stagiaire">
-  <rdf:type rdf:resource="#Stagiaire"/>
-  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ali Ben Romdhane</nom>
-  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ali</prenom>
-  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</age>
-  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 55 000 111</telephone>
-  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00567890</numeroCIN>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Service_Cardio">
-  <rdf:type rdf:resource="#Service"/>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Service_Urgences">
-  <rdf:type rdf:resource="#Service"/>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Consultation_1">
-  <rdf:type rdf:resource="#Consultation"/>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Grippe_Sami">
-  <rdf:type rdf:resource="#MaladieInfectieuse"/>
-</owl:NamedIndividual>
-
-<owl:NamedIndividual rdf:about="#Fievre_Sami">
-  <rdf:type rdf:resource="#Symptome"/>
-</owl:NamedIndividual>
-
-
-<owl:NamedIndividual rdf:about="#Dr_Fatima">
-  <rdf:type rdf:resource="#MedecinGeneraliste"/>
-  <appartientA rdf:resource="#Service_Urgences"/>
-  <nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Fatima Benali</nom>
-  <prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fatima</prenom>
-  <age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">35</age>
-  <telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 003</telephone>
-  <email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fatima.benali@hopital.tn</email>
-  <numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00678901</numeroCIN>
-  <numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-003</numeroOrdre>
-  <adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">7 Rue Ibn Khaldoun, Tunis</adresse>
-</owl:NamedIndividual>
-
-<owl:AllDifferent>
-  <owl:distinctMembers rdf:parseType="Collection">
-    <rdf:Description rdf:about="#Dr_Ahmed"/>
-    <rdf:Description rdf:about="#Dr_Karim"/>
-    <rdf:Description rdf:about="#Dr_Fatima"/>
-    <rdf:Description rdf:about="#Sami"/>
-    <rdf:Description rdf:about="#Amina"/>
-    <rdf:Description rdf:about="#Ali_Stagiaire"/>
-  </owl:distinctMembers>
-</owl:AllDifferent>
-
-<owl:AllDisjointClasses>
-  <owl:members rdf:parseType="Collection">
-    <rdf:Description rdf:about="#Medecin"/>
-    <rdf:Description rdf:about="#Patient"/>
-    <rdf:Description rdf:about="#Stagiaire"/>
-    <rdf:Description rdf:about="#Stuff_Medicale"/>
-  </owl:members>
-</owl:AllDisjointClasses>
-
-
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:med="http://example.org/ontologie-medicale#"
+   xmlns:ns1="http://example.org/ontologie-medicale#date_de_l’"
+   xmlns:owl="http://www.w3.org/2002/07/owl#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Penicilline">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Antibiotique"/>
+    <rdfs:label xml:lang="fr">Pénicilline</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MedecinSpecialiste">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:label xml:lang="fr">Médecin spécialiste</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dr_Ahmed">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <med:appartientA rdf:resource="http://example.org/ontologie-medicale#Service_Cardio"/>
+    <med:diagnostique rdf:resource="http://example.org/ontologie-medicale#Grippe_Sami"/>
+    <med:realise rdf:resource="http://example.org/ontologie-medicale#Consultation_1"/>
+    <med:soigne rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <med:connait rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Ahmed Ben Salah</med:nom>
+    <med:nom>Dr Ahmed Ben Salah</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ahmed</med:prenom>
+    <med:prenom>Ahmed</med:prenom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">50</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 001</med:telephone>
+    <med:telephone>+216 71 000 001</med:telephone>
+    <med:email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ahmed.bensalah@hopital.tn</med:email>
+    <med:email>ahmed.bensalah@hopital.tn</med:email>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00123456</med:numeroCIN>
+    <med:numeroCIN>00123456</med:numeroCIN>
+    <med:numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-001</med:numeroOrdre>
+    <med:numeroOrdre>MED-001</med:numeroOrdre>
+    <med:adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">3 Avenue Habib Bourguiba, Tunis</med:adresse>
+    <med:adresse>3 Avenue Habib Bourguiba, Tunis</med:adresse>
+    <med:appartient_à rdf:resource="http://example.org/ontologie-medicale#Service_Cardio"/>
+    <med:redige rdf:resource="http://example.org/ontologie-medicale#Ordonnance_1"/>
+    <med:rédige rdf:resource="http://example.org/ontologie-medicale#Ordonnance_1"/>
+    <med:specialite>Médecine générale</med:specialite>
+    <rdfs:label xml:lang="fr">Dr Ahmed Ben Salah (Médecin Généraliste)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dr_Karim">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <med:appartientA rdf:resource="http://example.org/ontologie-medicale#Service_Cardio"/>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Karim Mansour</med:nom>
+    <med:nom>Dr Karim Mansour</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Karim</med:prenom>
+    <med:prenom>Karim</med:prenom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">40</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 002</med:telephone>
+    <med:telephone>+216 71 000 002</med:telephone>
+    <med:email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">karim.mansour@hopital.tn</med:email>
+    <med:email>karim.mansour@hopital.tn</med:email>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00234567</med:numeroCIN>
+    <med:numeroCIN>00234567</med:numeroCIN>
+    <med:specialite rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologie</med:specialite>
+    <med:specialite>Cardiologie</med:specialite>
+    <med:numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-002</med:numeroOrdre>
+    <med:numeroOrdre>MED-002</med:numeroOrdre>
+    <med:appartient_à rdf:resource="http://example.org/ontologie-medicale#Service_Cardio"/>
+    <med:diagnostique rdf:resource="http://example.org/ontologie-medicale#Grippe_Sami"/>
+    <med:realise rdf:resource="http://example.org/ontologie-medicale#Consultation_1"/>
+    <med:connait rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdfs:label xml:lang="fr">Dr Karim Mansour (Cardiologue)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dr_Sophie_Martin">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Cardiologue"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sophie Martin</rdfs:label>
+    <rdfs:label>Sophie Martin</rdfs:label>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Martin</med:nom>
+    <med:nom>Martin</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sophie</med:prenom>
+    <med:prenom>Sophie</med:prenom>
+    <med:email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">sophie.martin@hopital.fr</med:email>
+    <med:email>sophie.martin@hopital.fr</med:email>
+    <med:motDePasse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$2b$12$ak.f1UPxMVNhVP78zWr03.Um8Fl50YRK4bovBZc6A0tQrPdOs/ZC2</med:motDePasse>
+    <med:motDePasse>$2b$12$ak.f1UPxMVNhVP78zWr03.Um8Fl50YRK4bovBZc6A0tQrPdOs/ZC2</med:motDePasse>
+    <med:specialite rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologie</med:specialite>
+    <med:specialite>Cardiologie</med:specialite>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Asma">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Agents_de_service_hospitalier"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nfb0b4e81d09b4fc5bd2b49f71a4ca9df">
+    <owl:intersectionOf rdf:nodeID="Nd9dafc8b40ac46b8aa52430d249c4d3e"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N923f0f0d90c2464282f1bf6e285ad112">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#date_de_l’opération">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b3">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b4"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nbf7af903c6864f6ebfe2f2954fe661f8">
+    <rdf:first rdf:nodeID="N40b28e9216b842a3ba51042ee3b14625"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estRealiseePar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:label xml:lang="fr">est réalisée par</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N02f37926808742f68cb18aa1a989bd66">
+    <rdf:first rdf:nodeID="N7c052f3fcaed42cfb7fa624151157b9a"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#PatientEnregistre">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <owl:equivalentClass rdf:nodeID="N20d58399a0e54592a7d77b86c5711a2e"/>
+    <owl:equivalentClass rdf:nodeID="Nd141b774c2a44ae88f502be516d9c852"/>
+    <owl:equivalentClass rdf:nodeID="N9ce6707365da474e99d3313ea019cf85"/>
+    <owl:equivalentClass rdf:nodeID="N158c0f128b894b9e8e9f8c941e14991a"/>
+    <owl:equivalentClass rdf:nodeID="Na3339d71c6ce4988ac2299284b34a61d"/>
+    <owl:equivalentClass rdf:nodeID="N5c35b43bf4e14fbc891c5c8ac74f09f7"/>
+    <owl:equivalentClass rdf:nodeID="N8344df7be6274569b365a8effef53d26"/>
+    <owl:equivalentClass rdf:nodeID="N1ff0c061e20242e98df4b70b3434afaa"/>
+    <owl:equivalentClass rdf:nodeID="Nb8b5cfa8428046caa38864235854eebc"/>
+    <owl:equivalentClass rdf:nodeID="n788314f55e834b66b3bb243b19066606b5"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Patient enregistre</rdfs:label>
+    <rdfs:label xml:lang="fr">Patient enregistre</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie (Patient qui possede un numero de dossier).</rdfs:comment>
+    <rdfs:comment xml:lang="fr">Classe definie: Patient qui possede un numero de dossier.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4def52f3f8a841099b71de2b22bd9881">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="Nf3154cdda98b4cdcb10a781b775fe985"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#capacité">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Dossier_patient"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nc2cc15998d674bfca99282a644995832">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:nodeID="Ne1a4902b0ee44fdebd261f58382abc20"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5108655851c34f53b9e7dfa51e862827">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nb8002d3c191c4dfe9c8d620b30dce3ee"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#traite">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#estTraiteePar"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">traite</rdfs:label>
+    <rdfs:comment xml:lang="fr">Un médicament traite une maladie. Inverse : estTraiteePar.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7fa6369325644d21b46c0f51136a0c8e">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N5100b6b0e3424f1fb2294535ee5b371e"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estSymptomeDe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#aPourSymptome"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">est symptôme de</rdfs:label>
+    <rdfs:comment xml:lang="fr">Un symptôme est associé à une maladie. Inverse : aPourSymptome.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#dateNaissance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    <rdfs:label xml:lang="fr">date de naissance</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ndd83dde32dee42538ba29b28193d4ffe">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Fievre_Sami">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Fievre"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#aConsulte">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a consulte</rdfs:label>
+    <rdfs:label xml:lang="fr">a consulté</rdfs:label>
+    <rdfs:comment xml:lang="fr">Relation transitive : A a consulté B qui a consulté C → A a consulté C.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dr_Aziz_Laribi">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aziz Laribi</rdfs:label>
+    <rdfs:label>Aziz Laribi</rdfs:label>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aziz Laribi</med:nom>
+    <med:nom>Aziz Laribi</med:nom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 99 888 777</med:telephone>
+    <med:telephone>+216 99 888 777</med:telephone>
+    <med:specialite rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Médecine Générale</med:specialite>
+    <med:specialite>Médecine Générale</med:specialite>
+    <med:email>Azizlaribi@gmail.com</med:email>
+    <med:motDePasse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$2b$12$75mYpmM6cD1d9RCxQs0csek2OIfW7fL97zKuf7UiqsvRdFp74wT1.</med:motDePasse>
+    <med:motDePasse>aziz123</med:motDePasse>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#appartient_à">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Vertige">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#EffetNeurologique"/>
+    <rdfs:label xml:lang="fr">Vertige</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dr_Jean_Testeur">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jean Testeur</rdfs:label>
+    <rdfs:label>Jean Testeur</rdfs:label>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Testeur</med:nom>
+    <med:nom>Testeur</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jean</med:prenom>
+    <med:prenom>Jean</med:prenom>
+    <med:email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">jean.test@hopital.fr</med:email>
+    <med:email>jean.test@hopital.fr</med:email>
+    <med:motDePasse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$2b$12$q.D6880kjN8aYhmN42Phye11Lg6AAmlAUmSXKPWcRYYHQOqVvf9Q2</med:motDePasse>
+    <med:motDePasse>$2b$12$q.D6880kjN8aYhmN42Phye11Lg6AAmlAUmSXKPWcRYYHQOqVvf9Q2</med:motDePasse>
+    <med:specialite rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cardiologie</med:specialite>
+    <med:specialite>Cardiologie</med:specialite>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Chirurgie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MedecinActif">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <owl:equivalentClass rdf:nodeID="N075e6d43ef9345b688ddfd02d6986377"/>
+    <owl:equivalentClass rdf:nodeID="N4ff4a5d8d14744fbbc7716cc79bb88b1"/>
+    <owl:equivalentClass rdf:nodeID="Nc099eb0e38b14297811f56a8087f8bc8"/>
+    <owl:equivalentClass rdf:nodeID="N36013bafb1b940c0bfac2c7d4dea4ec0"/>
+    <owl:equivalentClass rdf:nodeID="Ncb8677d3d4e64b749665ab518486bd13"/>
+    <owl:equivalentClass rdf:nodeID="Nfb0b4e81d09b4fc5bd2b49f71a4ca9df"/>
+    <owl:equivalentClass rdf:nodeID="N37fbb39a1f8a43c2a15dabbf88f1640a"/>
+    <owl:equivalentClass rdf:nodeID="Neccf20ad0fef407c9268284bb9cb57d0"/>
+    <owl:equivalentClass rdf:nodeID="N4918dcb7e9234c98a26cd51575d1530a"/>
+    <owl:equivalentClass rdf:nodeID="n788314f55e834b66b3bb243b19066606b1"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medecin actif</rdfs:label>
+    <rdfs:label xml:lang="fr">Medecin actif</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Classe definie (Medecin qui realise au moins une Consultation).</rdfs:comment>
+    <rdfs:comment xml:lang="fr">Classe definie: Medecin qui realise au moins une Consultation.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N65547b73161e4df2bf2e32dd9208ad6b">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="Nc2cc15998d674bfca99282a644995832"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2a02421bc2754f1c8fb2f3702befb0a2">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:nodeID="N80d3192a20d1461eb1101e62a7c4d8bf"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dr_Fatima">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <med:appartientA rdf:resource="http://example.org/ontologie-medicale#Service_Urgences"/>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dr Fatima Benali</med:nom>
+    <med:nom>Dr Fatima Benali</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fatima</med:prenom>
+    <med:prenom>Fatima</med:prenom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">35</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 71 000 003</med:telephone>
+    <med:telephone>+216 71 000 003</med:telephone>
+    <med:email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fatima.benali@hopital.tn</med:email>
+    <med:email>fatima.benali@hopital.tn</med:email>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00678901</med:numeroCIN>
+    <med:numeroCIN>00678901</med:numeroCIN>
+    <med:numeroOrdre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MED-003</med:numeroOrdre>
+    <med:numeroOrdre>MED-003</med:numeroOrdre>
+    <med:adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">7 Rue Ibn Khaldoun, Tunis</med:adresse>
+    <med:adresse>7 Rue Ibn Khaldoun, Tunis</med:adresse>
+    <med:appartient_à rdf:resource="http://example.org/ontologie-medicale#Service_Urgences"/>
+    <med:specialite>Médecine générale</med:specialite>
+    <rdfs:label xml:lang="fr">Dr Fatima Benali (Médecin Généraliste - Urgences)</rdfs:label>
+    <rdfs:comment xml:lang="fr">Médecin généraliste affectée au service des urgences.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#provoque">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:label xml:lang="fr">provoque</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b4">
+    <rdf:first rdf:nodeID="n788314f55e834b66b3bb243b19066606b2"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na0665ded13024a50b35a7237995cb11c">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="Nb78319d998ba4bb5abb29b5e49f368f8"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b12">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b13"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Amina">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#PatientEnfant"/>
+    <med:estPrisEnChargePar rdf:resource="http://example.org/ontologie-medicale#Service_Urgences"/>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amina Gharbi</med:nom>
+    <med:nom>Amina Gharbi</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amina</med:prenom>
+    <med:prenom>Amina</med:prenom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">8</med:age>
+    <med:numeroDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PAT-002</med:numeroDossier>
+    <med:numeroDossier>PAT-002</med:numeroDossier>
+    <med:groupeSanguin rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O+</med:groupeSanguin>
+    <med:groupeSanguin>O+</med:groupeSanguin>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00456789</med:numeroCIN>
+    <med:numeroCIN>00456789</med:numeroCIN>
+    <med:est_pris_en_charge_par rdf:resource="http://example.org/ontologie-medicale#Service_Urgences"/>
+    <med:subit rdf:resource="http://example.org/ontologie-medicale#Operation_2"/>
+    <rdfs:label xml:lang="fr">Amina Gharbi (PatientEnfant)</rdfs:label>
+    <med:email>aminagharbi@gmail.com</med:email>
+    <med:motDePasse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$2b$12$vkkI6ZGEtijGIxW3/2iPiutYzP02YWMXA1PLEE.pA3wDCHzbyB0ea</med:motDePasse>
+    <med:motDePasse>amina123</med:motDePasse>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b7">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b8"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd315b5a18c2e43fea7246a6258287a9b">
+    <rdf:first rdf:nodeID="N0fbbf0db7a164a1995c65d8e22edb250"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nc05b30f6a17842f48ef6f894dc21150f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5e462408c9ab4387bb9353f16e6458bd">
+    <rdf:first rdf:nodeID="N0f1b580d75864326903f9eb248680ee5"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne95e7304391e47e5aae5b7dcf781bf43">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientEnfant"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf4b740d7e3fd405d9bbc2f0e71c899b8">
+    <rdf:first rdf:nodeID="Ncc05d5e592544881a421a4313513b1e3"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Ind_Jihene_Ounis">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jihene Ounis</rdfs:label>
+    <rdfs:label>Jihene Ounis</rdfs:label>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jihene Ounis</med:nom>
+    <med:nom>Jihene Ounis</med:nom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">23</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 98 111 222</med:telephone>
+    <med:telephone>+216 98 111 222</med:telephone>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">09876543</med:numeroCIN>
+    <med:numeroCIN>09876543</med:numeroCIN>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Vomissement">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#EffetDigestif"/>
+    <rdfs:label xml:lang="fr">Vomissement</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#nom_du_service">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Service"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#sages-femmes">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#adresse">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="fr">adresse</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb8002d3c191c4dfe9c8d620b30dce3ee">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N7bd3362451324bfca7127eb0708f8be6"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#touche">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#souffreDe"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:label xml:lang="fr">touche</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une maladie touche un patient.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nedd04217513041ffa55aeb6f748c23be">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:nodeID="N4905b079f77c49b0b43bf68f49ca8a94"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N400bdebb10d84554baf1c4974a8b299c">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#AntiInflammatoire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">Anti-inflammatoire</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#redige">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:label xml:lang="fr">rédige</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#UlcereGastrique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MaladieDigestive"/>
+    <rdfs:label xml:lang="fr">Ulcère gastrique</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#suit">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#necessiteSuiviPar"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#MaladieChronique"/>
+    <rdfs:label xml:lang="fr">suit</rdfs:label>
+    <rdfs:comment xml:lang="fr">Un médecin suit l'évolution d'une maladie chronique. Inverse : necessiteSuiviPar.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Grippe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MaladieInfectieuse"/>
+    <rdfs:label xml:lang="fr">Grippe</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N947e034fd764434f92166d103838213c">
+    <rdf:first rdf:nodeID="N31ddcdf48fbd46c9b32fe70de294c695"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estDestineeA">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:label xml:lang="fr">est destinée à</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#contientMedicament">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">contient (médicament)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7f9ec3731e7842049d1c721972f25894">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Brufen">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Ibuprofene"/>
+    <med:contientMolecule rdf:resource="http://example.org/ontologie-medicale#Mol_Ibuprofene"/>
+    <med:estContreIndiquePour rdf:resource="http://example.org/ontologie-medicale#Ulcere_Exemple"/>
+    <med:peutProvoquer rdf:resource="http://example.org/ontologie-medicale#Vomissement_Effet"/>
+    <med:posologie>400 mg, 2 fois par jour</med:posologie>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#realise">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+    <rdfs:label xml:lang="fr">réalise</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dossier_patient">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service_administratif"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne054bf63163241ae8982ffef8ac87fd5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N6e4606a90b0341fc83f0f19a4cd4ccd8"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Rembourcement_Assurance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Facturation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#ConsultationSpecialisee">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#est_urgent">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N56b7b3309ebb4e68bb26fb322d6a0199">
+    <rdf:first rdf:nodeID="N0f7b0683c6a043fe83715b906effec41"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Facture">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Paiement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estContreIndiquePour">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">est contre-indiqué pour</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Gastro-entérologue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7e80045b8c80444da6bb28668e070126">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#OrdonnanceSimple">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#nom">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nom</rdfs:label>
+    <rdfs:label xml:lang="fr">nom</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Orthopédique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Chirurgie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Facturation">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service_administratif"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N1a2d612d43ee45d3bf3473082dba2974">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nb21055f311fa40c094a15f31dd245e98"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#joueLeRôleDe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Role"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#connait">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">connait</rdfs:label>
+    <rdfs:label xml:lang="fr">connaît</rdfs:label>
+    <rdfs:comment xml:lang="fr">Relation symétrique : si A connaît B, alors B connaît A.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N8cf4174598bd4f40a3c2f929f6d327e9">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:nodeID="N6825ca5198124dc3b0458d4591630ac9"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nc131ae4daf164957a4761ac2a7000b1c">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N7f9ec3731e7842049d1c721972f25894"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#concerneMaladie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#estPrescritePour"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:label xml:lang="fr">concerne maladie</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une maladie est concernée par une ordonnance. Inverse : estPrescritePour.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N88afb22baf5f4368a102a424b76155e8">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N02f37926808742f68cb18aa1a989bd66"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#necessite">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#estNecessairePour"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+    <rdfs:label xml:lang="fr">nécessite</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une maladie nécessite une opération chirurgicale.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#IRM">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Radiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Patient">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Role"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Patient</rdfs:label>
+    <rdfs:label xml:lang="fr">Patient</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Personne recevant des soins medicaux.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4e3175b8301748e5912499b1bbe5a651">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N3cba286f81e4416684a4feb98924f22a"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N58fcc4b408984c7f891bd41493e67bf0">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Personne">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Personne</rdfs:label>
+    <rdfs:label xml:lang="fr">Personne</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Toute entite humaine dans le systeme medical.</rdfs:comment>
+    <rdfs:comment xml:lang="fr">Toute entité humaine présente dans le système médical (médecin, patient, stagiaire …).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N3cba286f81e4416684a4feb98924f22a">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N385c7c68b2074181a44ad4cc055ebe1b"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Operation_2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#OperationUrgente"/>
+    <med:se_déroule_dans rdf:resource="http://example.org/ontologie-medicale#Salle_Op_1"/>
+    <med:est_urgent rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</med:est_urgent>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <rdfs:comment xml:lang="fr">Ontologie en 3 niveaux de hiérarchie (classe &gt; sous-classe &gt; sous-sous-classe).</rdfs:comment>
+    <rdfs:label xml:lang="fr">Ontologie médicale : médecin, patient, ordonnance</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#souffreDe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#touche"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">souffre de</rdfs:label>
+    <rdfs:comment xml:lang="fr">Un patient souffre d'une maladie. Inverse : touche.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dossier_medicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Dossier_patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Service_Urgences">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Service"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Urgences"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Paiement">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Facturation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0257ea22115e46959c1f944ca052aaf6">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4ff4a5d8d14744fbbc7716cc79bb88b1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N59185b5b3d2d4c998c3ae463d639b5fa"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Stuff_Médicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Role"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#groupeSanguin">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">groupe sanguin</rdfs:label>
+    <rdfs:label xml:lang="fr">groupe sanguin</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.w3.org/2001/XMLSchema#date">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Datatype"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N158c0f128b894b9e8e9f8c941e14991a">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N862cf400b99e434ab9d07624c26d8b2d"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nedd9a2e3f10f4170bc0d358cedca00eb">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N46f109ce820e4df28bd49617ea4dd9ff"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Cardiologue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#numeroDossier">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">numero de dossier</rdfs:label>
+    <rdfs:label xml:lang="fr">numéro de dossier</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#necessiteSuiviPar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#suit"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#MaladieChronique"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:label xml:lang="fr">nécessite suivi par</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une maladie chronique nécessite un suivi par un médecin.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N23208eceb9b2469f99c51cf53d62279d">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N39a4784c0b254323b42f717a5837b5c1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Ordonnance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service_medicale"/>
+    <rdfs:label xml:lang="fr">Ordonnance</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Stuff_Medicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Role"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd51ea891c8214dfeb73e1fce645d4501">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Medecin">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Role"/>
+    <owl:disjointWith rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Medecin</rdfs:label>
+    <rdfs:label xml:lang="fr">Médecin</rdfs:label>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Professionnel de sante autorise a pratiquer la medecine.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Symptome">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">Symptôme</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N79783c4fa6ac42cd9b1002a12f95b122">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N68458f22313e4de0bae3997eb7e69d17"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4403e6b51b0046b49667a9824c2cda79">
+    <rdf:first rdf:nodeID="N42497230c7134c0b865a039630a5d43f"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Antibiotique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">Antibiotique</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estSoignePar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#soigne"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">est soigne par</rdfs:label>
+    <rdfs:label xml:lang="fr">est soigné par</rdfs:label>
+    <rdfs:comment xml:lang="fr">Un patient est soigné par un médecin. Inverse : soigne.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4905b079f77c49b0b43bf68f49ca8a94">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="Ne69661280338475d88e1d9a416ea31b7"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Consultation">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service_medicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#appartientA">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b8">
+    <rdf:first rdf:nodeID="n788314f55e834b66b3bb243b19066606b6"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#diagnostique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">diagnostique</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estTraiteePar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#traite"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">est traitée par</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une maladie est traitée par un médicament.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N31ddcdf48fbd46c9b32fe70de294c695">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb7daf7e1047d48169828bc550f01de42">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0f1b580d75864326903f9eb248680ee5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb8b5cfa8428046caa38864235854eebc">
+    <owl:intersectionOf rdf:nodeID="N7e7aed40fb5b411d9456000cc46a1479"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N36013bafb1b940c0bfac2c7d4dea4ec0">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N1a2d612d43ee45d3bf3473082dba2974"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Nausee_Effet">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#EffetDigestif"/>
+    <rdfs:label xml:lang="fr">Nausées</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#numéro_de_l’ordonnance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0bb2cddb99c046e682c8977f0dc2710f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N9d2e283ab41b4e3cae9f879f5305ed0f"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MoleculeAmoxicilline">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Molecule"/>
+    <rdfs:label xml:lang="fr">Molécule d'amoxicilline</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6735a31f381e4c2981826ed459ed39a7">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N56721b48c1404b8babf6ad5f91a2a7fa"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N70867f97df6e439f85df5a1819e756d8">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#téléphone">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6d5abe7fb1ad43f2be3bcebd1e56adeb">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="Nedd04217513041ffa55aeb6f748c23be"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#durée_de_validité">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b1">
+    <owl:intersectionOf rdf:nodeID="n788314f55e834b66b3bb243b19066606b3"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b6">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Salle_101">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <med:capacité rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</med:capacité>
+    <med:numéro_de_salle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">101</med:numéro_de_salle>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Sami">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#PatientAdulte"/>
+    <med:estPrisEnChargePar rdf:resource="http://example.org/ontologie-medicale#Service_Cardio"/>
+    <med:presente rdf:resource="http://example.org/ontologie-medicale#Fievre_Sami"/>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami Trabelsi</med:nom>
+    <med:nom>Sami Trabelsi</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami</med:prenom>
+    <med:prenom>Sami</med:prenom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">32</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 22 333 444</med:telephone>
+    <med:telephone>+216 22 333 444</med:telephone>
+    <med:numeroDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PAT-001</med:numeroDossier>
+    <med:numeroDossier>PAT-001</med:numeroDossier>
+    <med:groupeSanguin rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A+</med:groupeSanguin>
+    <med:groupeSanguin>A+</med:groupeSanguin>
+    <med:adresse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">12 Rue de la Republique, Tunis</med:adresse>
+    <med:adresse>12 Rue de la Republique, Tunis</med:adresse>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00345678</med:numeroCIN>
+    <med:numeroCIN>00345678</med:numeroCIN>
+    <med:participeA rdf:resource="http://example.org/ontologie-medicale#Consultation_1"/>
+    <med:estSoignePar rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdfs:label xml:lang="fr">Sami Trabelsi (PatientAdulte)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estPrescritePour">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#concerneMaladie"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">est prescrite pour</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une ordonnance est prescrite pour une maladie donnée.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#email">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="fr">e-mail</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N56477df98b124b22a0dacb79f8025228">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="Nc05b30f6a17842f48ef6f894dc21150f"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Service_administratif">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd395c9217a5a4ec9bebeb287c1f4e996">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N6638a2a9771042ee9e66daa98543b813"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="n788314f55e834b66b3bb243b19066606b10"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N79c91570d33947da89987659fa1870d3">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientEnfant"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#SymptomeGeneral">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:label xml:lang="fr">Symptôme général</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N914929eb113a442d8e0824abb006ce81">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N9cc8a2820d294d938cf0475f72b1da6e"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Endocrinologue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b14">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="n788314f55e834b66b3bb243b19066606b15"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N19ca9cdd348740b8982488ae5615ed65">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:nodeID="Ndce1d4cae8684d5db54a5868a8aa9bfd"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N42497230c7134c0b865a039630a5d43f">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#infirmier">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne3ca7c0229dd4c7cb5a89d90acbeae9c">
+    <rdf:first rdf:nodeID="Nb15220075e974113b5b2269f7f6da9a5"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Mol_Paracetamol">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MoleculeParacetamol"/>
+    <rdfs:label xml:lang="fr">Paracétamol (molécule)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#contientMolecule">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Molecule"/>
+    <rdfs:comment xml:lang="fr">Un médicament contient des molécules ; la molécule est elle-même une sous-classe de Médicament.</rdfs:comment>
+    <rdfs:label xml:lang="fr">contient (molécule)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#SymptomeRespiratoire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:label xml:lang="fr">Symptôme respiratoire</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N8cfa7448d30d4310af2b60f57f1a1017">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nedd9a2e3f10f4170bc0d358cedca00eb"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#est_pris_en_charge_par">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#a_lieu_dans">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Dossier_patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Fatigue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#SymptomeGeneral"/>
+    <rdfs:label xml:lang="fr">Fatigue</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na9ebad72e9914476926aa40d91b87c05">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientEnfant"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N1c8bf53d050942c3b3de38b176cf5477">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N7e80045b8c80444da6bb28668e070126"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#PatientEnfant">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:label xml:lang="fr">Patient enfant</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N1c3ab4d363eb4427818609d29565888f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nb771e856b99d4446bf8169e9d4332b51"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Pédiatrie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7e7aed40fb5b411d9456000cc46a1479">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N4403e6b51b0046b49667a9824c2cda79"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na4d7412af15e493bb0a4602da86cf139">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N31db73eaf61e4f70a3da4a2ef9a870ad"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MedecinGeneraliste">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <owl:disjointWith rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdfs:label xml:lang="fr">Médecin généraliste</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7c9792a3490e4e9ebbfccaad15fa58d4">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N8e6c69712dcc40a99742c7d7942c9be9"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N1a399fa388b14f8e818816b2949b8692">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N79a961d37dac45ba876b4499ddba30b6"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Doliprane">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Paracetamol"/>
+    <med:contientMolecule rdf:resource="http://example.org/ontologie-medicale#Mol_Paracetamol"/>
+    <med:peutProvoquer rdf:resource="http://example.org/ontologie-medicale#Nausee_Effet"/>
+    <med:posologie>1 g, 3 fois par jour</med:posologie>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Ordonnance_1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <med:contientMedicament rdf:resource="http://example.org/ontologie-medicale#Brufen"/>
+    <med:contientMedicament rdf:resource="http://example.org/ontologie-medicale#Doliprane"/>
+    <med:estDestineeA rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <med:dateOrdonnance rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-10-01</med:dateOrdonnance>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estNecessairePour">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#necessite"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">est nécessaire pour</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une opération est nécessaire pour traiter une maladie. Inverse : necessite.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N224541a2101b47d99806a6d9d859dae2">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nd315b5a18c2e43fea7246a6258287a9b"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nbd1317ecd93d40e7aeeb5a221872e132">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <rdf:rest rdf:nodeID="N4c1fa9f6dfdf41a8bd31f8589357c6ca"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N42cbad1270d746ef8e976af1e5f4038e">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:nodeID="Nf299d52ec6ec4fdbaad747f048b4c3d0"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ncc05d5e592544881a421a4313513b1e3">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0fbbf0db7a164a1995c65d8e22edb250">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nda07ce1d1a13403fa08b7b3fa6fa45df">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="N8abb0c8c291c4159b0f3df236abd115a"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N85b645d0a70b44a8932813e9ed365da4">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N8cf4174598bd4f40a3c2f929f6d327e9"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd141b774c2a44ae88f502be516d9c852">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N9a86ba9565e843309cd603ed6d346300"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N8e6c69712dcc40a99742c7d7942c9be9">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N60a8f57974f1496f81613d7d76ccdc91"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N393fa6430259451ba42d510c6383abb4">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5e535b7fe6124c799bb300542775ac5f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Service_medicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Vaccination">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Pédiatrie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2616ee8f68aa4325ae27482ce19cf4aa">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N6735a31f381e4c2981826ed459ed39a7"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#est_effectuée_par">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N81705085b893443f859af74cf0cbd19f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N473913a16d634f459528becd11eeef81"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#numeroCIN">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">numero CIN</rdfs:label>
+    <rdfs:label xml:lang="fr">numéro CIN</rdfs:label>
+    <rdfs:comment xml:lang="fr">Identifiant unique de la personne (Fonctionnel + InverseFonctionnel).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N61c1c111005f48319ea30f8c5e71829a">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#presente">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">presente</rdfs:label>
+    <rdfs:label xml:lang="fr">présente</rdfs:label>
+    <rdfs:comment xml:lang="fr">Le patient décrit / présente ses symptômes.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd566b90c3fae4edeb7505c913b0d1bde">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N5e462408c9ab4387bb9353f16e6458bd"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Generale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Chirurgie"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Pédiatrie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Ali_Stagiaire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ali Ben Romdhane</med:nom>
+    <med:nom>Ali Ben Romdhane</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ali</med:prenom>
+    <med:prenom>Ali</med:prenom>
+    <med:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</med:age>
+    <med:telephone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">+216 55 000 111</med:telephone>
+    <med:telephone>+216 55 000 111</med:telephone>
+    <med:numeroCIN rdf:datatype="http://www.w3.org/2001/XMLSchema#string">00567890</med:numeroCIN>
+    <med:numeroCIN>00567890</med:numeroCIN>
+    <rdfs:label xml:lang="fr">Ali Ben Romdhane (Stagiaire)</rdfs:label>
+    <rdfs:comment xml:lang="fr">Stagiaire en medecine, individu de la classe Stagiaire (sous Personne).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N665e0d54542046389ccb017c17d5f2da">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nc131ae4daf164957a4761ac2a7000b1c"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MaladieChronique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">Maladie chronique</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf3154cdda98b4cdcb10a781b775fe985">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N2616ee8f68aa4325ae27482ce19cf4aa"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7ff148eb53c34868b0f94a9dfe73c50a">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nbf7af903c6864f6ebfe2f2954fe661f8"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Radiographie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Radiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nbd47e1cee9b3486197530eca83ad9258">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N45bbcf078b224bf396196234a87c4f46"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#OperationEsthetique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#estPrisEnChargePar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#peutProvoquer">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#EffetSecondaire"/>
+    <rdfs:label xml:lang="fr">peut provoquer</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#prenom">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="fr">prénom</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#specialite">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="fr">spécialité</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#OrdonnanceRenouvelable">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N1ff0c061e20242e98df4b70b3434afaa">
+    <owl:intersectionOf rdf:nodeID="N40ee444d64904a78b1093064cfeafa3f"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N9a86ba9565e843309cd603ed6d346300">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N947e034fd764434f92166d103838213c"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b18">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b19"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N687bbeba5243437bb78bcfdb7a616ff2">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N61c1c111005f48319ea30f8c5e71829a"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ndce1d4cae8684d5db54a5868a8aa9bfd">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="N23208eceb9b2469f99c51cf53d62279d"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0b5647c6b53a4ddc8c482221b936758a">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N255587a90e994344857adc588b71fca1"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b11">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b12"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Pat_maryem_laribi">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">maryem laribi</rdfs:label>
+    <med:nom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">laribi</med:nom>
+    <med:prenom rdf:datatype="http://www.w3.org/2001/XMLSchema#string">maryem</med:prenom>
+    <med:email rdf:datatype="http://www.w3.org/2001/XMLSchema#string">maryem@gmail.com</med:email>
+    <med:motDePasse rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$2b$12$5vT8hAeL1rABqqp0lHsnFOVN8JLinOrkev7dA8w2oPng.JYlDllBW</med:motDePasse>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#rédige">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7f9281de0d804e6686c66d2df9c958a2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="Nbd47e1cee9b3486197530eca83ad9258"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N3ef2d6f8e11b465c87d8fc0dccba2658">
+    <rdf:first rdf:nodeID="N70867f97df6e439f85df5a1819e756d8"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Consultation_1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+    <med:a_lieu_dans rdf:resource="http://example.org/ontologie-medicale#Salle_101"/>
+    <med:dateConsultation rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-10-01</med:dateConsultation>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nda52186d376145e6824c26cf6cd3c9e6">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N42cbad1270d746ef8e976af1e5f4038e"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Hypertension">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MaladieChronique"/>
+    <rdfs:label xml:lang="fr">Hypertension</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Urgences">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7bd3362451324bfca7127eb0708f8be6">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N96b74d7469a84a339a6f621d7d7c6ef9"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Diabete">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MaladieChronique"/>
+    <rdfs:label xml:lang="fr">Diabète</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7b8f18a850c54c9ca4d43ca57e598085">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nff56fe6d7990490ca62673f99e5a8b59"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0d7e86999d6348df97bb45e8eaa0e850">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="N5ff7dcfb63fe4f11ad8cc13df2cc5681"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Role">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Role</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#joueLeRoleDe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Role"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">joue le role de</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N79a961d37dac45ba876b4499ddba30b6">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="N1c8bf53d050942c3b3de38b176cf5477"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6638a2a9771042ee9e66daa98543b813">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientAdulte"/>
+    <rdf:rest rdf:nodeID="N79c91570d33947da89987659fa1870d3"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b19">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b20"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#motDePasse">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N37fbb39a1f8a43c2a15dabbf88f1640a">
+    <owl:intersectionOf rdf:nodeID="Nd566b90c3fae4edeb7505c913b0d1bde"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N56721b48c1404b8babf6ad5f91a2a7fa">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#chefs_de_service">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0760aeca06bd4826bc8b24e5a19c3aa7">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="Ne9883323619244b48d26ac9df9b12d33"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Operation_1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#OperationChirurgicale"/>
+    <med:est_effectuée_par rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <med:durée rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">90</med:durée>
+    <ns1:opération rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-10-15</ns1:opération>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#telephone">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N596bcd76b7424f48898ce0d9762e9c01">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N5108655851c34f53b9e7dfa51e862827"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N14542dd545b442cf95028d9b6fa44d28">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4c1fa9f6dfdf41a8bd31f8589357c6ca">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#durée">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N075e6d43ef9345b688ddfd02d6986377">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N88afb22baf5f4368a102a424b76155e8"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#est_destinée_à">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Médico-techniques">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#numeroOrdre">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="fr">numéro d'ordre</rdfs:label>
+    <rdfs:comment xml:lang="fr">Numéro d'ordre professionnel du médecin.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MoleculeParacetamol">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Molecule"/>
+    <rdfs:label xml:lang="fr">Molécule de paracétamol</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4f7ce6248b1544fd840751cfddc3c9ce">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <rdf:rest rdf:nodeID="N424e9ee77e634c039c9a9477b35d168a"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N926b9066ce094ec4814d05e205940d99">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N665e0d54542046389ccb017c17d5f2da"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N949cfe94ecdc4297a1c9e65d924cdefd">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N195ae0a23fcb4186aae3c9aa6b0a5fcc"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Cardiologie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N85edd41b763a40d988449639ade13492">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N3941cd5594944eea807be3e1a6781182"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Angine">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MaladieInfectieuse"/>
+    <rdfs:label xml:lang="fr">Angine</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Mol_Ibuprofene">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MoleculeIbuprofene"/>
+    <rdfs:label xml:lang="fr">Ibuprofène (molécule)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Dermatologue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MaladieInfectieuse">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">Maladie infectieuse</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N94b22b9e938f46c88de17e693df91d15">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientAdulte"/>
+    <rdf:rest rdf:nodeID="Ne95e7304391e47e5aae5b7dcf781bf43"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N28337e5f59d74f8ba821eb8f1bad0acc">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N191f734eb8044bcdade23602a79773e2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MaladieDigestive">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:label xml:lang="fr">Maladie digestive</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Paracetamol">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Antalgique"/>
+    <rdfs:label xml:lang="fr">Paracétamol</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2d10206ca4794f308804659fe5e19763">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nf0eb17a9faaa4e29a433e57789e4bf62"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0d07b245645f434f9b3dad071aa9cd12">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N5692c6e73aec4f12a1c13e451666a8cf"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#MoleculeIbuprofene">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Molecule"/>
+    <rdfs:label xml:lang="fr">Molécule d'ibuprofène</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#ConsultationUrgence">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4294318307a640d3a6d6923b9711adde">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientEnfant"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na3339d71c6ce4988ac2299284b34a61d">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N384bdbb04b644f32bacca6dcf813c024"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N45bbcf078b224bf396196234a87c4f46">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N7b910cff5a904a61ad384e1f2f43b8d0"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6ddd83c7adfb445aafbc953f9bd436cf">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N40ee444d64904a78b1093064cfeafa3f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N2c4ba87d0960487c9d36800378ff51db"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb15220075e974113b5b2269f7f6da9a5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b15">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b16"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#PatientAdulte">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <owl:disjointWith rdf:resource="http://example.org/ontologie-medicale#PatientEnfant"/>
+    <rdfs:label xml:lang="fr">Patient adulte</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N384bdbb04b644f32bacca6dcf813c024">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nbada2fd2fad04eabaab7f521f5d948f0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#posologie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="fr">posologie</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6d78bba7fc4049d19c392e5eac1692da">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N926b9066ce094ec4814d05e205940d99"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Toux">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#SymptomeRespiratoire"/>
+    <rdfs:label xml:lang="fr">Toux</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#ConsultationControle">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N473913a16d634f459528becd11eeef81">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Nc31b2dd24c14401e9fd8655fc7c5d110"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N8344df7be6274569b365a8effef53d26">
+    <owl:intersectionOf rdf:nodeID="N0bb2cddb99c046e682c8977f0dc2710f"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nec94c0c44e3847a7ade9e5631f71295f">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N81705085b893443f859af74cf0cbd19f"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#age">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Personne"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">age</rdfs:label>
+    <rdfs:label xml:lang="fr">âge</rdfs:label>
+    <rdfs:comment xml:lang="fr">Âge de la personne (entier, fonctionnel).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4918dcb7e9234c98a26cd51575d1530a">
+    <owl:intersectionOf rdf:nodeID="N7ff148eb53c34868b0f94a9dfe73c50a"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N9ce6707365da474e99d3313ea019cf85">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N57f7e99072f44c44a3a4e2f2ddedaf6c"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Vomissement_Effet">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Vomissement"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N31db73eaf61e4f70a3da4a2ef9a870ad">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#aPourSymptome">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#estSymptomeDe"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:label xml:lang="fr">a pour symptôme</rdfs:label>
+    <rdfs:comment xml:lang="fr">Une maladie se manifeste par un ou plusieurs symptômes.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N38581bb2c49847f79c066304eeb50186">
+    <rdf:first rdf:nodeID="Nd51ea891c8214dfeb73e1fce645d4501"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6c8e0db492064b25b2e7940396ebd356">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N9cc8a2820d294d938cf0475f72b1da6e">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Naa1ef38df3b04a8ea30c23f83c201803"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Ibuprofene">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#AntiInflammatoire"/>
+    <rdfs:label xml:lang="fr">Ibuprofène</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2c4ba87d0960487c9d36800378ff51db">
+    <rdf:first rdf:nodeID="N0fc7688339cb45149e05a03d234be74f"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#date_de_l’ordonnance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N49eb2244a1a54d5ba7180dccf78c1728">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N1c3ab4d363eb4427818609d29565888f"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd9dafc8b40ac46b8aa52430d249c4d3e">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N3ef2d6f8e11b465c87d8fc0dccba2658"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N407685db21b24018bc6c8cccbf5bf433">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N38581bb2c49847f79c066304eeb50186"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4cd2e0ec1e5e4c35a8d910b9b0df19a7">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Neonatologie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Pédiatrie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0a73fe9677244c7a89f312fdd170274b">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N94b22b9e938f46c88de17e693df91d15"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#tarif">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#OrdonnanceSpecialisee">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N65e72f26ae0148fa966558f96679710d">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Infirmier">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Medicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na20b796f60be4627ab1b114e43b57ef3">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N400bdebb10d84554baf1c4974a8b299c"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5ff7dcfb63fe4f11ad8cc13df2cc5681">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N65e72f26ae0148fa966558f96679710d"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b20">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N12de5f0c72064f00be8266f20ac5ed23">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N7fa6369325644d21b46c0f51136a0c8e"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#OperationUrgente">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Fievre">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#SymptomeGeneral"/>
+    <rdfs:label xml:lang="fr">Fièvre</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#EffetSecondaire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">Effet secondaire</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Rendez_vous">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Dossier_patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nd488a71cb5fb40b2a802e80f8d87945d">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="N4619e10629ba48079f04cf1aa72d6a81"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#EffetDigestif">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#EffetSecondaire"/>
+    <rdfs:label xml:lang="fr">Effet secondaire digestif</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ncb8677d3d4e64b749665ab518486bd13">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N224541a2101b47d99806a6d9d859dae2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#concerne">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Maladie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N009244d6d54745c494facb946fdc6b0c">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N2d10206ca4794f308804659fe5e19763"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0d7e3f2954764040b90d70050dd45459">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nff56fe6d7990490ca62673f99e5a8b59">
+    <rdf:first rdf:nodeID="Ne8a20339667c492dadd4e091af3b6d34"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5100b6b0e3424f1fb2294535ee5b371e">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N65547b73161e4df2bf2e32dd9208ad6b"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N255587a90e994344857adc588b71fca1">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nf47fece0bde34303a5fe48471bb88e78"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N191f734eb8044bcdade23602a79773e2">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:nodeID="Nd488a71cb5fb40b2a802e80f8d87945d"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N09146081579c4f3c845b529ae5c9f71b">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N1034be31f0134464bc5c3ebea1de7f9b"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb78319d998ba4bb5abb29b5e49f368f8">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Pneumologue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Neurologue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b5">
+    <owl:intersectionOf rdf:nodeID="n788314f55e834b66b3bb243b19066606b7"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N9d2e283ab41b4e3cae9f879f5305ed0f">
+    <rdf:first rdf:nodeID="N923f0f0d90c2464282f1bf6e285ad112"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Service">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Maladie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <rdfs:label xml:lang="fr">Maladie</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nc31b2dd24c14401e9fd8655fc7c5d110">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N5a01101566ca42ab8b6ad63ba29df543"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne6cc271576974352938e38dec5b3f14d">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N09146081579c4f3c845b529ae5c9f71b"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#soigne">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-medicale#estSoignePar"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">soigne</rdfs:label>
+    <rdfs:label xml:lang="fr">soigne</rdfs:label>
+    <rdfs:comment xml:lang="fr">Un médecin soigne un patient. Inverse : estSoignePar.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#dateOrdonnance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    <rdfs:label xml:lang="fr">date de l'ordonnance</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#EffetNeurologique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#EffetSecondaire"/>
+    <rdfs:label xml:lang="fr">Effet secondaire neurologique</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Aide_soignant">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nc099eb0e38b14297811f56a8087f8bc8">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N407685db21b24018bc6c8cccbf5bf433"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N8abb0c8c291c4159b0f3df236abd115a">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N5e535b7fe6124c799bb300542775ac5f"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5692c6e73aec4f12a1c13e451666a8cf">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <rdf:rest rdf:nodeID="Nb7daf7e1047d48169828bc550f01de42"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf299d52ec6ec4fdbaad747f048b4c3d0">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="N1a399fa388b14f8e818816b2949b8692"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#participeA">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:label xml:lang="fr">participe à</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N385c7c68b2074181a44ad4cc055ebe1b">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="N6d5abe7fb1ad43f2be3bcebd1e56adeb"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Electrocardiogramme">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Cardiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N180301fcc3dc42a396f1c0374ef86862">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N4f7ce6248b1544fd840751cfddc3c9ce"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne69661280338475d88e1d9a416ea31b7">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N60a8f57974f1496f81613d7d76ccdc91">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="Ncc255e2f3b744435aa57b9c2b50cf4ca"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne9883323619244b48d26ac9df9b12d33">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientAdulte"/>
+    <rdf:rest rdf:nodeID="N4294318307a640d3a6d6923b9711adde"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Nausee">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#SymptomeDigestif"/>
+    <rdfs:label xml:lang="fr">Nausée</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nfed45d87f2d545ae99a81f036bbacbf4">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="N2a02421bc2754f1c8fb2f3702befb0a2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N012d697a6a0745038bb52612f39b037e">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinGeneraliste"/>
+    <rdf:rest rdf:nodeID="Ndf5da258d4524191b5250ac2acff6b3f"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N40b28e9216b842a3ba51042ee3b14625">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Service_Cardio">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Service"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Cardiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N30a0d5a5152e41a3876ee121aef5d582">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N19ca9cdd348740b8982488ae5615ed65"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N1034be31f0134464bc5c3ebea1de7f9b">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <rdf:rest rdf:nodeID="Nfed45d87f2d545ae99a81f036bbacbf4"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N356a305a7a964f8eb545d45fcc38a4e2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N009244d6d54745c494facb946fdc6b0c"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b17">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b18"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nc776b3e35e514c838cf89f2f9fb792f2">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b16">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b17"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N80d3192a20d1461eb1101e62a7c4d8bf">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="N6ddd83c7adfb445aafbc953f9bd436cf"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N3941cd5594944eea807be3e1a6781182">
+    <rdf:first rdf:nodeID="N14542dd545b442cf95028d9b6fa44d28"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N4619e10629ba48079f04cf1aa72d6a81">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="Nda07ce1d1a13403fa08b7b3fa6fa45df"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#kinésithérapeutes">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6e4606a90b0341fc83f0f19a4cd4ccd8">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nc776b3e35e514c838cf89f2f9fb792f2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5c35b43bf4e14fbc891c5c8ac74f09f7">
+    <owl:intersectionOf rdf:nodeID="N2bb51e3941bf48b9baf8477bdbeae0de"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne8a20339667c492dadd4e091af3b6d34">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Ulcere_Exemple">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#UlcereGastrique"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#se_déroule_dans">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ndf5da258d4524191b5250ac2acff6b3f">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Grippe_Sami">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#MaladieInfectieuse"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-medicale#Grippe"/>
+    <med:provoque rdf:resource="http://example.org/ontologie-medicale#Fievre_Sami"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5a01101566ca42ab8b6ad63ba29df543">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#numéro_de_salle">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Dossier_patient"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Radiologie">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N3f649fe8f3b94a78b17b0f18653de7b0">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <rdf:rest rdf:nodeID="N0d7e86999d6348df97bb45e8eaa0e850"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Naa1ef38df3b04a8ea30c23f83c201803">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Na0665ded13024a50b35a7237995cb11c"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Agents_de_service_hospitalier">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#subit">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N46f109ce820e4df28bd49617ea4dd9ff">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Medicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b10">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="n788314f55e834b66b3bb243b19066606b11"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0f7b0683c6a043fe83715b906effec41">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf8abf26102ab40738af8c9af7405dd61">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Ali_Stagiaire"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ne1a4902b0ee44fdebd261f58382abc20">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="N0d7e3f2954764040b90d70050dd45459"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Interventionnelle">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Cardiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Opération">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Service_medicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nbada2fd2fad04eabaab7f521f5d948f0">
+    <rdf:first rdf:nodeID="N60e3b39164da4f52b80550545053d3f8"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N195ae0a23fcb4186aae3c9aa6b0a5fcc">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N6c8e0db492064b25b2e7940396ebd356"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#ConsultationGenerale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N59185b5b3d2d4c998c3ae463d639b5fa">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="Nf4b740d7e3fd405d9bbc2f0e71c899b8"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N81a50917071b4d1d85abd41005853d5c">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N2415a92161204eb9ba444eaeb9301d79"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N60e3b39164da4f52b80550545053d3f8">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#contient">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Ordonnance"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Secrétaires_médicales">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Scanner">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Radiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N48a2c1028c48439e83e7b49c754a3c2d">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N012d697a6a0745038bb52612f39b037e"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7c052f3fcaed42cfb7fa624151157b9a">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#realise"/>
+    <owl:someValuesFrom rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Salle_Op_1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <med:se_déroule_dans rdf:resource="http://example.org/ontologie-medicale#Salle_Op_1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Psychiatre">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N424e9ee77e634c039c9a9477b35d168a">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="n788314f55e834b66b3bb243b19066606b13">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N3a810a7737064b14a5c01d3c20bd3c32">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="Nbd1317ecd93d40e7aeeb5a221872e132"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#SymptomeDigestif">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Symptome"/>
+    <rdfs:label xml:lang="fr">Symptôme digestif</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf47fece0bde34303a5fe48471bb88e78">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Na20b796f60be4627ab1b114e43b57ef3"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Molecule">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">Molécule</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N8c7d636e961c4b819839fab839de0b21">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:nodeID="N56477df98b124b22a0dacb79f8025228"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N0fc7688339cb45149e05a03d234be74f">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://example.org/ontologie-medicale#numeroDossier"/>
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ncc255e2f3b744435aa57b9c2b50cf4ca">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <rdf:rest rdf:nodeID="N80d47b7772d0497095368f67ac36fa1a"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Neccf20ad0fef407c9268284bb9cb57d0">
+    <owl:intersectionOf rdf:nodeID="N85edd41b763a40d988449639ade13492"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N862cf400b99e434ab9d07624c26d8b2d">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Ne3ca7c0229dd4c7cb5a89d90acbeae9c"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb21055f311fa40c094a15f31dd245e98">
+    <rdf:first rdf:nodeID="N58fcc4b408984c7f891bd41493e67bf0"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N96b74d7469a84a339a6f621d7d7c6ef9">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stuff_Médicale"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na1c35ed1c3c6488cac518dd3f90f1ea6">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N4cd2e0ec1e5e4c35a8d910b9b0df19a7"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2bb51e3941bf48b9baf8477bdbeae0de">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="Neb9b935fc21f4083b0cb00f203e7337a"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Esthetique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Chirurgie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Salle_Attente_1">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N5ba8cc5bda7b4c3a8960249c64129a76">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="Na1c35ed1c3c6488cac518dd3f90f1ea6"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Anesthésiste">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#MedecinSpecialiste"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2415a92161204eb9ba444eaeb9301d79">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#PatientAdulte"/>
+    <rdf:rest rdf:nodeID="Na9ebad72e9914476926aa40d91b87c05"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Stagiaire">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Role"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Antalgique">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Medicament"/>
+    <rdfs:label xml:lang="fr">Antalgique</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6825ca5198124dc3b0458d4591630ac9">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="N3f649fe8f3b94a78b17b0f18653de7b0"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N6a5284831c304c59839cc4a118ac950b">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N49eb2244a1a54d5ba7180dccf78c1728"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Neb9b935fc21f4083b0cb00f203e7337a">
+    <rdf:first rdf:nodeID="N0257ea22115e46959c1f944ca052aaf6"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N57f7e99072f44c44a3a4e2f2ddedaf6c">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdf:rest rdf:nodeID="N56b7b3309ebb4e68bb26fb322d6a0199"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N80d47b7772d0497095368f67ac36fa1a">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:rest rdf:nodeID="Nf8abf26102ab40738af8c9af7405dd61"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7b910cff5a904a61ad384e1f2f43b8d0">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="N8c7d636e961c4b819839fab839de0b21"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf0eb17a9faaa4e29a433e57789e4bf62">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="Ndd83dde32dee42538ba29b28193d4ffe"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Echographie_cardiaque">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Cardiologie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#dateConsultation">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    <rdfs:label xml:lang="fr">date de la consultation</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N20d58399a0e54592a7d77b86c5711a2e">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:intersectionOf rdf:nodeID="N7b8f18a850c54c9ca4d43ca57e598085"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Medicament">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="fr">Médicament</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nb771e856b99d4446bf8169e9d4332b51">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Stagiaire"/>
+    <rdf:rest rdf:nodeID="N393fa6430259451ba42d510c6383abb4"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nff2125ccd17541268a353f95ab58939b">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+    <owl:members rdf:nodeID="N687bbeba5243437bb78bcfdb7a616ff2"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N39a4784c0b254323b42f717a5837b5c1">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <rdf:rest rdf:nodeID="Na4d7412af15e493bb0a4602da86cf139"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N68458f22313e4de0bae3997eb7e69d17">
+    <rdf:first rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
+    <rdf:rest rdf:nodeID="N8cfa7448d30d4310af2b60f57f1a1017"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#OperationChirurgicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Opération"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N50b0397bae27479fb8e20a67dc5a1ad8">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+    <owl:distinctMembers rdf:nodeID="N7c9792a3490e4e9ebbfccaad15fa58d4"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Matériel">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
 </rdf:RDF>

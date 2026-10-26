@@ -18,6 +18,8 @@
 :estPrisEnChargePar rdf:type owl:AnnotationProperty .
 
 
+###  http://example.org/ontologie-medicale#motDePasse
+:motDePasse rdf:type owl:AnnotationProperty .
 ###  http://example.org/ontologie-medicale#telephone
 :telephone rdf:type owl:AnnotationProperty .
 
@@ -406,8 +408,6 @@ xsd:date rdf:type rdfs:Datatype .
 :estContagieuse rdf:type owl:DatatypeProperty ;
                 rdfs:domain :Maladie ;
                 rdfs:range xsd:boolean .
-
-
 ###  http://example.org/ontologie-medicale#est_urgent
 :est_urgent rdf:type owl:DatatypeProperty ;
             rdfs:domain :Opération ;
@@ -418,8 +418,6 @@ xsd:date rdf:type rdfs:Datatype .
 :gravite rdf:type owl:DatatypeProperty ;
          rdfs:domain :Maladie ;
          rdfs:range rdf:langString .
-
-
 ###  http://example.org/ontologie-medicale#groupeSanguin
 :groupeSanguin rdf:type owl:DatatypeProperty ;
                rdfs:domain :Patient ;
@@ -429,8 +427,6 @@ xsd:date rdf:type rdfs:Datatype .
 
 ###  http://example.org/ontologie-medicale#intensite
 :intensite rdf:type owl:DatatypeProperty .
-
-
 ###  http://example.org/ontologie-medicale#nom
 :nom rdf:type owl:DatatypeProperty ;
      rdfs:domain :Personne ;
@@ -978,12 +974,14 @@ xsd:date rdf:type rdfs:Datatype .
        :est_pris_en_charge_par :Service_Urgences ;
        :subit :Operation_2 ;
        :age 8 ;
+       :email "aminagharbi@gmail.com" ;
        :groupeSanguin "O+" ;
        :nom "Amina Gharbi" ;
        :numeroCIN "00456789" ;
        :numeroDossier "PAT-002" ;
        :prenom "Amina" ;
        :estPrisEnChargePar :Service_Urgences ;
+       :motDePasse "amina123" ;
        rdfs:label "Amina Gharbi (PatientEnfant)"@fr .
 
 
@@ -1009,6 +1007,11 @@ xsd:date rdf:type rdfs:Datatype .
         :estContagieuse "true"^^xsd:boolean ;
         :dureeTraitement "7 jours" ;
         rdfs:label "Angine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Asma
+:Asma rdf:type owl:NamedIndividual ,
+               :Agents_de_service_hospitalier .
 
 
 ###  http://example.org/ontologie-medicale#Brufen
@@ -1061,6 +1064,7 @@ xsd:date rdf:type rdfs:Datatype .
                    :MedecinGeneraliste ;
           :appartient_à :Service_Cardio ;
           :connait :Dr_Karim ;
+          :diagnostique :Grippe_Sami ;
           :realise :Consultation_1 ;
           :redige :Ordonnance_1 ;
           :rédige :Ordonnance_1 ;
@@ -1077,6 +1081,16 @@ xsd:date rdf:type rdfs:Datatype .
           rdfs:label "Dr Ahmed Ben Salah (Médecin Généraliste)"@fr .
 
 
+###  http://example.org/ontologie-medicale#Dr_Aziz_Laribi
+:Dr_Aziz_Laribi rdf:type owl:NamedIndividual ,
+                         :MedecinGeneraliste ;
+                :age 25 ;
+                :email "Azizlaribi@gmail.com" ;
+                :nom "Aziz Laribi" ;
+                :specialite "Médecine Générale" ;
+                :motDePasse "aziz123" ;
+                :telephone "+216 99 888 777" ;
+                rdfs:label "Aziz Laribi" .
 ###  http://example.org/ontologie-medicale#Dr_Fatima
 :Dr_Fatima rdf:type owl:NamedIndividual ,
                     :MedecinGeneraliste ;
@@ -1094,11 +1108,22 @@ xsd:date rdf:type rdfs:Datatype .
            rdfs:label "Dr Fatima Benali (Médecin Généraliste - Urgences)"@fr .
 
 
+###  http://example.org/ontologie-medicale#Dr_Jean_Testeur
+:Dr_Jean_Testeur rdf:type owl:NamedIndividual ,
+                          :MedecinSpecialiste ;
+                 :email "jean.test@hopital.fr" ;
+                 :nom "Testeur" ;
+                 :prenom "Jean" ;
+                 :specialite "Cardiologie" ;
+                 :motDePasse "$2b$12$q.D6880kjN8aYhmN42Phye11Lg6AAmlAUmSXKPWcRYYHQOqVvf9Q2" ;
+                 rdfs:label "Jean Testeur" .
 ###  http://example.org/ontologie-medicale#Dr_Karim
 :Dr_Karim rdf:type owl:NamedIndividual ,
                    :MedecinSpecialiste ;
           :appartient_à :Service_Cardio ;
           :connait :Dr_Ahmed ;
+          :connait :Dr_Karim ;
+          :diagnostique :Grippe_Sami ;
           :realise :Consultation_1 ;
           :age 40 ;
           :email "karim.mansour@hopital.tn" ;
@@ -1109,6 +1134,22 @@ xsd:date rdf:type rdfs:Datatype .
           :specialite "Cardiologie" ;
           :telephone "+216 71 000 002" ;
           rdfs:label "Dr Karim Mansour (Cardiologue)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Sophie_Martin
+:Dr_Sophie_Martin rdf:type owl:NamedIndividual ,
+                           :Cardiologue ;
+                  :email "sophie.martin@hopital.fr" ;
+                  :nom "Martin" ;
+                  :prenom "Sophie" ;
+                  :specialite "Cardiologie" ;
+                  :motDePasse "$2b$12$ak.f1UPxMVNhVP78zWr03.Um8Fl50YRK4bovBZc6A0tQrPdOs/ZC2" ;
+                  rdfs:label "Sophie Martin" .
+
+
+###  http://example.org/ontologie-medicale#Fievre_Sami
+:Fievre_Sami rdf:type owl:NamedIndividual ,
+                      :Fievre .
 
 
 ###  http://example.org/ontologie-medicale#Fatigue
@@ -1171,6 +1212,16 @@ xsd:date rdf:type rdfs:Datatype .
           :traite :Diabete ;
           :posologie "Dosage individualise selon glycemie" ;
           rdfs:label "Insuline"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ind_Jihene_Ounis
+:Ind_Jihene_Ounis rdf:type owl:NamedIndividual ,
+                           :Stagiaire ;
+                  :age 23 ;
+                  :nom "Jihene Ounis" ;
+                  :numeroCIN "09876543" ;
+                  :telephone "+216 98 111 222" ;
+                  rdfs:label "Jihene Ounis" .
 
 
 ###  http://example.org/ontologie-medicale#Mol_Ibuprofene
@@ -1247,6 +1298,7 @@ xsd:date rdf:type rdfs:Datatype .
       :participeA :Consultation_1 ;
       :souffreDe :Grippe ,
                  :Hypertension ;
+      :presente :Fievre_Sami ;
       :adresse "12 Rue de la Republique, Tunis" ;
       :age 32 ;
       :groupeSanguin "A+" ;
@@ -1276,8 +1328,6 @@ xsd:date rdf:type rdfs:Datatype .
                      :Asthme ;
       :descriptionSymptome "Expulsion brusque d air par les voies respiratoires" ;
       rdfs:label "Toux"@fr .
-
-
 ###  http://example.org/ontologie-medicale#Ulcere_Exemple
 :Ulcere_Exemple rdf:type owl:NamedIndividual ,
                          :MaladieDigestive ;
@@ -1770,3 +1820,13 @@ xsd:date rdf:type rdfs:Datatype .
 
 
 ###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
+
+
+###  http://example.org/ontologie-medicale#Pat_maryem_laribi
+:Pat_maryem_laribi rdf:type owl:NamedIndividual ,
+                     :Patient ;
+            rdfs:label "maryem laribi" ;
+            :nom "laribi" ;
+            :prenom "maryem" ;
+            :email "maryem@gmail.com" ;
+            :motDePasse "$2b$12$5vT8hAeL1rABqqp0lHsnFOVN8JLinOrkev7dA8w2oPng.JYlDllBW" .

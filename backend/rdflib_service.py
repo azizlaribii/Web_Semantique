@@ -31,37 +31,38 @@ class RDFLibService:
         self.load_ontology()
 
     def load_ontology(self):
-        """Charge l'ontologie principale (TTL Protégé + Personne OWL) dans le graphe RDFLib."""
+        """
+        Charge et fusionne dynamiquement toutes les ontologies médicales du projet.
+        Supporte à la fois Turtle (.ttl) et RDF/XML (.owl).
+        Permet la prise en compte immédiate de tout ajout dans Protégé,
+        que l'utilisateur enregistre dans ontologie_medicale (1).ttl ou ontologie_personne.owl.
+        """
         self.graph = Graph()
-        loaded_count = 0
-        
-        # 1. Charger l'ontologie médicale principale TTL de Protégé en priorité
-        if os.path.exists(TTL_PATH):
-            try:
-                self.graph.parse(TTL_PATH, format="turtle")
-                loaded_count += 1
-                print(f"[RDFLib] Ontologie Protégé 'ontologie_medicale (1).ttl' chargée ({len(self.graph)} triplets).")
-            except Exception as e:
-                print(f"[RDFLib] Erreur parsing TTL {TTL_PATH} : {e}")
+        self.loaded_sources = []
 
-        # 2. Compléter avec ontologie_personne.owl si présent
-        if os.path.exists(self.owl_path):
-            try:
-                self.graph.parse(self.owl_path, format="xml")
-                loaded_count += 1
-                print(f"[RDFLib] Ontologie Personne OWL chargée (total : {len(self.graph)} triplets).")
-            except Exception as e:
-                print(f"[RDFLib] Erreur parsing OWL {self.owl_path} : {e}")
+        sources = [
+            (os.path.join(BASE_DIR, "ontologie_personne.owl"), "xml"),
+            (os.path.join(BASE_DIR, "ontologie_medicale (1).ttl"), "turtle"),
+            (os.path.join(BASE_DIR, "ontologie_medicale.owl"), "xml"),
+        ]
 
-        if loaded_count == 0:
-            raise FileNotFoundError(f"Aucune ontologie trouvée ({TTL_PATH} ou {self.owl_path})")
+        for path, fmt in sources:
+            if os.path.exists(path):
+                try:
+                    self.graph.parse(path, format=fmt)
+                    self.loaded_sources.append(os.path.basename(path))
+                except Exception as e:
+                    print(f"[RDFLib] Avertissement parsing {os.path.basename(path)}: {e}")
+
+        if len(self.graph) == 0:
+            raise FileNotFoundError("Aucun fichier d'ontologie n'a pu être chargé.")
 
         self.graph.bind("med", ONTO_NS)
         self.graph.bind("", ONTO_NS)
         self.graph.bind("owl", OWL)
         self.graph.bind("rdfs", RDFS)
         self.graph.bind("rdf", RDF)
-        print(f"[RDFLib] Graph prêt avec {len(self.graph)} triplets.")
+        print(f"[RDFLib] Ontologies chargées dynamiquement ({', '.join(self.loaded_sources)}) - Total : {len(self.graph)} triplets.")
 
     def execute_sparql(self, query_str: str) -> Dict[str, Any]:
         """
@@ -121,9 +122,18 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             if binding not in bindings:
                 bindings.append(binding)
 
+        # Déduplication intelligente des résultats basée sur la valeur textuelle
+        unique_bindings = []
+        seen_keys = set()
+        for b in bindings:
+            key = tuple((var, b.get(var, {}).get("value")) for var in vars_list)
+            if key not in seen_keys:
+                seen_keys.add(key)
+                unique_bindings.append(b)
+
         return {
             "head": {"vars": vars_list},
-            "results": {"bindings": bindings}
+            "results": {"bindings": unique_bindings}
         }
 
     def get_summary(self) -> Dict[str, Any]:
@@ -157,21 +167,23 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             "triples_count": len(self.graph),
             "classes_personne_count": len(classes),
             "individuals_count": len(individuals),
-            "file": os.path.basename(self.owl_path)
+            "file": " + ".join(getattr(self, "loaded_sources", [os.path.basename(self.owl_path)]))
         }
 
     def get_all_personnes(self) -> List[Dict[str, Any]]:
-        """Extrait tous les détails sur les individus de la classe Personne."""
+        """Extrait tous les détails sur les individus de la classe Personne avec fallback sur nom/label/id."""
         q = """
         PREFIX : <http://example.org/ontologie-medicale#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT ?p ?type ?nom ?prenom ?age ?cin ?telephone ?adresse ?dossier ?groupeSanguin ?specialite ?service WHERE {
+        SELECT ?p ?type ?nom ?prenom ?label ?email ?age ?cin ?telephone ?adresse ?dossier ?groupeSanguin ?specialite ?service WHERE {
             ?p rdf:type ?type .
             ?type rdfs:subClassOf* :Personne .
             OPTIONAL { ?p :nom ?nom }
             OPTIONAL { ?p :prenom ?prenom }
+            OPTIONAL { ?p rdfs:label ?label }
+            OPTIONAL { ?p :email ?email }
             OPTIONAL { ?p :age ?age }
             OPTIONAL { ?p :numeroCIN ?cin }
             OPTIONAL { ?p :telephone ?telephone }
@@ -188,12 +200,30 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         for r in rows:
             uri = r["p"]["value"]
             if uri not in personnes_dict:
+                nom_val = r.get("nom", {}).get("value", "")
+                prenom_val = r.get("prenom", {}).get("value", "")
+                label_val = r.get("label", {}).get("value", "")
+                id_clean = uri.split("#")[-1].replace("_", " ")
+
+                if prenom_val and nom_val:
+                    if prenom_val.lower() in nom_val.lower():
+                        computed_nom = nom_val
+                    else:
+                        computed_nom = f"{prenom_val} {nom_val}"
+                elif nom_val:
+                    computed_nom = nom_val
+                elif label_val:
+                    computed_nom = label_val
+                else:
+                    computed_nom = id_clean
+
                 personnes_dict[uri] = {
                     "uri": uri,
                     "id": uri.split("#")[-1],
                     "types": [],
-                    "nom": r.get("nom", {}).get("value", ""),
-                    "prenom": r.get("prenom", {}).get("value", ""),
+                    "nom": computed_nom,
+                    "prenom": prenom_val,
+                    "email": r.get("email", {}).get("value", ""),
                     "age": r.get("age", {}).get("value", ""),
                     "cin": r.get("cin", {}).get("value", ""),
                     "telephone": r.get("telephone", {}).get("value", ""),
@@ -208,6 +238,94 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                 personnes_dict[uri]["types"].append(type_val)
 
         return list(personnes_dict.values())
+
+    def add_personne(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Ajoute un nouvel individu dans l'ontologie de manière dynamique et bidirectionnelle.
+        Met à jour le graphe RDFLib et enregistre dans ontologie_medicale (1).ttl et ontologie_personne.owl.
+        """
+        nom = data.get("nom", "").strip()
+        if not nom:
+            raise ValueError("Le nom est obligatoire.")
+
+        import re
+        id_suffix = re.sub(r'[^a-zA-Z0-9_]', '_', nom.replace(' ', '_'))
+        cls_name = data.get("type", "MedecinGeneraliste")
+        if not id_suffix.startswith(('Dr_', 'Pat_', 'Stag_')):
+            prefix = "Dr_" if "Medecin" in cls_name or cls_name == "Cardiologue" else ("Pat_" if "Patient" in cls_name else "Ind_")
+            id_suffix = f"{prefix}{id_suffix}"
+
+        ind_uri = ONTO_NS[id_suffix]
+        cls_uri = ONTO_NS[cls_name]
+
+        self.graph.add((ind_uri, RDF.type, OWL.NamedIndividual))
+        self.graph.add((ind_uri, RDF.type, cls_uri))
+        self.graph.add((ind_uri, RDFS.label, Literal(nom, datatype=rdflib.XSD.string)))
+        self.graph.add((ind_uri, ONTO_NS.nom, Literal(nom, datatype=rdflib.XSD.string)))
+
+        if data.get("age"):
+            try:
+                self.graph.add((ind_uri, ONTO_NS.age, Literal(int(data["age"]), datatype=rdflib.XSD.integer)))
+            except (ValueError, TypeError):
+                pass
+
+        if data.get("telephone"):
+            self.graph.add((ind_uri, ONTO_NS.telephone, Literal(str(data["telephone"]), datatype=rdflib.XSD.string)))
+
+        if data.get("cin"):
+            self.graph.add((ind_uri, ONTO_NS.numeroCIN, Literal(str(data["cin"]), datatype=rdflib.XSD.string)))
+
+        if data.get("specialite"):
+            self.graph.add((ind_uri, ONTO_NS.specialite, Literal(str(data["specialite"]), datatype=rdflib.XSD.string)))
+
+        if data.get("dossier"):
+            self.graph.add((ind_uri, ONTO_NS.numeroDossier, Literal(str(data["dossier"]), datatype=rdflib.XSD.string)))
+
+        if data.get("groupeSanguin"):
+            self.graph.add((ind_uri, ONTO_NS.groupeSanguin, Literal(str(data["groupeSanguin"]), datatype=rdflib.XSD.string)))
+
+        # Synchronisation dans le fichier Turtle actif de Protégé
+        ttl_path = os.path.join(BASE_DIR, "ontologie_medicale (1).ttl")
+        if os.path.exists(ttl_path):
+            try:
+                with open(ttl_path, "a", encoding="utf-8") as f:
+                    f.write(f"\n\n###  http://example.org/ontologie-medicale#{id_suffix}\n")
+                    f.write(f":{id_suffix} rdf:type owl:NamedIndividual ,\n")
+                    f.write(f"                     :{cls_name} ;\n")
+                    f.write(f'            rdfs:label "{nom}" ;\n')
+                    f.write(f'            :nom "{nom}"')
+                    if data.get("age"):
+                        f.write(f" ;\n            :age {data['age']}")
+                    if data.get("telephone"):
+                        f.write(f' ;\n            :telephone "{data["telephone"]}"')
+                    if data.get("cin"):
+                        f.write(f' ;\n            :numeroCIN "{data["cin"]}"')
+                    if data.get("specialite"):
+                        f.write(f' ;\n            :specialite "{data["specialite"]}"')
+                    if data.get("dossier"):
+                        f.write(f' ;\n            :numeroDossier "{data["dossier"]}"')
+                    if data.get("groupeSanguin"):
+                        f.write(f' ;\n            :groupeSanguin "{data["groupeSanguin"]}"')
+                    f.write(" .\n")
+            except Exception as e:
+                print(f"[RDFLib] Erreur append TTL : {e}")
+
+        # Synchronisation dans ontologie_personne.owl
+        owl_p = os.path.join(BASE_DIR, "ontologie_personne.owl")
+        if os.path.exists(owl_p):
+            try:
+                self.graph.serialize(destination=owl_p, format="xml")
+            except Exception as e:
+                print(f"[RDFLib] Erreur save OWL : {e}")
+
+        return {
+            "success": True,
+            "id": id_suffix,
+            "uri": str(ind_uri),
+            "nom": nom,
+            "type": cls_name,
+            "triples_count": len(self.graph)
+        }
 
     def get_relations_graph(self) -> Dict[str, Any]:
         """Retourne les nœuds et liens pour la visualisation en graphe interactif."""
