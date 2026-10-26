@@ -21,6 +21,7 @@ from rdflib import Graph, Namespace, RDF, RDFS, OWL, URIRef, Literal
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OWL_PATH = os.path.join(BASE_DIR, "ontologie_personne.owl")
 
+TTL_PATH = os.path.join(BASE_DIR, "ontologie_medicale (1).ttl")
 ONTO_NS = Namespace("http://example.org/ontologie-medicale#")
 
 class RDFLibService:
@@ -30,16 +31,37 @@ class RDFLibService:
         self.load_ontology()
 
     def load_ontology(self):
-        """Charge l'ontologie OWL dans le graphe RDFLib."""
-        if not os.path.exists(self.owl_path):
-            raise FileNotFoundError(f"Ontologie introuvable : {self.owl_path}")
+        """Charge l'ontologie principale (TTL Protégé + Personne OWL) dans le graphe RDFLib."""
         self.graph = Graph()
-        self.graph.parse(self.owl_path, format="xml")
+        loaded_count = 0
+        
+        # 1. Charger l'ontologie médicale principale TTL de Protégé en priorité
+        if os.path.exists(TTL_PATH):
+            try:
+                self.graph.parse(TTL_PATH, format="turtle")
+                loaded_count += 1
+                print(f"[RDFLib] Ontologie Protégé 'ontologie_medicale (1).ttl' chargée ({len(self.graph)} triplets).")
+            except Exception as e:
+                print(f"[RDFLib] Erreur parsing TTL {TTL_PATH} : {e}")
+
+        # 2. Compléter avec ontologie_personne.owl si présent
+        if os.path.exists(self.owl_path):
+            try:
+                self.graph.parse(self.owl_path, format="xml")
+                loaded_count += 1
+                print(f"[RDFLib] Ontologie Personne OWL chargée (total : {len(self.graph)} triplets).")
+            except Exception as e:
+                print(f"[RDFLib] Erreur parsing OWL {self.owl_path} : {e}")
+
+        if loaded_count == 0:
+            raise FileNotFoundError(f"Aucune ontologie trouvée ({TTL_PATH} ou {self.owl_path})")
+
         self.graph.bind("med", ONTO_NS)
+        self.graph.bind("", ONTO_NS)
         self.graph.bind("owl", OWL)
         self.graph.bind("rdfs", RDFS)
         self.graph.bind("rdf", RDF)
-        print(f"[RDFLib] Ontologie chargée avec succès ({len(self.graph)} triplets).")
+        print(f"[RDFLib] Graph prêt avec {len(self.graph)} triplets.")
 
     def execute_sparql(self, query_str: str) -> Dict[str, Any]:
         """
@@ -95,7 +117,9 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                             "type": "literal",
                             "value": str(val)
                         }
-            bindings.append(binding)
+            # Déduplication systématique des lignes pour éviter toute répétition
+            if binding not in bindings:
+                bindings.append(binding)
 
         return {
             "head": {"vars": vars_list},
@@ -226,12 +250,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 
 # ======================================================================
-# Service Maladie — Module dédié aux maladies (ontologie_maladie.owl)
-# ======================================================================
 MALADIE_OWL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ontologie_maladie.owl")
 
 class MaladieService:
-    """Service RDFLib pour le module Maladie."""
+    """Service RDFLib pour le module Maladie basé sur ontologie_medicale (1).ttl."""
 
     def __init__(self):
         self.graph = Graph()
@@ -239,41 +261,47 @@ class MaladieService:
         self._load()
 
     def _load(self):
+        # 1. Charger ontologie_medicale (1).ttl en priorité absolue
+        if os.path.exists(TTL_PATH):
+            try:
+                self.graph.parse(TTL_PATH, format="turtle")
+                self.loaded = True
+                print(f"[MaladieService] 'ontologie_medicale (1).ttl' chargée ({len(self.graph)} triplets).")
+            except Exception as e:
+                print(f"[MaladieService] Erreur chargement TTL : {e}")
+
+        # 2. Compléter avec ontologie_maladie.owl si présent
         if os.path.exists(MALADIE_OWL_PATH):
             try:
                 self.graph.parse(MALADIE_OWL_PATH, format="xml")
-                self.graph.bind("mal", Namespace("http://example.org/ontologie-maladie#"))
                 self.loaded = True
+            except Exception:
+                pass
 
-                # Chargement des ontologies pour les questions croisées (Sami, Dr Fatima, diagnostics)
-                pers_path = os.path.join(BASE_DIR, "ontologie_personne.owl")
-                if os.path.exists(pers_path):
-                    try:
-                        self.graph.parse(pers_path, format="xml")
-                    except Exception:
-                        pass
+        # 3. Ontologie personne pour questions croisées (Sami, Dr Fatima)
+        pers_path = os.path.join(BASE_DIR, "ontologie_personne.owl")
+        if os.path.exists(pers_path):
+            try:
+                self.graph.parse(pers_path, format="xml")
+            except Exception:
+                pass
 
-                med_path = os.path.join(BASE_DIR, "ontologie_medicale.owl")
-                if os.path.exists(med_path):
-                    try:
-                        self.graph.parse(med_path, format="xml")
-                    except Exception:
-                        pass
+        self.graph.bind("med", ONTO_NS)
+        self.graph.bind("mal", Namespace("http://example.org/ontologie-maladie#"))
+        self.graph.bind("", ONTO_NS)
+        self.graph.bind("owl", OWL)
+        self.graph.bind("rdfs", RDFS)
+        self.graph.bind("rdf", RDF)
+        print(f"[MaladieService] Prêt avec {len(self.graph)} triplets au total.")
 
-                self.graph.bind("med", Namespace("http://example.org/ontologie-medicale#"))
-                print(f"[MaladieService] ontologies chargées ({len(self.graph)} triplets).")
-            except Exception as e:
-                print(f"[MaladieService] Erreur chargement OWL : {e}")
-        else:
-            print(f"[MaladieService] ontologie_maladie.owl introuvable — module désactivé.")
-
-    NS = "http://example.org/ontologie-maladie#"
+    NS = "http://example.org/ontologie-medicale#"
 
     def execute_sparql(self, query_str: str) -> Dict[str, Any]:
         """Exécute une requête SPARQL sur le graphe Maladie."""
         import re
-        prefixes = f"""PREFIX mal: <{self.NS}>
+        prefixes = f"""PREFIX : <http://example.org/ontologie-medicale#>
 PREFIX med: <http://example.org/ontologie-medicale#>
+PREFIX mal: <http://example.org/ontologie-maladie#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -281,7 +309,9 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 """
         q = query_str.strip()
         q = re.sub(r'PREFIX\s+:\s+<[^>]+>', '', q, flags=re.IGNORECASE)
-        if "PREFIX mal:" not in q:
+        # Harmoniser les préfixes : et mal: vers med: si besoin
+        q = re.sub(r'(?<![A-Za-z0-9_:]):([A-Za-z0-9_]+)', r'med:\1', q)
+        if "PREFIX med:" not in q:
             q = prefixes + q
 
         res = self.graph.query(q)
@@ -304,33 +334,46 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         return {"head": {"vars": vars_list}, "results": {"bindings": bindings}}
 
     def get_all_maladies(self) -> List[Dict[str, Any]]:
-        """Retourne tous les individus Maladie avec leurs propriétés."""
+        """Retourne tous les individus Maladie depuis ontologie_medicale (1).ttl."""
         q = """
-        SELECT ?m ?type ?nom ?codeCIM ?gravite ?contagieuse ?chronique ?duree WHERE {
+        SELECT DISTINCT ?m ?type ?label ?desc ?gravite ?contagieuse WHERE {
+            ?m rdf:type owl:NamedIndividual .
             ?m rdf:type ?type .
-            ?type rdfs:subClassOf* mal:Maladie .
-            OPTIONAL { ?m mal:nom ?nom }
-            OPTIONAL { ?m mal:codeCIM ?codeCIM }
-            OPTIONAL { ?m mal:gravite ?gravite }
-            OPTIONAL { ?m mal:estContagieuse ?contagieuse }
-            OPTIONAL { ?m mal:estChronique ?chronique }
-            OPTIONAL { ?m mal:dureeTraitement ?duree }
+            ?type rdfs:subClassOf* med:Maladie .
+            FILTER(?type NOT IN (med:Maladie, med:Symptome, med:SymptomeGeneral, med:SymptomeDigestif, med:SymptomeRespiratoire, med:Type))
+            OPTIONAL { ?m rdfs:label ?label }
+            OPTIONAL { ?m med:description ?desc }
+            OPTIONAL { ?m med:gravite ?gravite }
+            OPTIONAL { ?m med:estContagieuse ?contagieuse }
         }
         """
         rows = self.execute_sparql(q)["results"]["bindings"]
         maladies_dict = {}
         for r in rows:
             uri = r["m"]["value"]
+            ind_id = uri.split("#")[-1]
             if uri not in maladies_dict:
+                lbl = r.get("label", {}).get("value", "")
+                raw_grav = r.get("gravite", {}).get("value", "")
+                # Mapper la gravité textuelle / numérique
+                grav_norm = "1"
+                if "mod" in raw_grav.lower() or raw_grav == "2":
+                    grav_norm = "2"
+                elif "grav" in raw_grav.lower() or raw_grav == "3" or "sev" in raw_grav.lower():
+                    grav_norm = "3"
+
+                is_chronique = "true" if "Chronique" in r["type"]["value"] else "false"
+
                 maladies_dict[uri] = {
-                    "id": uri.split("#")[-1],
+                    "id": ind_id,
                     "types": [],
-                    "nom": r.get("nom", {}).get("value", uri.split("#")[-1]),
-                    "codeCIM": r.get("codeCIM", {}).get("value", ""),
-                    "gravite": r.get("gravite", {}).get("value", "1"),
+                    "nom": lbl or ind_id.replace("_", " "),
+                    "description": r.get("desc", {}).get("value", ""),
+                    "codeCIM": "",
+                    "gravite": grav_norm,
                     "contagieuse": r.get("contagieuse", {}).get("value", "false"),
-                    "chronique": r.get("chronique", {}).get("value", "false"),
-                    "duree": r.get("duree", {}).get("value", ""),
+                    "chronique": is_chronique,
+                    "duree": "",
                     "symptomes": [],
                     "medicaments": []
                 }
@@ -338,57 +381,70 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             if type_val not in maladies_dict[uri]["types"] and type_val not in ["NamedIndividual", "Thing"]:
                 maladies_dict[uri]["types"].append(type_val)
 
-        # Charger les symptômes liés
+        # Charger les symptômes liés via aPourSymptome
         q2 = """
-        SELECT ?m ?sNom WHERE {
-            ?m mal:aPourSymptome ?s .
-            OPTIONAL { ?s mal:nomSymptome ?sNom }
+        SELECT DISTINCT ?m ?s ?sNom WHERE {
+            ?m med:aPourSymptome ?s .
+            OPTIONAL { ?s rdfs:label ?sNom }
         }
         """
         for r in self.execute_sparql(q2)["results"]["bindings"]:
             uri = r["m"]["value"]
             if uri in maladies_dict:
-                snom = r.get("sNom", {}).get("value", r.get("s", {}).get("value", "").split("#")[-1])
+                snom = r.get("sNom", {}).get("value") or r.get("s", {}).get("value", "").split("#")[-1]
                 if snom and snom not in maladies_dict[uri]["symptomes"]:
                     maladies_dict[uri]["symptomes"].append(snom)
 
-        # Charger les médicaments liés
+        # Charger les symptômes via inverse estSymptomeDe
+        q2_inv = """
+        SELECT DISTINCT ?s ?m WHERE {
+            ?s med:estSymptomeDe ?m .
+        }
+        """
+        for r in self.execute_sparql(q2_inv)["results"]["bindings"]:
+            uri = r["m"]["value"]
+            if uri in maladies_dict:
+                snom = r.get("s", {}).get("value", "").split("#")[-1]
+                if snom and snom not in maladies_dict[uri]["symptomes"]:
+                    maladies_dict[uri]["symptomes"].append(snom)
+
+        # Charger les médicaments liés via estTraiteePar
         q3 = """
-        SELECT ?m ?medId WHERE {
-            ?m mal:estTraiteePar ?med .
-            BIND(STRAFTER(STR(?med), "#") AS ?medId)
+        SELECT DISTINCT ?m ?med WHERE {
+            ?m med:estTraiteePar ?med .
         }
         """
         for r in self.execute_sparql(q3)["results"]["bindings"]:
             uri = r["m"]["value"]
             if uri in maladies_dict:
-                mid = r.get("medId", {}).get("value", "")
+                mid = r.get("med", {}).get("value", "").split("#")[-1]
                 if mid and mid not in maladies_dict[uri]["medicaments"]:
                     maladies_dict[uri]["medicaments"].append(mid)
 
-        result = [v for v in maladies_dict.values() if "Maladie" not in v["types"] or len(v["types"]) > 0]
-        # Garder seulement les individus (pas les classes)
-        filtered = [v for v in result if any(t in ["Grippe","Angine","Diabete","Hypertension","UlcereGastrique",
-                                                   "MaladieInfectieuse","MaladieChronique","MaladieDigestive"] for t in v["types"])]
+        # Charger médicaments via inverse traite
+        q3_inv = """
+        SELECT DISTINCT ?med ?m WHERE {
+            ?med med:traite ?m .
+        }
+        """
+        for r in self.execute_sparql(q3_inv)["results"]["bindings"]:
+            uri = r["m"]["value"]
+            if uri in maladies_dict:
+                mid = r.get("med", {}).get("value", "").split("#")[-1]
+                if mid and mid not in maladies_dict[uri]["medicaments"]:
+                    maladies_dict[uri]["medicaments"].append(mid)
 
-        # S'assurer que les sous-classes héritent des super-classes pour les filtres UI
-        for m in filtered:
-            if any(t in ["Grippe", "Angine"] for t in m["types"]) and "MaladieInfectieuse" not in m["types"]:
-                m["types"].append("MaladieInfectieuse")
-            if any(t in ["Diabete", "Hypertension"] for t in m["types"]) and "MaladieChronique" not in m["types"]:
-                m["types"].append("MaladieChronique")
-            if any(t in ["UlcereGastrique"] for t in m["types"]) and "MaladieDigestive" not in m["types"]:
-                m["types"].append("MaladieDigestive")
-
-        return filtered
+        result = list(maladies_dict.values())
+        return result
 
     def get_graph_maladie(self) -> Dict[str, Any]:
-        """Retourne les nœuds et liens du graphe Maladie."""
+        """Retourne les nœuds et liens du graphe Maladie depuis ontologie_medicale (1).ttl."""
         q = """
-        SELECT ?s ?p ?o WHERE {
+        SELECT DISTINCT ?s ?p ?o WHERE {
             ?s ?p ?o .
-            FILTER(?p IN (mal:aPourSymptome, mal:estTraiteePar, mal:touche,
-                          mal:necessite, mal:necessiteSuiviPar, mal:estPrescritePour))
+            FILTER(?p IN (med:aPourSymptome, med:estTraiteePar, med:souffreDe, med:touche,
+                          med:estSymptomeDe, med:estContreIndiquePour, med:diagnostique,
+                          med:necessite, med:necessiteSuiviPar, med:estPrescritePour))
         }
         """
         bindings = self.execute_sparql(q)["results"]["bindings"]

@@ -302,6 +302,276 @@ class IAService:
                    .replace("è", "e").replace("ê", "e").replace("î", "i")
                    .replace("ô", "o").replace("û", "u").replace("ù", "u"))
 
+        # ============================================================
+        # PRIORITÉ -1 : Questions relatives à la Classe Maladie,
+        #               ses individus, Object Properties et Data Properties
+        #               (basées sur ontologie_medicale (1).ttl de Protégé)
+        # ============================================================
+
+        # 1. Symptômes d'une maladie (ex: "quels sont les symptomes de la grippe / angine / diabete ?")
+        if any(w in q_norm for w in ["symptome", "symptomes", "signe", "manifestation"]) and any(w in q_norm for w in ["grippe", "angine", "diabete", "hypertension", "ulcere"]):
+            m_target = "Grippe" if "grippe" in q_norm else ("Angine" if "angine" in q_norm else ("Diabete" if "diabete" in q_norm else ("Hypertension" if "hypertension" in q_norm else "Ulcere_Exemple")))
+            sparql = PREFIXES + f"""SELECT ?symptome ?nomSymptome WHERE {{
+    :{m_target} :aPourSymptome ?s .
+    OPTIONAL {{ ?s rdfs:label ?nomSymptome }}
+    BIND(STRAFTER(STR(?s), "#") AS ?symptome)
+}}"""
+            return sparql, f"Symptômes de {m_target} (Ontologie Protégé)", \
+                   f"L'IA extrait les individus reliés à :{m_target} via la propriété d'objet :aPourSymptome."
+
+        # 2. Quels symptômes pour quelle maladie (général)
+        if any(w in q_norm for w in ["symptome", "symptomes"]) and any(w in q_norm for w in ["maladie", "maladies", "provoque", "cause"]):
+            sparql = PREFIXES + """SELECT ?maladie ?symptome WHERE {
+    ?m :aPourSymptome ?s .
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+    BIND(STRAFTER(STR(?s), "#") AS ?symptome)
+} ORDER BY ?maladie"""
+            return sparql, "Association Maladie - Symptôme (aPourSymptome)", \
+                   "L'IA extrait les couples (Maladie, Symptôme) via la relation :aPourSymptome de l'ontologie."
+
+        # 3. Contre-indications (ex: "quels medicaments sont contre-indiques pour l'ulcere ?")
+        if any(w in q_norm for w in ["contre indique", "contre-indique", "contre indication", "interdit"]) or ("contre" in q_norm and any(w in q_norm for w in ["ulcere", "grippe", "angine", "diabete", "hypertension"])):
+            m_target = "Ulcere_Exemple" if "ulcere" in q_norm else ("Grippe" if "grippe" in q_norm else ("Angine" if "angine" in q_norm else ("Diabete" if "diabete" in q_norm else "Hypertension")))
+            sparql = PREFIXES + f"""SELECT ?medicament ?maladie WHERE {{
+    ?med :estContreIndiquePour ?m .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+}}"""
+            return sparql, "Médicaments contre-indiqués (Relation estContreIndiquePour)", \
+                   "L'IA recherche les contre-indications médicamenteuses via la propriété :estContreIndiquePour."
+
+        # 4a. Médicaments associés à la maladie d'un patient (ex: "quels médicaments sont associés à la maladie d'Ahmed / Sami ?")
+        patient_names = ["ahmed", "sami", "sara", "omar", "leila", "youssef"]
+        matched_patient = next((p for p in patient_names if p in q_norm), None)
+
+        if matched_patient and any(w in q_norm for w in ["medicament", "medicaments", "traitement", "associe", "associes", "traite"]) and any(w in q_norm for w in ["maladie", "souffre", "malade", "trait"]):
+            p_filter = f'REGEX(STR(?p), "{matched_patient}", "i") || REGEX(STR(?nomPatient), "{matched_patient}", "i")'
+            sparql = PREFIXES + f"""SELECT DISTINCT ?patient ?nomPatient ?maladie ?medicament ?nomMedicament WHERE {{
+    ?p :souffreDe ?m .
+    OPTIONAL {{ ?p :nom ?nomPatient }}
+    {{
+        ?m :estTraiteePar ?med .
+    }} UNION {{
+        ?med :traite ?m .
+    }}
+    OPTIONAL {{ ?med rdfs:label ?nomMedicament }}
+    BIND(STRAFTER(STR(?p), "#") AS ?patient)
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    FILTER({p_filter})
+}}"""
+            return sparql, f"Médicaments associés à la maladie de {matched_patient.capitalize()} (:souffreDe -> :estTraiteePar)", \
+                   f"L'IA recherche les maladies dont souffre {matched_patient.capitalize()} et extrait les médicaments qui les traitent."
+
+        # 4b. Traitements / Médicaments associés à une maladie (ex: "quels médicaments sont associés à la grippe / au diabète ?")
+        disease_map = {
+            "grippe": "Grippe", "angine": "Angine", "diabete": "Diabete",
+            "hypertension": "Hypertension", "ulcere": "Ulcere_gastrique",
+            "asthme": "Asthme", "bronchite": "Bronchite", "arthrite": "Arthrite",
+            "anemie": "Anemie", "paludisme": "Paludisme", "gastrite": "Gastrite", "migraine": "Migraine"
+        }
+        matched_disease = next((k for k in disease_map if k in q_norm), None)
+
+        if any(w in q_norm for w in ["trait", "traite", "medicament", "medicaments", "soigne", "remede", "associe", "associes"]) and matched_disease:
+            m_target = disease_map[matched_disease]
+            sparql = PREFIXES + f"""SELECT DISTINCT ?medicament ?nomMedicament WHERE {{
+    {{
+        :{m_target} :estTraiteePar ?med .
+        BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    }} UNION {{
+        ?med :traite :{m_target} .
+        BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    }}
+    OPTIONAL {{ ?med rdfs:label ?nomMedicament }}
+}}"""
+            return sparql, f"Médicaments associés à {m_target} (Object Property estTraiteePar / traite)", \
+                   f"L'IA recherche les médicaments associés à :{m_target} dans l'ontologie médicale."
+
+        # 5a. De quelle maladie souffre CHAQUE patient ? / Quelles sont les maladies de chaque patient ?
+        if any(w in q_norm for w in ["chaque patient", "tous les patients", "chacun des patients", "de chaque patient"]):
+            sparql = PREFIXES + """SELECT DISTINCT ?patient ?nomPatient ?maladie ?typeMaladie WHERE {
+    ?p :souffreDe ?m .
+    OPTIONAL { ?p :nom ?nomPatient }
+    OPTIONAL { ?m rdf:type ?type . FILTER(?type != owl:NamedIndividual && ?type != :Maladie) }
+    BIND(STRAFTER(STR(?p), "#") AS ?patient)
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+    BIND(STRAFTER(STR(?type), "#") AS ?typeMaladie)
+} ORDER BY ?nomPatient ?patient"""
+            return sparql, "Maladie(s) de chaque patient (Relation :souffreDe)", \
+                   "L'IA extrait pour chaque patient la liste des maladies dont il souffre via :souffreDe."
+
+        # 5b. De quelle maladie souffre un patient quelconque (Ahmed, Sami, Leila, Sara, Omar, Youssef, etc.) ?
+        if matched_patient and any(w in q_norm for w in ["maladie", "souffre", "atteint", "malade"]):
+            p_filter = f'REGEX(STR(?p), "{matched_patient}", "i") || REGEX(STR(?nomPatient), "{matched_patient}", "i")'
+            sparql = PREFIXES + f"""SELECT DISTINCT ?patient ?nomPatient ?maladie ?typeMaladie WHERE {{
+    ?p :souffreDe ?m .
+    OPTIONAL {{ ?p :nom ?nomPatient }}
+    OPTIONAL {{ ?m rdf:type ?type . FILTER(?type != owl:NamedIndividual && ?type != :Maladie) }}
+    BIND(STRAFTER(STR(?p), "#") AS ?patient)
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+    BIND(STRAFTER(STR(?type), "#") AS ?typeMaladie)
+    FILTER({p_filter})
+}}"""
+            return sparql, f"Maladie de {matched_patient.capitalize()} (Relation :souffreDe)", \
+                   f"L'IA extrait la ou les maladies dont souffre {matched_patient.capitalize()} via la propriété d'objet :souffreDe."
+
+        # 6. Qui a / souffre de quelle maladie ? (ex: "quels patients ont le diabete ?", "qui a la grippe ?", "qui souffre de la grippe ?")
+        has_disease_kw = any(w in q_norm for w in ["diabete", "grippe", "angine", "hypertension", "ulcere", "asthme", "bronchite", "arthrite", "anemie", "paludisme", "gastrite", "migraine", "maladie"])
+        has_patient_kw = any(w in q_norm for w in ["patient", "patients", "qui", "personne", "gens"])
+        has_have_kw = any(w in q_norm for w in ["souffre", "atteint", "touche", " ont", " a le", " a la", " a l ", " ont le", " ont la", " ont l "])
+
+        if (has_patient_kw and has_disease_kw and (has_have_kw or "maladie" in q_norm)) or any(w in q_norm for w in ["souffre", "atteint"]):
+            m_clause = ""
+            label_m = "toutes maladies"
+            if "diabete" in q_norm:
+                m_clause = "FILTER(?m = :Diabete)"
+                label_m = "le diabète"
+            elif "grippe" in q_norm:
+                m_clause = "FILTER(?m = :Grippe)"
+                label_m = "la grippe"
+            elif "angine" in q_norm:
+                m_clause = "FILTER(?m = :Angine)"
+                label_m = "l'angine"
+            elif "hypertension" in q_norm:
+                m_clause = "FILTER(?m = :Hypertension)"
+                label_m = "l'hypertension"
+            elif "ulcere" in q_norm:
+                m_clause = "FILTER(?m = :Ulcere_gastrique || ?m = :Ulcere_Exemple)"
+                label_m = "l'ulcère"
+            elif "asthme" in q_norm:
+                m_clause = "FILTER(?m = :Asthme)"
+                label_m = "l'asthme"
+            elif "arthrite" in q_norm:
+                m_clause = "FILTER(?m = :Arthrite)"
+                label_m = "l'arthrite"
+            elif "anemie" in q_norm:
+                m_clause = "FILTER(?m = :Anemie)"
+                label_m = "l'anémie"
+            elif "paludisme" in q_norm:
+                m_clause = "FILTER(?m = :Paludisme)"
+                label_m = "le paludisme"
+            elif "gastrite" in q_norm:
+                m_clause = "FILTER(?m = :Gastrite)"
+                label_m = "la gastrite"
+            elif "migraine" in q_norm:
+                m_clause = "FILTER(?m = :Migraine)"
+                label_m = "la migraine"
+
+            sparql = PREFIXES + f"""SELECT DISTINCT ?patient ?nom ?maladie WHERE {{
+    {{
+        ?p :souffreDe ?m .
+    }} UNION {{
+        ?m :touche ?p .
+    }}
+    OPTIONAL {{ ?p :nom ?nom }}
+    BIND(STRAFTER(STR(?p), "#") AS ?patient)
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+    {m_clause}
+}}"""
+            return sparql, f"Patients atteints par {label_m} (Relation souffreDe / touche)", \
+                   f"L'IA interroge les patients enregistrés dans l'ontologie via les relations :souffreDe et :touche pour {label_m}."
+
+        # 7. Sous-classes de maladies (ex: "maladies chroniques", "maladies infectieuses", "maladies digestives")
+        if any(w in q_norm for w in ["chronique", "chroniques"]) and any(w in q_norm for w in ["maladie", "maladies", "liste"]):
+            sparql = PREFIXES + """SELECT ?maladie ?label ?description ?gravite ?contagieuse WHERE {
+    ?m rdf:type/rdfs:subClassOf* :MaladieChronique .
+    FILTER(?m != owl:NamedIndividual && ?m != :MaladieChronique && ?m != :Type && ?m != :Maladie)
+    OPTIONAL { ?m rdfs:label ?label }
+    OPTIONAL { ?m :description ?description }
+    OPTIONAL { ?m :gravite ?gravite }
+    OPTIONAL { ?m :estContagieuse ?contagieuse }
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+}"""
+            return sparql, "Maladies Chroniques (Sous-classe de Maladie)", \
+                   "L'IA extrait les individus de la sous-classe :MaladieChronique et leurs propriétés."
+
+        if any(w in q_norm for w in ["infectieuse", "infectieuses", "infection"]) and any(w in q_norm for w in ["maladie", "maladies", "liste"]):
+            sparql = PREFIXES + """SELECT ?maladie ?label ?symptome ?traitement WHERE {
+    ?m rdf:type/rdfs:subClassOf* :MaladieInfectieuse .
+    FILTER(?m != owl:NamedIndividual && ?m != :MaladieInfectieuse && ?m != :Type && ?m != :Maladie)
+    OPTIONAL { ?m rdfs:label ?label }
+    OPTIONAL { ?m :aPourSymptome ?s . BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    OPTIONAL { ?m :estTraiteePar ?t . BIND(STRAFTER(STR(?t), "#") AS ?traitement) }
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+}"""
+            return sparql, "Maladies Infectieuses (Sous-classe de Maladie)", \
+                   "L'IA extrait les individus de la classe :MaladieInfectieuse (Grippe, Angine) avec symptômes et traitements."
+
+        if any(w in q_norm for w in ["digestive", "digestives", "digestif", "estomac"]) and any(w in q_norm for w in ["maladie", "maladies"]):
+            sparql = PREFIXES + """SELECT ?maladie ?label ?symptome WHERE {
+    ?m rdf:type/rdfs:subClassOf* :MaladieDigestive .
+    FILTER(?m != owl:NamedIndividual && ?m != :MaladieDigestive && ?m != :Type && ?m != :Maladie)
+    OPTIONAL { ?m rdfs:label ?label }
+    OPTIONAL { ?m :aPourSymptome ?s . BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+}"""
+            return sparql, "Maladies Digestives (Sous-classe de Maladie)", \
+                   "L'IA extrait les individus de :MaladieDigestive (ex: Ulcere_Exemple) depuis l'ontologie."
+
+        # 8. Data Properties de Maladie : description, gravite, estContagieuse (ex: "c'est quoi le diabete ?", "gravite du diabete", "maladies contagieuses")
+        if any(w in q_norm for w in ["c'est quoi", "qu'est ce que", "definition", "definir", "description"]) and any(w in q_norm for w in ["diabete", "grippe", "angine", "hypertension", "ulcere"]):
+            m_target = "Diabete" if "diabete" in q_norm else ("Grippe" if "grippe" in q_norm else ("Angine" if "angine" in q_norm else ("Hypertension" if "hypertension" in q_norm else "Ulcere_Exemple")))
+            sparql = PREFIXES + f"""SELECT ?propriete ?valeur WHERE {{
+    :{m_target} ?p ?valeur .
+    FILTER(?p IN (:description, :gravite, :estContagieuse, rdfs:comment, rdfs:label, :aPourSymptome, :estTraiteePar))
+    BIND(STRAFTER(STR(?p), "#") AS ?propriete)
+}}"""
+            return sparql, f"Description et propriétés de {m_target} (Data & Object Properties)", \
+                   f"L'IA extrait les propriétés de données (description, gravite, estContagieuse) et relations de :{m_target}."
+
+        if any(w in q_norm for w in ["contagieuse", "contagieux", "contagieuses"]):
+            sparql = PREFIXES + """SELECT DISTINCT ?maladie ?label ?estContagieuse WHERE {
+    ?m rdf:type/rdfs:subClassOf* :Maladie .
+    ?m :estContagieuse ?estContagieuse .
+    FILTER(?estContagieuse = true)
+    OPTIONAL { ?m rdfs:label ?label }
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+}"""
+            return sparql, "Maladies contagieuses (Data Property estContagieuse = true)", \
+                   "L'IA filtre les maladies contagieuses via FILTER(:estContagieuse = true)."
+
+        if any(w in q_norm for w in ["gravite", "grave", "severite"]):
+            sparql = PREFIXES + """SELECT ?maladie ?label ?gravite WHERE {
+    ?m rdf:type/rdfs:subClassOf* :Maladie .
+    ?m :gravite ?gravite .
+    OPTIONAL { ?m rdfs:label ?label }
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+}"""
+            return sparql, "Gravité des maladies (Data Property gravite)", \
+                   "L'IA extrait la gravité des maladies via la propriété de données :gravite."
+
+        # 9. Individus spécifiques de Maladie (ex: "fiche diabete", "donnees sur la grippe")
+        for m_name in ["diabete", "grippe", "angine", "hypertension", "ulcere"]:
+            if m_name in q_norm and not any(w in q_norm for w in ["medecin", "patient", "soigne", "age", "stagiaire"]):
+                m_target = "Diabete" if m_name == "diabete" else ("Grippe" if m_name == "grippe" else ("Angine" if m_name == "angine" else ("Hypertension" if m_name == "hypertension" else "Ulcere_Exemple")))
+                sparql = PREFIXES + f"""SELECT ?propriete ?valeur WHERE {{
+    :{m_target} ?p ?valeur .
+    FILTER(?p != rdf:type)
+    BIND(STRAFTER(STR(?p), "#") AS ?propriete)
+}}"""
+                return sparql, f"Fiche complète de la maladie {m_target}", \
+                       f"L'IA extrait toutes les assertions et propriétés de l'individu :{m_target} dans l'ontologie médicale Protégé."
+
+    # 10. Liste de toutes les maladies de la classe Maladie
+        if any(w in q_norm for w in ["toutes les maladies", "liste des maladies", "quelles sont les maladies", "les maladies"]):
+            sparql = PREFIXES + """SELECT DISTINCT ?maladie ?type ?label ?description ?gravite WHERE {
+    ?m rdf:type owl:NamedIndividual .
+    ?m rdf:type ?t .
+    ?t rdfs:subClassOf* :Maladie .
+    FILTER(?t NOT IN (:Maladie, :Symptome, :SymptomeGeneral, :SymptomeDigestif, :SymptomeRespiratoire, :Type))
+    FILTER(?m NOT IN (:Grippe_Sami, :Ulcere_Exemple))
+    OPTIONAL { ?m rdfs:label ?label }
+    OPTIONAL { ?m :description ?description }
+    OPTIONAL { ?m :gravite ?gravite }
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+    BIND(STRAFTER(STR(?t), "#") AS ?type)
+} ORDER BY ?maladie"""
+            return sparql, "Inventaire des individus de la classe Maladie", \
+                   "L'IA interroge les individus de la classe Maladie et ses sous-classes (MaladieInfectieuse, MaladieChronique, MaladieDigestive)."
+
+        # ============================================================
+        # PRIORITÉ 0 : Filtres d'âge
+        # ============================================================
         # Utilisation de regex \b pour éviter faux positifs (ex: "triage", "stagiaire", "dans")
         has_age = bool(re.search(r'\b(age|ages|agee|agees|ans|annee|annees)\b', q_norm))
         is_sort_request = bool(re.search(r'\b(triage|tri|trie|trier|classer|classe|ordonner|ordre)\b', q_norm))

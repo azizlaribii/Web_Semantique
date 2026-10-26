@@ -149,14 +149,20 @@ def get_graph_maladie():
 
 @app.route("/api/ia-maladie/ask", methods=["POST"])
 def ia_maladie_ask():
-    """Traduit une question NL en SPARQL Maladie et retourne les données."""
+    """Traduit une question NL en SPARQL Maladie et interroge ontologie_medicale (1).ttl."""
     body = request.get_json(force=True, silent=True) or {}
     question = body.get("question", "").strip()
     if not question:
         return jsonify({"error": "Question vide"}), 400
     try:
-        result = ia_maladie_service.answer_question(question)
-        return jsonify(result)
+        # Interrogation directe et dynamique de l'ontologie Protégé réelle
+        res = ia_service.answer_question(question)
+        return jsonify({
+            "intention": res.get("intention"),
+            "explication": res.get("explanation"),
+            "sparql": res.get("sparql_query"),
+            "data": res.get("data")
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

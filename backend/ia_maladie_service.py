@@ -346,16 +346,36 @@ class IAMaladieService:
         # 4. TRAITEMENTS, MÉDICAMENTS & CONTRE-INDICATIONS
         # =====================================================================
 
-        # "Quels médicaments sont contre-indiqués pour l'hypertension ?" / "Sami peut-il prendre..."
-        if any(w in q for w in ["contre indiqu", "contreindiqu", "peut il prendre"]) and any(w in q for w in ["hypertension", "tension", "sami"]):
-            sparql = PREFIXES_MAL + """SELECT ?medicament ?contreIndication WHERE {
-    VALUES (?medicament ?contreIndication) {
-        ("Ibuprofene (AINS)" "Augmente la pression arterielle et reduit l'efficacite des antihypertenseurs.")
-        ("Pseudoephedrine" "Vasoconstricteur deconseille aux patients hypertendus.")
-    }
-}"""
-            return sparql, "Médicaments contre-indiqués pour l'Hypertension", \
-                   "L'IA vérifie les contre-indications : les anti-inflammatoires (AINS comme l'Ibuprofène) aggravent l'hypertension."
+        # "Quels médicaments sont contre-indiqués pour X ?"
+        if any(w in q for w in ["contre indiqu", "contreindiqu", "peut il prendre", "contre indication"]):
+            # Déterminer la maladie cible
+            maladie_map = {
+                "ulcere": "med:Ulcere_Exemple",
+                "gastrite": "med:Gastrite",
+                "arthrite": "med:Arthrite",
+                "anemie": "med:Anemie",
+                "hypertension": "med:Hypertension",
+                "tension": "med:Hypertension",
+            }
+            target = None
+            for kw, uri in maladie_map.items():
+                if kw in q:
+                    target = uri
+                    break
+            if target:
+                sparql = PREFIXES_MAL + f"""SELECT DISTINCT ?medicament ?maladie WHERE {{
+    ?med med:estContreIndiquePour {target} .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    BIND(STRAFTER(STR({target}), "#") AS ?maladie)
+}} ORDER BY ?medicament"""
+            else:
+                sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?maladie WHERE {
+    ?med med:estContreIndiquePour ?mal .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    BIND(STRAFTER(STR(?mal), "#") AS ?maladie)
+} ORDER BY ?maladie ?medicament"""
+            return sparql, "Médicaments contre-indiqués", \
+                   "L'IA utilise med:estContreIndiquePour pour lister les contre-indications réelles."
 
         # "Quels médicaments contiennent du paracétamol ?"
         if "paracetamol" in q and not any(w in q for w in ["angine"]):
@@ -416,67 +436,116 @@ class IAMaladieService:
 
         # Médicaments contre l'angine
         if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "angine" in q:
-            sparql = PREFIXES_MAL + """SELECT ?medicament ?nomMaladie WHERE {
-    mal:Angine_Streptocoque mal:estTraiteePar ?med .
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Angine med:estTraiteePar ?med .
     BIND(STRAFTER(STR(?med), "#") AS ?medicament)
-    BIND("Angine streptocoque" AS ?nomMaladie)
-}"""
-            return sparql, "Médicament traitant l'Angine", \
-                   "L'IA utilise la relation mal:estTraiteePar sur Angine_Streptocoque : Amoxicilline."
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant l'Angine", \
+                   "L'IA utilise med:estTraiteePar sur med:Angine (ontologie enrichie)."
 
         # Médicaments contre la grippe
         if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "grippe" in q:
-            sparql = PREFIXES_MAL + """SELECT ?medicament ?nomMaladie WHERE {
-    mal:Grippe_Saisonniere mal:estTraiteePar ?med .
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Grippe med:estTraiteePar ?med .
     BIND(STRAFTER(STR(?med), "#") AS ?medicament)
-    BIND("Grippe saisonniere" AS ?nomMaladie)
-}"""
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
             return sparql, "Médicaments traitant la Grippe", \
-                   "L'IA utilise la relation mal:estTraiteePar sur Grippe_Saisonniere : Paracétamol, Ibuprofène."
+                   "L'IA utilise med:estTraiteePar sur med:Grippe (ontologie enrichie)."
 
         # Médicaments contre le diabète
         if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "diabete" in q:
-            sparql = PREFIXES_MAL + """SELECT ?medicament ?nomMaladie WHERE {
-    mal:Diabete_Type2 mal:estTraiteePar ?med .
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Diabete med:estTraiteePar ?med .
     BIND(STRAFTER(STR(?med), "#") AS ?medicament)
-    BIND("Diabete de type 2" AS ?nomMaladie)
-}"""
-            return sparql, "Médicament traitant le Diabète", \
-                   "L'IA utilise la relation mal:estTraiteePar sur Diabete_Type2 : Metformine."
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant le Diabète", \
+                   "L'IA utilise med:estTraiteePar sur med:Diabete (Insuline, Metformine)."
 
         # Médicaments contre l'hypertension
         if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and any(w in q for w in ["hypertension", "tension"]):
-            sparql = PREFIXES_MAL + """SELECT ?medicament ?nomMaladie WHERE {
-    mal:Hypertension_Arterielle mal:estTraiteePar ?med .
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Hypertension med:estTraiteePar ?med .
     BIND(STRAFTER(STR(?med), "#") AS ?medicament)
-    BIND("Hypertension arterielle" AS ?nomMaladie)
-}"""
-            return sparql, "Médicament traitant l'Hypertension", \
-                   "L'IA utilise la relation mal:estTraiteePar sur Hypertension_Arterielle : Amlodipine."
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant l'Hypertension", \
+                   "L'IA utilise med:estTraiteePar sur med:Hypertension (Amlodipine, Losartan)."
 
         # Médicaments contre l'ulcère
         if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "ulcere" in q:
-            sparql = PREFIXES_MAL + """SELECT ?medicament ?nomMaladie WHERE {
-    mal:Ulcere_Gastrique_Sami mal:estTraiteePar ?med .
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    { med:Ulcere_Exemple med:estTraiteePar ?med . }
+    UNION
+    { med:Ulcere_gastrique med:estTraiteePar ?med . }
     BIND(STRAFTER(STR(?med), "#") AS ?medicament)
-    BIND("Ulcere gastrique" AS ?nomMaladie)
-}"""
-            return sparql, "Médicament traitant l'Ulcère", \
-                   "L'IA utilise la relation mal:estTraiteePar sur Ulcere_Gastrique_Sami : Oméprazole."
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant l'Ulcère", \
+                   "L'IA utilise med:estTraiteePar sur med:Ulcere_Exemple et med:Ulcere_gastrique."
+
+        # Médicaments contre l'asthme
+        if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "asthme" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Asthme med:estTraiteePar ?med .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant l'Asthme", \
+                   "L'IA utilise med:estTraiteePar sur med:Asthme."
+
+        # Médicaments contre le paludisme
+        if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "paludisme" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Paludisme med:estTraiteePar ?med .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant le Paludisme", \
+                   "L'IA utilise med:estTraiteePar sur med:Paludisme."
+
+        # Médicaments contre la migraine
+        if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "migraine" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Migraine med:estTraiteePar ?med .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant la Migraine", \
+                   "L'IA utilise med:estTraiteePar sur med:Migraine."
 
         # =====================================================================
         # 5. PATIENTS ET MALADIES
         # =====================================================================
 
-        # "Quels patients ont le diabète ?"
-        if ("patient" in q or "qui" in q) and "diabete" in q:
-            sparql = PREFIXES_MAL + """SELECT ?patient ?maladie WHERE {
-    mal:Diabete_Type2 mal:touche ?p .
-    BIND(STRAFTER(STR(?p), "#") AS ?patient)
-    BIND("Diabete_Type2" AS ?maladie)
-}"""
-            return sparql, "Patients atteints de Diabète", \
-                   "L'IA interroge la relation mal:touche sur Diabete_Type2 (Karim_Patient)."
+        # "Quels patients ont le diabète / la grippe / l'hypertension / etc. ?"
+        disease_map = {
+            "diabete": "med:Diabete",
+            "grippe": "med:Grippe",
+            "hypertension": "med:Hypertension",
+            "asthme": "med:Asthme",
+            "paludisme": "med:Paludisme",
+            "anemie": "med:Anemie",
+            "angine": "med:Angine",
+            "bronchite": "med:Bronchite",
+            "gastrite": "med:Gastrite",
+            "migraine": "med:Migraine",
+            "arthrite": "med:Arthrite",
+        }
+        if ("patient" in q or "qui" in q or "souffre" in q) and any(kw in q for kw in disease_map):
+            target_disease = next((uri for kw, uri in disease_map.items() if kw in q), None)
+            if target_disease:
+                sparql = PREFIXES_MAL + f"""SELECT DISTINCT ?patient ?nom ?maladie WHERE {{
+    ?pat med:souffreDe {target_disease} .
+    OPTIONAL {{ ?pat med:nom ?nom }}
+    BIND(STRAFTER(STR(?pat), "#") AS ?patient)
+    BIND(STRAFTER(STR({target_disease}), "#") AS ?maladie)
+}} ORDER BY ?patient"""
+                disease_name = target_disease.replace("med:", "")
+                return sparql, f"Patients atteints de {disease_name}", \
+                       f"L'IA interroge med:souffreDe sur {target_disease} (ontologie enrichie)."
 
         # "Combien de patients ont la grippe ?"
         if "combien" in q and "grippe" in q and "patient" in q:
@@ -775,14 +844,23 @@ class IAMaladieService:
             return sparql, "Maladies triées par gravité", \
                    "L'IA applique ORDER BY DESC(?gravite) sur l'ensemble des maladies."
 
-        # "Toutes les maladies" (par défaut / générique)
-        sparql = PREFIXES_MAL + """SELECT ?maladie ?nom ?codeCIM ?gravite ?contagieuse ?chronique WHERE {
-    ?m mal:nom ?nom .
-    OPTIONAL { ?m mal:codeCIM ?codeCIM }
-    OPTIONAL { ?m mal:gravite ?gravite }
-    OPTIONAL { ?m mal:estContagieuse ?contagieuse }
-    OPTIONAL { ?m mal:estChronique ?chronique }
+        # "Toutes les maladies" (par défaut / générique) - utilise l'ontologie enrichie med:
+        sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?type ?label ?description ?gravite WHERE {
+    {
+        ?m rdf:type med:MaladieInfectieuse .
+        BIND("MaladieInfectieuse" AS ?type)
+    } UNION {
+        ?m rdf:type med:MaladieChronique .
+        BIND("MaladieChronique" AS ?type)
+    } UNION {
+        ?m rdf:type med:MaladieDigestive .
+        BIND("MaladieDigestive" AS ?type)
+    }
+    FILTER(isIRI(?m))
+    OPTIONAL { ?m rdfs:label ?label }
+    OPTIONAL { ?m med:description ?description }
+    OPTIONAL { ?m med:gravite ?gravite }
     BIND(STRAFTER(STR(?m), "#") AS ?maladie)
-} ORDER BY ?nom"""
+} ORDER BY ?type ?maladie"""
         return sparql, "Toutes les maladies de l'ontologie", \
-               "L'IA liste l'ensemble des maladies avec leurs codes CIM-10, gravités et caractéristiques."
+               "L'IA liste toutes les maladies de l'ontologie med: enrichie (MaladieInfectieuse, MaladieChronique, MaladieDigestive)."
