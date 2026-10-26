@@ -63,6 +63,17 @@ export class DashboardComponent implements OnInit {
     'Quelles maladies sont chroniques ?',
     'Quelle est la gravité de l\'hypertension ?',
     'Quels médicaments traitent l\'angine ?',
+    'Quels médicaments sont contre-indiqués pour l\'ulcère ?',
+    'Quelles maladies provoquent la fièvre ?',
+    'Quelles maladies ont la toux comme symptôme ?',
+    'Quel est l\'agent pathogène de la grippe ?',
+    'Quel est l\'agent pathogène de l\'angine ?',
+    'Quel symptôme est commun à la grippe et à l\'angine ?',
+    'Quelle maladie a le plus de symptômes ?',
+    'Quels sont les symptômes digestifs ?',
+    'Quels médecins traitent le diabète ?',
+    'Quel médecin a diagnostiqué la grippe de Sami ?',
+    'De quelle maladie souffre chaque patient ?',
     'C\'est quoi le diabète ?',
   ];
 
