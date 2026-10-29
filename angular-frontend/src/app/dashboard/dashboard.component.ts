@@ -868,8 +868,8 @@ SELECT DISTINCT ?patient ?maladie WHERE {
       'codeCIM', 'type', 'gravite', 'contagieuse', 'dureeTraitement', 'description'
     ];
     let keys = Object.keys(first);
-    if (first.nom && (first.id || first.maladie) && !first.patient && !first.symptome && !first.medicament && !first.medecin) {
-      keys = keys.filter(k => k !== 'maladie' && k !== 'id');
+    if (first.maladie && first.nom && first.nom === first.maladie) {
+      keys = keys.filter(k => k !== 'nom');
     }
     return keys.sort((a, b) => {
       const idxA = order.indexOf(a);

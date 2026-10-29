@@ -570,8 +570,8 @@
                                   <span class="badge badge-cyan">{{ item[col] || '—' }}</span>
                                 } @else if (col === 'patient') {
                                   <span class="badge badge-emerald">{{ item[col] || '—' }}</span>
-                                } @else if (col === 'maladie' || col === 'maladieInfectieuse') {
-                                  <span class="name-text" style="font-weight:700;">{{ item[col] || '—' }}</span>
+                                } @else if (col === 'maladie' || col === 'maladieInfectieuse' || col === 'nom' || col === 'nomMaladie') {
+                                  <span class="name-text" style="font-weight:700;">{{ item[col] || item['maladie'] || item['nom'] || item['id'] || '—' }}</span>
                                 } @else if (col === 'symptome' || col === 'symptomeGeneral' || col === 'symptomeCommun') {
                                   <span class="badge badge-rose">{{ item[col] || '—' }}</span>
                                 } @else if (col === 'medicament') {

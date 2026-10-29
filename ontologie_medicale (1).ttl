@@ -1148,11 +1148,13 @@ med:Role a owl:Class ;
 
 xsd:date a rdfs:Datatype .
 
-med:Angine a med:MaladieInfectieuse,
+med:Angine a med:Maladie,
+        med:MaladieInfectieuse,
         owl:NamedIndividual ;
     rdfs:label "Angine"@fr ;
     med:aPourSymptome med:Fievre,
         med:Maux_de_gorge,
+        med:Nausee,
         med:Toux ;
     med:description "Infection de la gorge causee par des bacteries ou des virus."@fr ;
     med:dureeTraitement "7 jours" ;
@@ -1225,14 +1227,6 @@ med:Migraine a med:Maladie,
         med:Sumatriptan ;
     med:gravite "moderee"@fr .
 
-med:Nausee a med:SymptomeDigestif,
-        owl:NamedIndividual ;
-    rdfs:label "Nausee"@fr ;
-    med:descriptionSymptome "Envie de vomir" ;
-    med:estSymptomeDe med:Gastrite,
-        med:Migraine,
-        med:Paludisme .
-
 med:PatientAdulte a owl:Class ;
     rdfs:label "Patient adulte"@fr ;
     rdfs:subClassOf med:Patient ;
@@ -1288,6 +1282,16 @@ med:Hypertension a med:MaladieChronique,
         med:Losartan ;
     med:gravite "severe"@fr .
 
+med:Nausee a med:Symptome,
+        med:SymptomeDigestif,
+        owl:NamedIndividual ;
+    rdfs:label "Nausee",
+        "Nausee"@fr ;
+    med:descriptionSymptome "Envie de vomir" ;
+    med:estSymptomeDe med:Gastrite,
+        med:Migraine,
+        med:Paludisme .
+
 med:Paludisme a med:MaladieInfectieuse,
         owl:NamedIndividual ;
     rdfs:label "Paludisme"@fr ;
@@ -1301,10 +1305,6 @@ med:Paludisme a med:MaladieInfectieuse,
     med:estTraiteePar med:Artemisinine,
         med:Chloroquine ;
     med:gravite "severe"@fr .
-
-med:Symptome a owl:Class ;
-    rdfs:label "Symptôme"@fr ;
-    rdfs:subClassOf med:Maladie .
 
 med:Consultation a owl:Class ;
     rdfs:subClassOf med:Service_medicale .
@@ -1322,6 +1322,10 @@ med:Gastrite a med:Maladie,
     med:estTraiteePar med:Omeprazole,
         med:Ranitidine ;
     med:gravite "legere"@fr .
+
+med:Symptome a owl:Class ;
+    rdfs:label "Symptôme"@fr ;
+    rdfs:subClassOf med:Maladie .
 
 med:MaladieChronique a owl:Class ;
     rdfs:label "Maladie chronique"@fr ;
@@ -1364,12 +1368,12 @@ med:Maladie a owl:Class ;
 med:Medicament a owl:Class ;
     rdfs:label "Médicament"@fr .
 
-[] a owl:AllDisjointClasses ;
-    owl:members ( med:Medecin med:Patient med:Stagiaire med:Stuff_Médicale ) .
-
 [] a owl:AllDifferent ;
     owl:distinctMembers ( med:Ali_Stagiaire med:Amina med:Dr_Ahmed med:Dr_Fatima med:Dr_Karim med:Sami ) .
 
 [] a owl:AllDisjointClasses ;
     owl:members ( med:MaladieChronique med:MaladieDigestive med:MaladieInfectieuse ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( med:Medecin med:Patient med:Stagiaire med:Stuff_Médicale ) .
 

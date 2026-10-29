@@ -28,12 +28,51 @@ import unicodedata
 from difflib import get_close_matches
 from typing import Dict, Any, List, Tuple
 
-import spacy
-from spacy.matcher import PhraseMatcher
-from spacy.util import filter_spans
+try:
+    import spacy
+    from spacy.matcher import PhraseMatcher
+    from spacy.util import filter_spans
+    HAVE_SPACY = True
+except ImportError:
+    HAVE_SPACY = False
+    spacy = None
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline, make_union
+
+class SimpleToken:
+    def __init__(self, text, i=0):
+        self.text = text
+        self.lemma_ = text
+        self.norm_ = "".join(c for c in unicodedata.normalize("NFD", text.replace("œ", "oe").replace("Œ", "OE")) if unicodedata.category(c) != "Mn").lower()
+        self.pos_ = "NOUN"
+        self.is_space = False
+        self.is_punct = text in ".,;:!?()[]\"'-"
+        self.is_stop = False
+        self.i = i
+
+class SimpleSpan:
+    def __init__(self, tokens, start, end, label=""):
+        self.tokens = tokens
+        self.start = start
+        self.end = end
+        self.text = " ".join(t.text for t in tokens)
+        self.label_ = label
+
+class SimpleDoc(list):
+    def __init__(self, text):
+        words = text.split()
+        tokens = [SimpleToken(w, i) for i, w in enumerate(words)]
+        super().__init__(tokens)
+        self.text = text
+
+    def __getitem__(self, item):
+        if isinstance(item, slice):
+            start = item.start or 0
+            end = item.stop if item.stop is not None else len(self)
+            return SimpleSpan(super().__getitem__(item), start, end)
+        return super().__getitem__(item)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 INTENTS_PATH = os.path.join(BASE, "nlp_data", "intents_medicament.json")
@@ -146,14 +185,18 @@ class NLPMedicamentPipeline:
 
     def __init__(self, medicament_service):
         self.service = medicament_service
-        try:
-            self.nlp = spacy.load(SPACY_MODEL, disable=["ner"])   # NER générique remplacé par le NER métier
-        except OSError:
-            raise RuntimeError(f"Modèle spaCy « {SPACY_MODEL} » introuvable. Installez-le avec : "
-                               f"python -m spacy download {SPACY_MODEL}")
-        self.matcher = PhraseMatcher(self.nlp.vocab, attr="NORM")
-        self.entities: Dict[str, Tuple[str, List[str]]] = {}  # clé de pattern -> (type, ids)
-        self.single_words: Dict[str, str] = {}                # mot normalisé -> clé (pour difflib)
+        self.nlp = None
+        if HAVE_SPACY:
+            try:
+                self.nlp = spacy.load(SPACY_MODEL, disable=["ner"])
+            except Exception:
+                self.nlp = None
+        if self.nlp:
+            self.matcher = PhraseMatcher(self.nlp.vocab, attr="NORM")
+        else:
+            self.matcher = None
+        self.entities: Dict[str, Tuple[str, List[str]]] = {}
+        self.single_words: Dict[str, str] = {}
         self._build_entity_matcher()
         self.classifier = None
         self.intent_labels: List[str] = []
@@ -161,14 +204,17 @@ class NLPMedicamentPipeline:
         self._train_intent_classifier()
 
     # ------------------------------------------------------------------
-    # 1. Analyse spaCy
+    # 1. Analyse spaCy / Fallback
     # ------------------------------------------------------------------
     def _parse(self, text: str):
-        doc = self.nlp(text)
-        for tok in doc:
-            lemma = tok.lemma_ if tok.pos_ != "PROPN" else tok.text
-            tok.norm_ = strip_accents(lemma.lower())
-        return doc
+        if self.nlp:
+            doc = self.nlp(text)
+            for tok in doc:
+                lemma = tok.lemma_ if tok.pos_ != "PROPN" else tok.text
+                tok.norm_ = strip_accents(lemma.lower())
+            return doc
+        else:
+            return SimpleDoc(text)
 
     # ------------------------------------------------------------------
     # 2. NER métier (PhraseMatcher alimenté par l'ontologie)
@@ -188,15 +234,17 @@ class NLPMedicamentPipeline:
         return termes + SYNONYMES
 
     def _build_entity_matcher(self):
-        self.matcher = PhraseMatcher(self.nlp.vocab, attr="NORM")
+        if self.nlp:
+            self.matcher = PhraseMatcher(self.nlp.vocab, attr="NORM")
         self.entities.clear()
         self.single_words.clear()
         for texte, etype, ids in self._vocabulaire():
-            variantes = {texte, texte + "s"}            # singulier et pluriel
+            variantes = {texte, texte + "s"}
             for v in variantes:
                 pattern = self._parse(v)
                 key = f"{etype}|{'|'.join(ids)}|{v}"
-                self.matcher.add(key, [pattern])
+                if self.matcher:
+                    self.matcher.add(key, [pattern])
                 self.entities[key] = (etype, ids)
                 if len(pattern) == 1:
                     self.single_words.setdefault(pattern[0].norm_, key)
@@ -206,38 +254,51 @@ class NLPMedicamentPipeline:
         self._build_entity_matcher()
 
     def _find_entities(self, doc) -> List[Dict[str, Any]]:
-        spans = []
-        for match_id, start, end in self.matcher(doc):
-            key = self.nlp.vocab.strings[match_id]
-            span = doc[start:end]
-            span.label_ = key
-            spans.append(span)
-        spans = filter_spans(spans)                    # garde les correspondances les plus longues
-        couverts = {i for s in spans for i in range(s.start, s.end)}
-
-        # Tolérance aux fautes de frappe : noms propres / noms communs non reconnus
-        corrections = []
-        for tok in doc:
-            if tok.i in couverts or tok.is_punct or tok.is_stop or len(tok.norm_) < 5:
-                continue
-            if tok.pos_ not in ("PROPN", "NOUN", "ADJ", "X", "VERB"):
-                continue
-            proches = get_close_matches(tok.norm_, list(self.single_words), n=1, cutoff=0.8)
-            if proches and proches[0] != tok.norm_:
-                span = doc[tok.i:tok.i + 1]
-                span.label_ = self.single_words[proches[0]]
+        if self.matcher:
+            spans = []
+            for match_id, start, end in self.matcher(doc):
+                key = self.nlp.vocab.strings[match_id]
+                span = doc[start:end]
+                span.label_ = key
                 spans.append(span)
-                corrections.append(span.start)
+            spans = filter_spans(spans)
+            couverts = {i for s in spans for i in range(s.start, s.end)}
 
-        entites = []
-        for span in sorted(spans, key=lambda s: s.start):
-            etype, ids = self.entities[span.label_]
-            entites.append({
-                "texte": span.text, "type": etype, "ids": ids,
-                "debut": span.start, "fin": span.end,
-                "corrige": span.start in corrections,
-            })
-        return entites
+            corrections = []
+            for tok in doc:
+                if tok.i in couverts or tok.is_punct or tok.is_stop or len(tok.norm_) < 5:
+                    continue
+                if tok.pos_ not in ("PROPN", "NOUN", "ADJ", "X", "VERB"):
+                    continue
+                proches = get_close_matches(tok.norm_, list(self.single_words), n=1, cutoff=0.8)
+                if proches and proches[0] != tok.norm_:
+                    span = doc[tok.i:tok.i + 1]
+                    span.label_ = self.single_words[proches[0]]
+                    spans.append(span)
+                    corrections.append(span.start)
+
+            entites = []
+            for span in sorted(spans, key=lambda s: s.start):
+                etype, ids = self.entities[span.label_]
+                entites.append({
+                    "texte": span.text, "type": etype, "ids": ids,
+                    "debut": span.start, "fin": span.end,
+                    "corrige": span.start in corrections,
+                })
+            return entites
+        else:
+            entites = []
+            doc_norm = " " + " ".join(t.norm_ for t in doc) + " "
+            for key, (etype, ids) in self.entities.items():
+                parts = key.split("|")
+                term = parts[-1]
+                term_norm = " " + strip_accents(term.lower()) + " "
+                if term_norm in doc_norm:
+                    entites.append({
+                        "texte": term, "type": etype, "ids": ids,
+                        "debut": 0, "fin": len(doc), "corrige": False
+                    })
+            return entites
 
     # ------------------------------------------------------------------
     # 3. Délexicalisation
@@ -298,7 +359,8 @@ class NLPMedicamentPipeline:
         self.training_data = (textes, labels, groupes)
         self.intent_labels = list(self.classifier.classes_)
         self.training_size = len(textes)
-        print(f"[NLP Médicament] spaCy {spacy.__version__} ({SPACY_MODEL}) + classifieur entraîné "
+        nlp_info = f"spaCy {spacy.__version__} ({SPACY_MODEL})" if spacy else "SimpleTokenizer (pure Python)"
+        print(f"[NLP Médicament] {nlp_info} + classifieur entraîné "
               f"sur {self.training_size} phrases, {len(self.intent_labels)} intentions.")
 
     # ------------------------------------------------------------------
@@ -339,8 +401,9 @@ class NLPMedicamentPipeline:
 
     def outils(self) -> Dict[str, str]:
         import sklearn
+        spacy_label = f"{spacy.__version__} — modèle {SPACY_MODEL}" if spacy else "SimpleTokenizer (fallback Python 3.14)"
         return {
-            "spaCy": f"{spacy.__version__} — modèle {SPACY_MODEL} (tokenisation, POS, lemmatisation, PhraseMatcher)",
+            "spaCy": spacy_label,
             "scikit-learn": f"{sklearn.__version__} — TF-IDF + LogisticRegression ({self.training_size} phrases)",
             "difflib": "correction des fautes de frappe sur les entités",
         }

@@ -458,12 +458,13 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     def get_all_maladies(self) -> List[Dict[str, Any]]:
         """Retourne tous les individus Maladie depuis ontologie_medicale (1).ttl."""
         q = """
-        SELECT DISTINCT ?m ?type ?label ?desc ?gravite ?contagieuse WHERE {
+        SELECT DISTINCT ?m ?type ?label ?medNom ?desc ?gravite ?contagieuse ?cim ?duree WHERE {
             ?m rdf:type owl:NamedIndividual .
             ?m rdf:type ?type .
-            ?type rdfs:subClassOf* med:Maladie .
-            FILTER(?type NOT IN (med:Maladie, med:Symptome, med:SymptomeGeneral, med:SymptomeDigestif, med:SymptomeRespiratoire, med:Type))
+            FILTER(?type IN (med:Maladie, med:MaladieInfectieuse, med:MaladieChronique, med:MaladieDigestive, mal:Maladie, mal:MaladieInfectieuse, mal:MaladieChronique, mal:MaladieDigestive) || EXISTS { ?type rdfs:subClassOf* med:Maladie } || EXISTS { ?type rdfs:subClassOf* mal:Maladie } || EXISTS { ?type rdfs:subClassOf* med:Type })
+            FILTER(?type NOT IN (med:Maladie, med:Symptome, med:SymptomeGeneral, med:SymptomeDigestif, med:SymptomeRespiratoire, med:Type, owl:NamedIndividual))
             OPTIONAL { ?m rdfs:label ?label }
+            OPTIONAL { ?m med:nom ?medNom }
             OPTIONAL { ?m med:description ?desc }
             OPTIONAL { ?m med:gravite ?gravite }
             OPTIONAL { ?m med:estContagieuse ?contagieuse }
@@ -508,7 +509,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                 maladies_dict[uri] = {
                     "id": ind_id,
                     "types": [],
-                    "nom": lbl or ind_id.replace("_", " "),
+                    "nom": lbl or r.get("medNom", {}).get("value", "") or ind_id.replace("_", " "),
                     "description": r.get("desc", {}).get("value", ""),
                     "codeCIM": cim_val,
                     "gravite": grav_norm,
