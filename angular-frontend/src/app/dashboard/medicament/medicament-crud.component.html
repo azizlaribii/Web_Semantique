@@ -1,0 +1,153 @@
+<div class="crud-layout">
+  <!-- Formulaire -->
+  <form class="glass-panel crud-form" id="med-crud-form" (ngSubmit)="submit()" autocomplete="off">
+    <div class="crud-head">
+      <div>
+        <h2>{{ editId() ? 'Modifier ' + form.nom : 'Ajouter un médicament' }}</h2>
+        <p class="crud-sub">Chaque action exécute une requête <b>SPARQL Update</b> et enregistre <code>ontologie_medicament.owl</code>.</p>
+      </div>
+    </div>
+
+    <label class="field">Nom commercial *
+      <input class="input-glass" name="nom" [(ngModel)]="form.nom" maxlength="80" placeholder="Ex : Spasfon" required />
+    </label>
+
+    <fieldset class="field-set">
+      <legend>Classes thérapeutiques *</legend>
+      <div class="checks">
+        @for (c of options().classes; track c) {
+          <label class="check"><input type="checkbox" [checked]="isChecked('classes', c)"
+            (change)="toggle('classes', c, $any($event.target).checked)" /> {{ classLabels[c] || c }}</label>
+        }
+      </div>
+    </fieldset>
+
+    <div class="row2">
+      <label class="field">Dosage<input class="input-glass" name="dosage" [(ngModel)]="form.dosage" placeholder="80 mg" /></label>
+      <label class="field">Prix (TND)<input class="input-glass" name="prix" type="number" min="0" step="0.01" [(ngModel)]="form.prix" placeholder="4.50" /></label>
+    </div>
+    <div class="row2">
+      <label class="field">Forme galénique<input class="input-glass" name="forme" [(ngModel)]="form.forme" placeholder="Comprimé" /></label>
+      <label class="field">Voie<input class="input-glass" name="voie" [(ngModel)]="form.voie" placeholder="Orale" /></label>
+    </div>
+    <div class="row2">
+      <label class="field">Code ATC<input class="input-glass" name="codeATC" [(ngModel)]="form.codeATC" placeholder="A03AX12" /></label>
+      <label class="check check-inline"><input type="checkbox" name="ordonnance" [(ngModel)]="form.ordonnance" /> Nécessite une ordonnance</label>
+    </div>
+    <label class="field">Posologie<input class="input-glass" name="posologie" [(ngModel)]="form.posologie" placeholder="2 comprimés 3 fois par jour" /></label>
+
+    <label class="field">Molécule (principe actif) *
+      <select class="input-glass" name="moleculeId" [(ngModel)]="form.moleculeId">
+        @for (m of options().molecules; track m.id) { <option [value]="m.id">{{ m.label }}</option> }
+        <option [value]="NEW_MOL">+ Nouvelle molécule…</option>
+      </select>
+    </label>
+    @if (form.moleculeId === NEW_MOL) {
+      <div class="row2">
+        <label class="field">Nom de la molécule<input class="input-glass" name="moleculeNom" [(ngModel)]="form.moleculeNom" placeholder="Phloroglucinol" /></label>
+        <label class="field">Formule brute<input class="input-glass" name="moleculeFormule" [(ngModel)]="form.moleculeFormule" placeholder="C6H6O3" /></label>
+      </div>
+    }
+
+    <fieldset class="field-set">
+      <legend>Effets secondaires (peutProvoquer)</legend>
+      <div class="checks scroll">
+        @for (e of options().effets; track e.id) {
+          <label class="check"><input type="checkbox" [checked]="isChecked('effets', e.id)"
+            (change)="toggle('effets', e.id, $any($event.target).checked)" /> {{ e.label }}</label>
+        }
+      </div>
+    </fieldset>
+    <fieldset class="field-set">
+      <legend>Contre-indiqué en cas de (conditions cliniques)</legend>
+      <div class="checks">
+        @for (c of options().conditions; track c.id) {
+          <label class="check"><input type="checkbox" [checked]="isChecked('conditions', c.id)"
+            (change)="toggle('conditions', c.id, $any($event.target).checked)" /> {{ c.label }}</label>
+        }
+      </div>
+    </fieldset>
+    <div class="row2 row2-top">
+      <fieldset class="field-set">
+        <legend>Traite (module Maladie)</legend>
+        <div class="checks col">
+          @for (m of options().maladies; track m.id) {
+            <label class="check"><input type="checkbox" [checked]="isChecked('maladiesTraitees', m.id)"
+              (change)="toggle('maladiesTraitees', m.id, $any($event.target).checked)" /> {{ m.label }}</label>
+          }
+        </div>
+      </fieldset>
+      <fieldset class="field-set">
+        <legend>Contre-indiqué pour (module Maladie)</legend>
+        <div class="checks col">
+          @for (m of options().maladies; track m.id) {
+            <label class="check"><input type="checkbox" [checked]="isChecked('maladiesContreIndiquees', m.id)"
+              (change)="toggle('maladiesContreIndiquees', m.id, $any($event.target).checked)" /> {{ m.label }}</label>
+          }
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-primary" [disabled]="saving()">
+        {{ editId() ? 'Enregistrer (DELETE / INSERT WHERE)' : 'Ajouter (INSERT DATA)' }}
+      </button>
+      @if (editId()) {
+        <button type="button" class="btn-secondary" (click)="cancelEdit()">Annuler</button>
+      }
+    </div>
+    @if (status().text) {
+      <p class="status" [class.ok]="status().kind === 'ok'" [class.error]="status().kind === 'error'" role="status">{{ status().text }}</p>
+    }
+  </form>
+
+  <!-- Liste + requête exécutée -->
+  <div class="crud-right">
+    <div class="glass-panel list-panel">
+      <div class="crud-head">
+        <div>
+          <h2>Médicaments de l'ontologie</h2>
+          <p class="crud-sub">{{ medicaments().length }} individus · le badge « À risque » est inféré par règle SPARQL.</p>
+        </div>
+        <button type="button" class="btn-secondary btn-sm" (click)="askReset()">
+          {{ armedReset() ? 'Confirmer ?' : 'Réinitialiser l\'ontologie' }}
+        </button>
+      </div>
+
+      @if (loading() && !medicaments().length) {
+        <p class="muted">Chargement…</p>
+      }
+      <div class="med-list">
+        @for (m of medicaments(); track m.id) {
+          <div class="med-row" [class.flash]="highlight() === m.id" [class.editing]="editId() === m.id">
+            <div class="med-main">
+              <div class="med-name">
+                {{ m.nom }} <span class="muted">{{ m.dosage }}</span>
+                @if (isRisque(m)) { <span class="badge badge-rose">À risque</span> }
+                @if (m.ordonnance) { <span class="badge badge-purple">Ordonnance</span> }
+              </div>
+              <div class="med-meta">
+                {{ (m.classes || []).map(classLabelOf).join(', ') }} · {{ m.molecules?.[0]?.nom || '—' }}
+                @if (m.prix) { · {{ m.prix | number:'1.2-2' }} TND }
+              </div>
+              <div class="med-meta small">Effets : {{ effetsLabel(m) }}</div>
+            </div>
+            <div class="med-actions">
+              <button type="button" class="mini" (click)="startEdit(m)">Modifier</button>
+              <button type="button" class="mini danger" [class.armed]="armedDelete() === m.id" (click)="askDelete(m)">
+                {{ armedDelete() === m.id ? 'Confirmer ?' : 'Supprimer' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (lastSparql(); as sp) {
+      <div class="glass-panel sparql-panel">
+        <div class="sparql-bar">{{ sp.label }}</div>
+        <pre class="sparql-pre"><code>{{ sp.query }}</code></pre>
+      </div>
+    }
+  </div>
+</div>

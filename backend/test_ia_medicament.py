@@ -58,6 +58,54 @@ for question, expected, minimum in tests:
         print(f"         Attendu   : {expected!r} et >= {minimum} résultat(s)")
         if "error" in res["data"]:
             print(f"         Erreur    : {res['data']['error']}")
+# ----------------------------------------------------------------------
+# Questions JAMAIS vues à l'entraînement (paraphrases, fautes de frappe)
+# (question, intention attendue, entité attendue (id OWL) ou None)
+# ----------------------------------------------------------------------
+tests_nlp = [
+    ("brufin effets indésirables ?",                         "effets_secondaires",   "Brufen"),
+    ("Est-ce que la coumadinne est compatible avec l'aspirine ?", "interactions",    "Coumadine"),
+    ("Mon fils a la grippe, que lui donner ?",                "traitement",           "Grippe_Saisonniere"),
+    ("Qu'est-ce qui soulage le diabète ?",                    "traitement",           "Diabete_Type2"),
+    ("Le glucophage contient quoi ?",                         "molecule",             "Glucophage"),
+    ("Quel est le moins cher des médicaments ?",              "prix",                 None),
+    ("Ma femme est enceinte, peut-elle prendre du Brufen ?",  "contre_indications",   "Brufen"),
+    ("Donne moi les anticoagulants",                          "classe_therapeutique", "Anticoagulant"),
+    ("Le Mopral provoque-t-il des vertiges ?",                "effets_secondaires",   "Mopral"),
+    ("Combien coûte le Clamoxyl ?",                           "prix",                 "Clamoxyl"),
+    ("Médicaments qu'on peut acheter librement",              "ordonnance",           None),
+    ("Quels médicaments ont été testés en essai ?",           "essais_cliniques",     None),
+    ("Fais-moi une description du Doliprane",                 "fiche_medicament",     "Doliprane"),
+    ("Montre les interactions dangereuses",                   "interactions",         None),
+    ("Je suis allergique à la pénicilline",                   "contre_indications",   "Allergie_Penicilline"),
+    ("Quel médicament donne la diarrhée ?",                   "effets_secondaires",   "Diarrhee"),
+    ("amoxiciline dans quel médicament ?",                    "molecule",             "Mol_Amoxicilline"),
+]
+print("-" * 72)
+print(" Questions inédites (généralisation du modèle NLP) ".center(72, "-"))
+for question, intent_attendu, entite in tests_nlp:
+    res = ia.answer_question(question)
+    nlp = res["nlp"]
+    intent = nlp["intention_retenue"]["intention"]
+    ids = [i for e in nlp["entites"] for i in e["ids"]]
+    passed = intent == intent_attendu and (entite is None or entite in ids)
+    print(f"  {'OK' if passed else 'XX'} [{'PASS' if passed else 'FAIL'}] {question[:46]:46s} -> {intent} "
+          f"({nlp['intention_retenue']['confiance']:.2f})")
+    if not passed:
+        ok = False
+        print(f"         Attendu : {intent_attendu} / {entite} — entités trouvées : {ids}")
+
+# ----------------------------------------------------------------------
+# Précision du classifieur d'intention (validation croisée à 5 plis, groupée par phrase modèle)
+# ----------------------------------------------------------------------
+from sklearn.base import clone
+from sklearn.model_selection import GroupKFold, cross_val_score
+X, y, groupes = ia.nlp.training_data
+# GroupKFold : les variantes d'une même phrase modèle restent dans le même pli (pas de fuite)
+scores = cross_val_score(clone(ia.nlp.classifier), X, y, groups=groupes, cv=GroupKFold(n_splits=5))
+print("-" * 72)
+print(f"  Validation croisée du classifieur : précision moyenne {scores.mean() * 100:.1f} % "
+      f"(± {scores.std() * 100:.1f}) sur {len(X)} phrases")
 print("=" * 72)
 print(" ALL TESTS PASSED " if ok else " SOME TESTS FAILED ")
 print("=" * 72)
