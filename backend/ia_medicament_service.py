@@ -1,105 +1,40 @@
 # -*- coding: utf-8 -*-
 """
-Module IA Médicament : Question en langage naturel -> Requête SPARQL formelle
-Architecture OntoSanté :
-Front-end -> Module IA -> SPARQL -> RDFLib (ontologie_medicament.owl + ontologie_maladie.owl)
+Module IA Médicament : question en langage naturel -> requête SPARQL exécutable.
 
-Les entités (médicaments, molécules, maladies) sont lues directement dans le graphe
-au démarrage : si on ajoute un médicament dans l'ontologie, l'IA le reconnaît
-sans modifier ce fichier.
+Architecture OntoSanté :
+Front-end -> Module IA (NLP spaCy + scikit-learn) -> SPARQL -> RDFLib (ontologie_medicament.owl)
+
+1. nlp_medicament.NLPMedicamentPipeline analyse la question (spaCy) :
+   tokens, lemmes, entités de l'ontologie, intention (classifieur scikit-learn), paramètres.
+2. Ce module choisit le gabarit SPARQL correspondant à l'intention et le remplit
+   avec les entités reconnues (slot filling), puis l'exécute sur le graphe RDFLib.
 """
 
-import re
-from typing import Dict, Any, Tuple, Optional, List
+from typing import Dict, Any, Tuple, List, Optional
 
 from medicament_service import PREFIXES_MDC, CLASSES_THERAPEUTIQUES
+from nlp_medicament import NLPMedicamentPipeline
 
 CLASSES_IN = ", ".join(f"mdc:{c}" for c in CLASSES_THERAPEUTIQUES)
 
+# Paramètres obligatoires pour qu'une intention soit retenue
+REQUIRED = {
+    "fiche_medicament": lambda e: bool(e["meds"]),
+    "classe_therapeutique": lambda e: bool(e["classe"]),
+    "traitement": lambda e: bool(e["meds"] or e["maladie"]),
+}
 
-def _norm(text: str) -> str:
-    """Minuscules, sans accents ni ponctuation courante."""
-    t = text.lower()
-    repl = {
-        'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-        'à': 'a', 'â': 'a', 'ä': 'a',
-        'î': 'i', 'ï': 'i',
-        'ô': 'o', 'ö': 'o',
-        'ù': 'u', 'û': 'u', 'ü': 'u',
-        'ç': 'c', "'": ' ', '’': ' ', '-': ' ', '?': ' ', '!': ' ', ',': ' ', '.': ' '
-    }
-    for k, v in repl.items():
-        t = t.replace(k, v)
-    return " ".join(t.split())
-
-
-def _has(q: str, *stems: str) -> bool:
-    """Vrai si un des radicaux apparaît. Les mots courts (<= 4 lettres) doivent être
-    des mots entiers, pour éviter par ex. que « ains » (AINS) corresponde à « certains »."""
-    for s in stems:
-        if len(s) <= 4:
-            if re.search(rf"\b{re.escape(s)}\b", q):
-                return True
-        elif s in q:
-            return True
-    return False
-
-
-# Classes thérapeutiques : mots-clés -> classe OWL
-CLASSES_KW = [
-    (("antibiotique",), "Antibiotique", "antibiotiques"),
-    (("anti inflammatoire", "antiinflammatoire", "ains"), "AntiInflammatoire", "anti-inflammatoires"),
-    (("antalgique", "antidouleur", "anti douleur", "analgesique"), "Antalgique", "antalgiques"),
-    (("antidiabetique", "anti diabetique"), "Antidiabetique", "antidiabétiques"),
-    (("antihypertenseur", "anti hypertenseur"), "Antihypertenseur", "antihypertenseurs"),
-    (("anti ulcereux", "antiulcereux", "anti acide", "ipp"), "AntiUlcereux", "anti-ulcéreux"),
-    (("anticoagulant", "anti coagulant"), "Anticoagulant", "anticoagulants"),
-]
-
-# Familles d'effets secondaires
-EFFETS_KW = [
-    (("digestif", "digestive", "estomac"), "EffetDigestif", "digestifs"),
-    (("neurologique",), "EffetNeurologique", "neurologiques"),
-    (("cutane", "peau"), "EffetCutane", "cutanés"),
-    (("cardio",), "EffetCardiovasculaire", "cardiovasculaires"),
-    (("hepatique", "foie"), "EffetHepatique", "hépatiques"),
-    (("hematologique", "sang"), "EffetHematologique", "hématologiques"),
-    (("metabolique",), "EffetMetabolique", "métaboliques"),
-]
-
-# Effets précis -> individu OWL
-EFFET_PRECIS_KW = [
-    (("saignement", "hemorragie"), ["Saignement", "Hemorragie_Digestive"]),
-    (("diarrhee",), ["Diarrhee"]),
-    (("nausee", "vomi"), ["Nausee_Effet"]),
-    (("vertige",), ["Vertige_Effet"]),
-    (("maux de tete", "mal de tete", "cephalee"), ["Cephalee_Effet"]),
-    (("oedeme", "gonfle"), ["Oedeme_Chevilles"]),
-    (("eruption", "urticaire", "bouton"), ["Eruption_Cutanee"]),
-    (("acidose",), ["Acidose_Lactique"]),
-    (("hepatotox",), ["Hepatotoxicite"]),
-]
-
-# Conditions cliniques -> individu OWL
-CONDITIONS_KW = [
-    (("enceinte", "grossesse"), "Grossesse"),
-    (("insuffisance hepatique", "foie"), "Insuffisance_Hepatique_Severe"),
-    (("insuffisance renale", "rein", "renal"), "Insuffisance_Renale_Severe"),
-    (("allergi", "penicilline"), "Allergie_Penicilline"),
-    (("enfant", "reye"), "Enfant_Infection_Virale"),
-    (("hypotension",), "Hypotension_Severe"),
-]
-
-# Alias simples pour les maladies du module Maladie
-MALADIES_ALIAS = [
-    (("grippe",), "Grippe_Saisonniere"),
-    (("angine",), "Angine_Streptocoque"),
-    (("diabete", "diabetique"), "Diabete_Type2"),
-    (("hypertension", "hypertendu", "tension arterielle"), "Hypertension_Arterielle"),
-    (("ulcere",), "Ulcere_Gastrique_Sami"),
-]
-
-MOLECULES_ALIAS = {"aspirine": "Mol_Acide_Acetylsalicylique"}
+LIBELLES_CLASSES = {
+    "Antibiotique": "antibiotiques", "AntiInflammatoire": "anti-inflammatoires", "Antalgique": "antalgiques",
+    "Antidiabetique": "antidiabétiques", "Antihypertenseur": "antihypertenseurs",
+    "AntiUlcereux": "anti-ulcéreux", "Anticoagulant": "anticoagulants",
+}
+LIBELLES_FAMILLES = {
+    "EffetDigestif": "digestifs", "EffetNeurologique": "neurologiques", "EffetCutane": "cutanés",
+    "EffetCardiovasculaire": "cardiovasculaires", "EffetHepatique": "hépatiques",
+    "EffetHematologique": "hématologiques", "EffetMetabolique": "métaboliques",
+}
 
 
 class IAMedicamentService:
@@ -107,129 +42,151 @@ class IAMedicamentService:
 
     def __init__(self, medicament_service):
         self.service = medicament_service
-        self.med_index: Dict[str, str] = {}   # nom normalisé -> id médicament
-        self.mol_index: Dict[str, str] = {}   # nom de molécule normalisé -> id molécule
-        self._build_index()
+        self.nlp = NLPMedicamentPipeline(medicament_service)
 
-    # ------------------------------------------------------------------
-    def _build_index(self):
-        if not getattr(self.service, "loaded", False):
-            return
-        for r in self.service._rows("SELECT ?m ?n WHERE { ?m mdc:nomCommercial ?n }"):
-            self.med_index[_norm(r["n"])] = r["m"].split("#")[-1]
-        for r in self.service._rows("SELECT ?mol ?n WHERE { ?mol mdc:nomMolecule ?n }"):
-            self.mol_index[_norm(r["n"])] = r["mol"].split("#")[-1]
-        for alias, mol in MOLECULES_ALIAS.items():
-            self.mol_index[alias] = mol
-
-    def _meds_in(self, q: str) -> List[str]:
-        """Médicaments cités (par nom commercial ou par molécule), dans l'ordre d'apparition."""
-        found = []
-        for name, mid in self.med_index.items():
-            pos = q.find(name)
-            if pos >= 0:
-                found.append((pos, mid))
-        for name, mol in self.mol_index.items():
-            pos = q.find(name)
-            if pos >= 0:
-                for r in self.service._rows(f"SELECT ?m WHERE {{ ?m mdc:contientMolecule mdc:{mol} }}"):
-                    found.append((pos, r["m"].split("#")[-1]))
-        out = []
-        for _, mid in sorted(found):
-            if mid not in out:
-                out.append(mid)
-        return out
-
-    def _molecule_in(self, q: str) -> Optional[str]:
-        for name, mol in self.mol_index.items():
-            if name in q:
-                return mol
-        return None
-
-    @staticmethod
-    def _first(q: str, table):
-        for row in table:
-            if _has(q, *row[0]):
-                return row[1:] if len(row) > 2 else row[1]
-        return None
+    def refresh(self):
+        """Recharge le vocabulaire d'entités (après un ajout / une suppression)."""
+        self.nlp.refresh_entities()
 
     # ------------------------------------------------------------------
     def answer_question(self, question: str) -> Dict[str, Any]:
-        q = _norm(question)
-        sparql, intention, explication = self._translate(q)
+        analyse = self.nlp.analyse(question)
+        entites = self._resoudre(analyse)
+        intent, confiance = self._choisir_intention(analyse, entites)
+        sparql, intention, explication = self._generer(intent, entites, analyse["slots"])
         try:
             raw = self.service.execute_sparql(sparql)
         except Exception as e:
             raw = {"head": {"vars": []}, "results": {"bindings": []}, "error": str(e)}
-        return {"intention": intention, "explication": explication, "sparql": sparql, "data": raw}
+        analyse["intention_retenue"] = {"intention": intent, "confiance": confiance}
+        analyse["outils"] = self.nlp.outils()
+        return {"intention": intention, "explication": explication, "sparql": sparql,
+                "data": raw, "nlp": analyse}
 
     def translate(self, question: str) -> Tuple[str, str, str]:
         """Utilisé par les tests : retourne (sparql, intention, explication)."""
-        return self._translate(_norm(question))
+        r = self.answer_question(question)
+        return r["sparql"], r["intention"], r["explication"]
 
     # ------------------------------------------------------------------
-    def _translate(self, q: str) -> Tuple[str, str, str]:
-        P = PREFIXES_MDC
-        meds = self._meds_in(q)
-        med = meds[0] if meds else None
-        maladie = self._first(q, MALADIES_ALIAS)
-        condition = self._first(q, CONDITIONS_KW)
-        classe = self._first(q, CLASSES_KW)          # (classe, libellé) ou None
+    def _resoudre(self, analyse) -> Dict[str, Any]:
+        """Regroupe les entités reconnues par type (ids OWL)."""
+        def ids(t):
+            out = []
+            for e in analyse["entites"]:
+                if e["type"] == t:
+                    out += [i for i in e["ids"] if i not in out]
+            return out
 
-        # ==============================================================
-        # 1. INTERACTIONS MÉDICAMENTEUSES
-        # ==============================================================
-        if _has(q, "interaction", "interagi", "associer", "ensemble", "en meme temps", "combiner"):
-            if len(meds) >= 2:
-                a, b = meds[0], meds[1]
-                sparql = P + f"""SELECT ?medicament1 ?medicament2 ?niveauRisque ?description WHERE {{
-    ?i mdc:impliqueMedicament mdc:{a} , mdc:{b} .
-    OPTIONAL {{ ?i mdc:niveauRisque ?niveauRisque }}
-    OPTIONAL {{ ?i mdc:descriptionInteraction ?description }}
-    BIND("{a}" AS ?medicament1)
-    BIND("{b}" AS ?medicament2)
-}}"""
-                return sparql, f"Interaction entre {a} et {b}", \
-                    f"L'IA cherche une InteractionMedicamenteuse qui implique à la fois mdc:{a} et mdc:{b}. " \
-                    "Aucun résultat signifie qu'aucune interaction n'est enregistrée."
-            if med:
-                sparql = P + f"""SELECT ?autreMedicament ?niveauRisque ?description WHERE {{
-    ?i mdc:impliqueMedicament mdc:{med} , ?autre .
-    FILTER(?autre != mdc:{med})
-    OPTIONAL {{ ?i mdc:niveauRisque ?niveauRisque }}
-    OPTIONAL {{ ?i mdc:descriptionInteraction ?description }}
-    BIND(STRAFTER(STR(?autre), "#") AS ?autreMedicament)
-}}"""
-                return sparql, f"Interactions de {med}", \
-                    f"L'IA parcourt les interactions réifiées où mdc:{med} est impliqué (mdc:impliqueMedicament)."
-            sparql = P + """SELECT ?medicament1 ?medicament2 ?niveauRisque ?description WHERE {
-    ?i a mdc:InteractionMedicamenteuse ;
-       mdc:impliqueMedicament ?m1 , ?m2 .
-    FILTER(STR(?m1) < STR(?m2))
-    OPTIONAL { ?i mdc:niveauRisque ?niveauRisque }
-    OPTIONAL { ?i mdc:descriptionInteraction ?description }
-    BIND(STRAFTER(STR(?m1), "#") AS ?medicament1)
-    BIND(STRAFTER(STR(?m2), "#") AS ?medicament2)
-    BIND(IF(?niveauRisque = "Eleve", 3, IF(?niveauRisque = "Modere", 2, 1)) AS ?ordre)
-} ORDER BY DESC(?ordre)"""
-            return sparql, "Toutes les interactions médicamenteuses", \
-                "L'IA liste les individus de mdc:InteractionMedicamenteuse, triés du risque le plus élevé au plus faible."
+        meds_explicites = ids("MEDICAMENT")
+        mols = ids("MOLECULE")
+        meds = list(meds_explicites)
+        for mol in mols:                         # une molécule désigne les médicaments qui la contiennent
+            for r in self.service._rows(f"SELECT ?m WHERE {{ ?m mdc:contientMolecule mdc:{mol} }}"):
+                mid = r["m"].split("#")[-1]
+                if mid not in meds:
+                    meds.append(mid)
+        first = lambda l: l[0] if l else None
+        return {
+            "meds": meds, "meds_explicites": meds_explicites, "mol": first(mols),
+            "maladie": first(ids("MALADIE")), "condition": first(ids("CONDITION")),
+            "effets": ids("EFFET"), "famille": first(ids("FAMILLE_EFFET")), "classe": first(ids("CLASSE")),
+        }
 
-        # ==============================================================
-        # 2. CONTRE-INDICATIONS
-        # ==============================================================
-        if _has(q, "contre indi", "contreindi", "eviter", "deconseill", "peut il prendre",
-                "peut elle prendre", "puis je prendre", "enceinte", "dangereux pour", "interdit"):
-            if _has(q, "sans contre", "aucune contre", "pas de contre"):
-                sparql = P + """SELECT ?medicament WHERE {
+    @staticmethod
+    def _choisir_intention(analyse, entites) -> Tuple[str, float]:
+        """Intention la plus probable dont les paramètres obligatoires sont présents."""
+        for cand in analyse["intentions"]:
+            check = REQUIRED.get(cand["intention"])
+            if check is None or check(entites):
+                return cand["intention"], cand["confiance"]
+        return "lister_medicaments", 0.0
+
+    # ------------------------------------------------------------------
+    # Gabarits SPARQL par intention
+    # ------------------------------------------------------------------
+    def _generer(self, intent: str, e: Dict[str, Any], s: Dict[str, Any]) -> Tuple[str, str, str]:
+        gen = getattr(self, f"_q_{intent}", self._q_lister_medicaments)
+        return gen(e, s)
+
+    P = PREFIXES_MDC
+
+    def _q_lister_medicaments(self, e, s):
+        return self.P + """SELECT ?medicament ?molecule ?dosage ?prixTND ?ordonnance WHERE {
     ?m mdc:nomCommercial ?medicament .
-    FILTER NOT EXISTS { ?m mdc:estContreIndiqueEn ?c }
-    FILTER NOT EXISTS { ?m mdc:estContreIndiquePour ?mal }
-}"""
-                return sparql, "Médicaments sans contre-indication enregistrée", \
-                    "L'IA utilise FILTER NOT EXISTS sur mdc:estContreIndiqueEn et mdc:estContreIndiquePour."
-            if med:
-                sparql = P + f"""SELECT ?contreIndication ?type WHERE {{
+    OPTIONAL { ?m mdc:contientMolecule/mdc:nomMolecule ?molecule }
+    OPTIONAL { ?m mdc:dosage ?dosage }
+    OPTIONAL { ?m mdc:prixTND ?prixTND }
+    OPTIONAL { ?m mdc:necessiteOrdonnance ?ordonnance }
+} ORDER BY ?medicament""", "Tous les médicaments de l'ontologie", \
+            "Liste de l'ensemble des médicaments avec leur molécule, dosage, prix et statut d'ordonnance."
+
+    def _q_effets_secondaires(self, e, s):
+        P = self.P
+        if not e["famille"] and e["condition"] == "Insuffisance_Hepatique_Severe":
+            e = {**e, "famille": "EffetHepatique"}      # « effets sur le foie »
+        if s["grave"] and not e["meds"]:
+            return P + """SELECT ?effet ?frequence ?medicament WHERE {
+    ?e rdf:type mdc:EffetGrave ;
+       mdc:nomEffet ?effet ;
+       mdc:frequence ?frequence .
+    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
+} ORDER BY ?effet""", "Effets secondaires graves", \
+                "mdc:EffetGrave est une classe définie (EffetSecondaire ⊓ graviteEffet = 3) inférée par le raisonneur."
+        if e["meds"]:
+            med = e["meds"][0]
+            return P + f"""SELECT ?effet ?famille ?frequence ?gravite WHERE {{
+    mdc:{med} mdc:peutProvoquer ?e .
+    ?e mdc:nomEffet ?effet ; rdf:type ?t .
+    ?t rdfs:subClassOf mdc:EffetSecondaire .
+    FILTER(?t != mdc:EffetGrave)
+    OPTIONAL {{ ?e mdc:frequence ?frequence }}
+    OPTIONAL {{ ?e mdc:graviteEffet ?gravite }}
+    BIND(STRAFTER(STR(?t), "#") AS ?famille)
+}} ORDER BY DESC(?gravite)""", f"Effets secondaires de {med}", \
+                f"Relation mdc:peutProvoquer suivie depuis mdc:{med}, triée par gravité."
+        if e["effets"]:
+            values = " ".join(f"mdc:{x}" for x in e["effets"])
+            return P + f"""SELECT ?medicament ?effet ?frequence WHERE {{
+    VALUES ?e {{ {values} }}
+    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
+    ?e mdc:nomEffet ?effet .
+    OPTIONAL {{ ?e mdc:frequence ?frequence }}
+}} ORDER BY ?medicament""", "Médicaments provoquant cet effet", \
+                f"Médicaments liés à {values} par mdc:peutProvoquer."
+        if e["famille"]:
+            cls = e["famille"]
+            return P + f"""SELECT ?effet ?medicament ?frequence ?gravite WHERE {{
+    ?e rdf:type mdc:{cls} ; mdc:nomEffet ?effet .
+    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
+    OPTIONAL {{ ?e mdc:frequence ?frequence }}
+    OPTIONAL {{ ?e mdc:graviteEffet ?gravite }}
+}} ORDER BY ?effet""", f"Effets secondaires {LIBELLES_FAMILLES.get(cls, cls)}", \
+                f"Instances de la sous-classe mdc:{cls}."
+        return P + """SELECT ?medicament ?effet ?frequence ?gravite WHERE {
+    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
+    ?e mdc:nomEffet ?effet .
+    OPTIONAL { ?e mdc:frequence ?frequence }
+    OPTIONAL { ?e mdc:graviteEffet ?gravite }
+} ORDER BY ?medicament DESC(?gravite)""", "Effets secondaires de tous les médicaments", \
+            "Parcours de toutes les relations mdc:peutProvoquer."
+
+    def _q_medicaments_a_risque(self, e, s):
+        if e["meds"]:                                     # « risques de l'Amlor » -> effets de ce médicament
+            return self._q_effets_secondaires(e, s)
+        return self.P + """SELECT ?medicament ?effetGrave WHERE {
+    ?m rdf:type mdc:MedicamentARisque ;
+       mdc:nomCommercial ?medicament ;
+       mdc:peutProvoquer ?e .
+    ?e mdc:graviteEffet 3 ; mdc:nomEffet ?effetGrave .
+} ORDER BY ?medicament""", "Médicaments à risque (classe inférée)", \
+            "mdc:MedicamentARisque est une classe définie (Medicament ⊓ ∃peutProvoquer.EffetGrave) remplie par le raisonneur."
+
+    def _q_contre_indications(self, e, s):
+        P = self.P
+        if e["meds"]:
+            med = e["meds"][0]
+            return P + f"""SELECT ?contreIndication ?type WHERE {{
     {{
         mdc:{med} mdc:estContreIndiqueEn ?c .
         ?c mdc:nomCondition ?contreIndication .
@@ -240,28 +197,34 @@ class IAMedicamentService:
         BIND(COALESCE(?nomMal, STRAFTER(STR(?mal), "#")) AS ?contreIndication)
         BIND("Maladie (module Maladie)" AS ?type)
     }}
-}}"""
-                return sparql, f"Contre-indications de {med}", \
-                    f"L'IA réunit (UNION) les conditions cliniques et les maladies du module Maladie contre-indiquées pour mdc:{med}."
-            if maladie:
-                sparql = P + f"""SELECT ?medicament (GROUP_CONCAT(DISTINCT ?cl; separator=", ") AS ?classe) WHERE {{
-    ?m mdc:estContreIndiquePour mal:{maladie} ;
+}}""", f"Contre-indications de {med}", \
+                f"UNION des conditions cliniques et des maladies (module Maladie) contre-indiquées pour mdc:{med}."
+        if e["maladie"]:
+            mal = e["maladie"]
+            return P + f"""SELECT ?medicament (GROUP_CONCAT(DISTINCT ?cl; separator=", ") AS ?classe) WHERE {{
+    ?m mdc:estContreIndiquePour mal:{mal} ;
        mdc:nomCommercial ?medicament ;
        rdf:type ?c .
     FILTER(?c IN ({CLASSES_IN}))
     BIND(STRAFTER(STR(?c), "#") AS ?cl)
-}} GROUP BY ?medicament"""
-                return sparql, f"Médicaments contre-indiqués : {maladie}", \
-                    f"Requête croisée Médicament ↔ Maladie : ?m mdc:estContreIndiquePour mal:{maladie}."
-            if condition:
-                sparql = P + f"""SELECT ?medicament ?condition WHERE {{
-    ?m mdc:estContreIndiqueEn mdc:{condition} ;
+}} GROUP BY ?medicament""", f"Médicaments contre-indiqués : {mal.replace('_', ' ')}", \
+                f"Requête croisée Médicament ↔ Maladie : ?m mdc:estContreIndiquePour mal:{mal}."
+        if e["condition"]:
+            c = e["condition"]
+            return P + f"""SELECT ?medicament ?condition WHERE {{
+    ?m mdc:estContreIndiqueEn mdc:{c} ;
        mdc:nomCommercial ?medicament .
-    mdc:{condition} mdc:nomCondition ?condition .
-}}"""
-                return sparql, f"Médicaments contre-indiqués : {condition.replace('_', ' ')}", \
-                    f"L'IA sélectionne les médicaments liés à mdc:{condition} par mdc:estContreIndiqueEn."
-            sparql = P + """SELECT ?medicament ?contreIndication ?type WHERE {
+    mdc:{c} mdc:nomCondition ?condition .
+}}""", f"Médicaments contre-indiqués : {c.replace('_', ' ')}", \
+                f"Médicaments liés à mdc:{c} par mdc:estContreIndiqueEn."
+        if s["negation"]:
+            return P + """SELECT ?medicament WHERE {
+    ?m mdc:nomCommercial ?medicament .
+    FILTER NOT EXISTS { ?m mdc:estContreIndiqueEn ?c }
+    FILTER NOT EXISTS { ?m mdc:estContreIndiquePour ?mal }
+}""", "Médicaments sans contre-indication enregistrée", \
+                "Négation détectée : FILTER NOT EXISTS sur mdc:estContreIndiqueEn et mdc:estContreIndiquePour."
+        return P + """SELECT ?medicament ?contreIndication ?type WHERE {
     ?m mdc:nomCommercial ?medicament .
     {
         ?m mdc:estContreIndiqueEn ?c . ?c mdc:nomCondition ?contreIndication .
@@ -272,256 +235,197 @@ class IAMedicamentService:
         BIND(COALESCE(?nomMal, STRAFTER(STR(?mal), "#")) AS ?contreIndication)
         BIND("Maladie" AS ?type)
     }
-} ORDER BY ?medicament"""
-            return sparql, "Toutes les contre-indications", \
-                "L'IA liste chaque médicament avec ses contre-indications (conditions cliniques et maladies)."
+} ORDER BY ?medicament""", "Toutes les contre-indications", \
+            "Chaque médicament avec ses contre-indications (conditions cliniques et maladies)."
 
-        # ==============================================================
-        # 3. EFFETS SECONDAIRES
-        # ==============================================================
-        if _has(q, "a risque", "dangereux", "risque grave"):
-            sparql = P + """SELECT ?medicament ?effetGrave WHERE {
-    ?m rdf:type mdc:MedicamentARisque ;
+    def _q_interactions(self, e, s):
+        P = self.P
+        meds = e["meds"]
+        if len(meds) >= 2:
+            a, b = meds[0], meds[1]
+            return P + f"""SELECT ?medicament1 ?medicament2 ?niveauRisque ?description WHERE {{
+    ?i mdc:impliqueMedicament mdc:{a} , mdc:{b} .
+    OPTIONAL {{ ?i mdc:niveauRisque ?niveauRisque }}
+    OPTIONAL {{ ?i mdc:descriptionInteraction ?description }}
+    BIND("{a}" AS ?medicament1)
+    BIND("{b}" AS ?medicament2)
+}}""", f"Interaction entre {a} et {b}", \
+                f"Recherche d'une InteractionMedicamenteuse impliquant mdc:{a} et mdc:{b}. " \
+                "Aucun résultat signifie qu'aucune interaction n'est enregistrée."
+        if meds:
+            med = meds[0]
+            return P + f"""SELECT ?autreMedicament ?niveauRisque ?description WHERE {{
+    ?i mdc:impliqueMedicament mdc:{med} , ?autre .
+    FILTER(?autre != mdc:{med})
+    OPTIONAL {{ ?i mdc:niveauRisque ?niveauRisque }}
+    OPTIONAL {{ ?i mdc:descriptionInteraction ?description }}
+    BIND(STRAFTER(STR(?autre), "#") AS ?autreMedicament)
+}}""", f"Interactions de {med}", \
+                f"Interactions réifiées où mdc:{med} est impliqué (mdc:impliqueMedicament)."
+        return P + """SELECT ?medicament1 ?medicament2 ?niveauRisque ?description WHERE {
+    ?i a mdc:InteractionMedicamenteuse ;
+       mdc:impliqueMedicament ?m1 , ?m2 .
+    FILTER(STR(?m1) < STR(?m2))
+    OPTIONAL { ?i mdc:niveauRisque ?niveauRisque }
+    OPTIONAL { ?i mdc:descriptionInteraction ?description }
+    BIND(STRAFTER(STR(?m1), "#") AS ?medicament1)
+    BIND(STRAFTER(STR(?m2), "#") AS ?medicament2)
+    BIND(IF(?niveauRisque = "Eleve", 3, IF(?niveauRisque = "Modere", 2, 1)) AS ?ordre)
+} ORDER BY DESC(?ordre)""", "Toutes les interactions médicamenteuses", \
+            "Individus de mdc:InteractionMedicamenteuse, du risque le plus élevé au plus faible."
+
+    def _q_molecule(self, e, s):
+        P = self.P
+        if e["mol"] and not e["meds_explicites"]:
+            mol = e["mol"]
+            return P + f"""SELECT ?medicament ?dosage ?forme WHERE {{
+    ?m mdc:contientMolecule mdc:{mol} ;
+       mdc:nomCommercial ?medicament .
+    OPTIONAL {{ ?m mdc:dosage ?dosage }}
+    OPTIONAL {{ ?m mdc:formeGalenique ?forme }}
+}}""", f"Médicaments contenant {mol.replace('Mol_', '').replace('_', ' ')}", \
+                f"Relation parcourue dans l'autre sens : ?m mdc:contientMolecule mdc:{mol}."
+        med = e["meds"][0] if e["meds"] else None
+        filtre = f"FILTER(?m = mdc:{med})" if med else ""
+        return P + f"""SELECT ?medicament ?molecule ?formuleBrute ?masseMolaire WHERE {{
+    ?m mdc:contientMolecule ?mol ; mdc:nomCommercial ?medicament .
+    {filtre}
+    ?mol mdc:nomMolecule ?molecule .
+    OPTIONAL {{ ?mol mdc:formuleBrute ?formuleBrute }}
+    OPTIONAL {{ ?mol mdc:masseMolaire ?masseMolaire }}
+}} ORDER BY ?medicament""", f"Molécule(s){' de ' + med if med else ' des médicaments'}", \
+            "mdc:contientMolecule, puis formule brute et masse molaire."
+
+    def _q_traitement(self, e, s):
+        P = self.P
+        if e["maladie"] and not e["meds"]:
+            mal = e["maladie"]
+            return P + f"""SELECT ?medicament (GROUP_CONCAT(DISTINCT ?cl; separator=", ") AS ?classe) ?posologie WHERE {{
+    ?m mdc:traite mal:{mal} ;
        mdc:nomCommercial ?medicament ;
-       mdc:peutProvoquer ?e .
-    ?e mdc:graviteEffet 3 ; mdc:nomEffet ?effetGrave .
-} ORDER BY ?medicament"""
-            return sparql, "Médicaments à risque (classe inférée)", \
-                "mdc:MedicamentARisque est une classe définie (Medicament ⊓ ∃peutProvoquer.EffetGrave) remplie par le raisonneur HermiT."
+       rdf:type ?c .
+    FILTER(?c IN ({CLASSES_IN}))
+    OPTIONAL {{ ?m mdc:posologie ?posologie }}
+    BIND(STRAFTER(STR(?c), "#") AS ?cl)
+}} GROUP BY ?medicament ?posologie""", f"Médicaments qui traitent : {mal.replace('_', ' ')}", \
+                f"Requête croisée Médicament ↔ Maladie : ?m mdc:traite mal:{mal}."
+        med = e["meds"][0]
+        return P + f"""SELECT ?maladie ?codeCIM WHERE {{
+    mdc:{med} mdc:traite ?mal .
+    OPTIONAL {{ ?mal mal:nom ?nom }}
+    OPTIONAL {{ ?mal mal:codeCIM ?codeCIM }}
+    BIND(COALESCE(?nom, STRAFTER(STR(?mal), "#")) AS ?maladie)
+}}""", f"Maladies traitées par {med}", \
+            f"mdc:traite suivi depuis mdc:{med} vers les individus du module Maladie (nom, code CIM-10)."
 
-        if _has(q, "effet", "indesirable", "secondaire", "provoqu", "cause"):
-            precis = self._first(q, EFFET_PRECIS_KW)
-            famille = self._first(q, EFFETS_KW)
-            if _has(q, "grave", "severe", "serieux"):
-                sparql = P + """SELECT ?effet ?frequence ?medicament WHERE {
-    ?e rdf:type mdc:EffetGrave ;
-       mdc:nomEffet ?effet ;
-       mdc:frequence ?frequence .
-    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
-} ORDER BY ?effet"""
-                return sparql, "Effets secondaires graves", \
-                    "mdc:EffetGrave est une classe définie (EffetSecondaire ⊓ graviteEffet = 3) inférée par HermiT."
-            if med:
-                sparql = P + f"""SELECT ?effet ?famille ?frequence ?gravite WHERE {{
-    mdc:{med} mdc:peutProvoquer ?e .
-    ?e mdc:nomEffet ?effet ; rdf:type ?t .
-    ?t rdfs:subClassOf mdc:EffetSecondaire .
-    FILTER(?t != mdc:EffetGrave)
-    OPTIONAL {{ ?e mdc:frequence ?frequence }}
-    OPTIONAL {{ ?e mdc:graviteEffet ?gravite }}
-    BIND(STRAFTER(STR(?t), "#") AS ?famille)
-}} ORDER BY DESC(?gravite)"""
-                return sparql, f"Effets secondaires de {med}", \
-                    f"L'IA suit la relation mdc:peutProvoquer depuis mdc:{med} et trie par gravité."
-            if precis:
-                values = " ".join(f"mdc:{e}" for e in precis)
-                sparql = P + f"""SELECT ?medicament ?effet ?frequence WHERE {{
-    VALUES ?e {{ {values} }}
-    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
-    ?e mdc:nomEffet ?effet .
-    OPTIONAL {{ ?e mdc:frequence ?frequence }}
-}} ORDER BY ?medicament"""
-                return sparql, "Médicaments provoquant cet effet", \
-                    f"L'IA cherche les médicaments liés à {values} par mdc:peutProvoquer."
-            if famille:
-                cls, label = famille
-                sparql = P + f"""SELECT ?effet ?medicament ?frequence ?gravite WHERE {{
-    ?e rdf:type mdc:{cls} ; mdc:nomEffet ?effet .
-    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
-    OPTIONAL {{ ?e mdc:frequence ?frequence }}
-    OPTIONAL {{ ?e mdc:graviteEffet ?gravite }}
-}} ORDER BY ?effet"""
-                return sparql, f"Effets secondaires {label}", \
-                    f"L'IA sélectionne les instances de la sous-classe mdc:{cls}."
-            sparql = P + """SELECT ?medicament ?effet ?frequence ?gravite WHERE {
-    ?m mdc:peutProvoquer ?e ; mdc:nomCommercial ?medicament .
-    ?e mdc:nomEffet ?effet .
-    OPTIONAL { ?e mdc:frequence ?frequence }
-    OPTIONAL { ?e mdc:graviteEffet ?gravite }
-} ORDER BY ?medicament DESC(?gravite)"""
-            return sparql, "Effets secondaires de tous les médicaments", \
-                "L'IA parcourt toutes les relations mdc:peutProvoquer."
-
-        # ==============================================================
-        # 4. DONNÉES CLINIQUES (ESSAIS)
-        # ==============================================================
-        if _has(q, "essai", "clinique", "efficac", "etude", "phase"):
-            if _has(q, "sans essai", "pas d essai", "non evalue", "aucun essai"):
-                sparql = P + """SELECT ?medicament WHERE {
+    def _q_essais_cliniques(self, e, s):
+        P = self.P
+        med = e["meds"][0] if e["meds"] else None
+        if s["negation"] and not med:
+            return P + """SELECT ?medicament WHERE {
     ?m mdc:nomCommercial ?medicament .
     FILTER NOT EXISTS { ?m rdf:type mdc:MedicamentEvalueCliniquement }
-}"""
-                return sparql, "Médicaments sans essai clinique", \
-                    "L'IA exclut les individus de la classe inférée mdc:MedicamentEvalueCliniquement."
-            if _has(q, "plus efficace", "meilleur", "le mieux"):
-                sparql = P + """SELECT ?medicament ?tauxEfficacite ?nombrePatients ?objectif WHERE {
+}""", "Médicaments sans essai clinique", \
+                "Négation détectée : exclusion de la classe inférée mdc:MedicamentEvalueCliniquement."
+        if s["superlatif"] and not med:
+            return P + """SELECT ?medicament ?tauxEfficacite ?nombrePatients ?objectif WHERE {
     ?essai mdc:evalue ?m ; mdc:tauxEfficacite ?tauxEfficacite .
     ?m mdc:nomCommercial ?medicament .
     OPTIONAL { ?essai mdc:nombrePatients ?nombrePatients }
     OPTIONAL { ?essai mdc:objectifEssai ?objectif }
-} ORDER BY DESC(?tauxEfficacite) LIMIT 3"""
-                return sparql, "Médicaments les plus efficaces (essais cliniques)", \
-                    "L'IA trie les essais par mdc:tauxEfficacite décroissant (ORDER BY DESC, LIMIT 3)."
-            filtre = f"FILTER(?m = mdc:{med})" if med else ""
-            sparql = P + f"""SELECT ?essai ?medicament ?phase ?nombrePatients ?tauxEfficacite ?annee ?objectif WHERE {{
+} ORDER BY DESC(?tauxEfficacite) LIMIT 3""", "Médicaments les plus efficaces (essais cliniques)", \
+                "Superlatif détecté : tri par mdc:tauxEfficacite décroissant (ORDER BY DESC, LIMIT 3)."
+        filtre = f"FILTER(?m = mdc:{med})" if med else ""
+        return P + f"""SELECT ?essai ?medicament ?phase ?nombrePatients ?tauxEfficacite ?annee ?objectif WHERE {{
     ?e mdc:evalue ?m ; mdc:phase ?phase ; mdc:nombrePatients ?nombrePatients ;
        mdc:tauxEfficacite ?tauxEfficacite ; mdc:anneeEssai ?annee .
     {filtre}
     ?m mdc:nomCommercial ?medicament .
     OPTIONAL {{ ?e mdc:objectifEssai ?objectif }}
     BIND(STRAFTER(STR(?e), "#") AS ?essai)
-}} ORDER BY DESC(?tauxEfficacite)"""
-            return sparql, f"Essais cliniques{' de ' + med if med else ''}", \
-                "L'IA lit les données cliniques (phase, patients, efficacité, année) via mdc:evalue."
+}} ORDER BY DESC(?tauxEfficacite)""", f"Essais cliniques{' de ' + med if med else ''}", \
+            "Données cliniques (phase, patients, efficacité, année) via mdc:evalue."
 
-        # ==============================================================
-        # 5. MOLÉCULES / PRINCIPES ACTIFS
-        # ==============================================================
-        if _has(q, "molecule", "principe actif", "substance", "formule", "masse molaire", "contien", "compos"):
-            mol = self._molecule_in(q)
-            if mol and not any(_norm(n) in q for n in self.med_index):
-                sparql = P + f"""SELECT ?medicament ?dosage ?forme WHERE {{
-    ?m mdc:contientMolecule mdc:{mol} ;
-       mdc:nomCommercial ?medicament .
-    OPTIONAL {{ ?m mdc:dosage ?dosage }}
-    OPTIONAL {{ ?m mdc:formeGalenique ?forme }}
-}}"""
-                return sparql, f"Médicaments contenant {mol.replace('Mol_', '').replace('_', ' ')}", \
-                    f"L'IA utilise la relation inverse : ?m mdc:contientMolecule mdc:{mol}."
-            filtre = f"FILTER(?m = mdc:{med})" if med else ""
-            sparql = P + f"""SELECT ?medicament ?molecule ?formuleBrute ?masseMolaire WHERE {{
-    ?m mdc:contientMolecule ?mol ; mdc:nomCommercial ?medicament .
-    {filtre}
-    ?mol mdc:nomMolecule ?molecule .
-    OPTIONAL {{ ?mol mdc:formuleBrute ?formuleBrute }}
-    OPTIONAL {{ ?mol mdc:masseMolaire ?masseMolaire }}
-}} ORDER BY ?medicament"""
-            return sparql, f"Molécule(s){' de ' + med if med else ' des médicaments'}", \
-                "L'IA suit mdc:contientMolecule puis lit la formule brute et la masse molaire."
-
-        # ==============================================================
-        # 6. TRAITEMENTS (lien avec le module Maladie)
-        # ==============================================================
-        if maladie and not med:
-            sparql = P + f"""SELECT ?medicament (GROUP_CONCAT(DISTINCT ?cl; separator=", ") AS ?classe) ?posologie WHERE {{
-    ?m mdc:traite mal:{maladie} ;
-       mdc:nomCommercial ?medicament ;
-       rdf:type ?c .
-    FILTER(?c IN ({CLASSES_IN}))
-    OPTIONAL {{ ?m mdc:posologie ?posologie }}
-    BIND(STRAFTER(STR(?c), "#") AS ?cl)
-}} GROUP BY ?medicament ?posologie"""
-            return sparql, f"Médicaments qui traitent : {maladie.replace('_', ' ')}", \
-                f"Requête croisée Médicament ↔ Maladie : ?m mdc:traite mal:{maladie}."
-        if med and _has(q, "traite", "soigne", "sert", "indication", "pour quoi", "pourquoi", "utilise"):
-            sparql = P + f"""SELECT ?maladie ?codeCIM WHERE {{
-    mdc:{med} mdc:traite ?mal .
-    OPTIONAL {{ ?mal mal:nom ?nom }}
-    OPTIONAL {{ ?mal mal:codeCIM ?codeCIM }}
-    BIND(COALESCE(?nom, STRAFTER(STR(?mal), "#")) AS ?maladie)
-}}"""
-            return sparql, f"Maladies traitées par {med}", \
-                f"L'IA suit mdc:traite depuis mdc:{med} vers les individus du module Maladie (nom, code CIM-10)."
-
-        # ==============================================================
-        # 7. ORDONNANCE / PRIX / POSOLOGIE
-        # ==============================================================
-        if _has(q, "ordonnance", "prescription", "libre", "sans prescri"):
-            if _has(q, "sans", "libre", "pas besoin"):
-                sparql = P + """SELECT ?medicament ?prixTND WHERE {
+    def _q_ordonnance(self, e, s):
+        P = self.P
+        if e["meds"]:
+            med = e["meds"][0]
+            return P + f"""SELECT ?medicament ?ordonnance WHERE {{
+    mdc:{med} mdc:nomCommercial ?medicament ; mdc:necessiteOrdonnance ?ordonnance .
+}}""", f"{med} nécessite-t-il une ordonnance ?", f"Lecture de mdc:necessiteOrdonnance de mdc:{med}."
+        if s["negation"] or s["libre"]:
+            return P + """SELECT ?medicament ?prixTND WHERE {
     ?m mdc:nomCommercial ?medicament ; mdc:necessiteOrdonnance false .
     OPTIONAL { ?m mdc:prixTND ?prixTND }
-} ORDER BY ?medicament"""
-                return sparql, "Médicaments sans ordonnance", \
-                    "L'IA filtre sur mdc:necessiteOrdonnance false."
-            sparql = P + """SELECT ?medicament ?prixTND WHERE {
+} ORDER BY ?medicament""", "Médicaments sans ordonnance", \
+                "Filtre sur mdc:necessiteOrdonnance false."
+        return P + """SELECT ?medicament ?prixTND WHERE {
     ?m rdf:type mdc:MedicamentSurOrdonnance ; mdc:nomCommercial ?medicament .
     OPTIONAL { ?m mdc:prixTND ?prixTND }
-} ORDER BY ?medicament"""
-            return sparql, "Médicaments sur ordonnance (classe inférée)", \
-                "mdc:MedicamentSurOrdonnance est une classe définie (necessiteOrdonnance = true) remplie par le raisonneur."
+} ORDER BY ?medicament""", "Médicaments sur ordonnance (classe inférée)", \
+            "mdc:MedicamentSurOrdonnance est une classe définie (necessiteOrdonnance = true) remplie par le raisonneur."
 
-        if _has(q, "prix", "cout", "coute", "couts", "cher", "chers", "chere", "tarif", "dinar", "tnd"):
-            if med:
-                sparql = P + f"""SELECT ?medicament ?prixTND ?dosage WHERE {{
+    def _q_prix(self, e, s):
+        P = self.P
+        if e["meds"]:
+            med = e["meds"][0]
+            return P + f"""SELECT ?medicament ?prixTND ?dosage WHERE {{
     mdc:{med} mdc:nomCommercial ?medicament ; mdc:prixTND ?prixTND .
     OPTIONAL {{ mdc:{med} mdc:dosage ?dosage }}
-}}"""
-                return sparql, f"Prix de {med}", f"L'IA lit mdc:prixTND de mdc:{med}."
-            ordre = "DESC" if _has(q, "plus cher", "cher", "chers", "chere") and not _has(q, "moins cher", "pas cher") else "ASC"
-            sparql = P + f"""SELECT ?medicament ?prixTND ?dosage WHERE {{
+}}""", f"Prix de {med}", f"Lecture de mdc:prixTND de mdc:{med}."
+        ordre = s["ordre"] or "ASC"
+        return P + f"""SELECT ?medicament ?prixTND ?dosage WHERE {{
     ?m mdc:nomCommercial ?medicament ; mdc:prixTND ?prixTND .
     OPTIONAL {{ ?m mdc:dosage ?dosage }}
-}} ORDER BY {ordre}(?prixTND)"""
-            return sparql, "Médicaments triés par prix", \
-                f"L'IA trie les médicaments par mdc:prixTND ({'décroissant' if ordre == 'DESC' else 'croissant'})."
+}} ORDER BY {ordre}(?prixTND)""", "Médicaments triés par prix", \
+            f"Tri par mdc:prixTND ({'décroissant' if ordre == 'DESC' else 'croissant'})."
 
-        if _has(q, "posologie", "dose", "dosage", "combien de fois", "comment prendre"):
-            filtre = f"FILTER(?m = mdc:{med})" if med else ""
-            sparql = P + f"""SELECT ?medicament ?dosage ?forme ?posologie WHERE {{
+    def _q_posologie(self, e, s):
+        med = e["meds"][0] if e["meds"] else None
+        filtre = f"FILTER(?m = mdc:{med})" if med else ""
+        return self.P + f"""SELECT ?medicament ?dosage ?forme ?posologie WHERE {{
     ?m mdc:nomCommercial ?medicament .
     {filtre}
     OPTIONAL {{ ?m mdc:dosage ?dosage }}
     OPTIONAL {{ ?m mdc:formeGalenique ?forme }}
     OPTIONAL {{ ?m mdc:posologie ?posologie }}
-}} ORDER BY ?medicament"""
-            return sparql, f"Posologie{' de ' + med if med else ' des médicaments'}", \
-                "L'IA lit mdc:dosage, mdc:formeGalenique et mdc:posologie."
+}} ORDER BY ?medicament""", f"Posologie{' de ' + med if med else ' des médicaments'}", \
+            "Lecture de mdc:dosage, mdc:formeGalenique et mdc:posologie."
 
-        # ==============================================================
-        # 8. CLASSES THÉRAPEUTIQUES
-        # ==============================================================
-        if classe:
-            cls, label = classe
-            sparql = P + f"""SELECT ?medicament ?molecule ?dosage ?codeATC WHERE {{
+    def _q_classe_therapeutique(self, e, s):
+        cls = e["classe"]
+        return self.P + f"""SELECT ?medicament ?molecule ?dosage ?codeATC WHERE {{
     ?m rdf:type/rdfs:subClassOf* mdc:{cls} ;
        mdc:nomCommercial ?medicament .
     OPTIONAL {{ ?m mdc:contientMolecule/mdc:nomMolecule ?molecule }}
     OPTIONAL {{ ?m mdc:dosage ?dosage }}
     OPTIONAL {{ ?m mdc:codeATC ?codeATC }}
-}} ORDER BY ?medicament"""
-            return sparql, f"Liste des {label}", \
-                f"L'IA sélectionne les instances de mdc:{cls} (rdf:type/rdfs:subClassOf*)."
+}} ORDER BY ?medicament""", f"Liste des {LIBELLES_CLASSES.get(cls, cls)}", \
+            f"Instances de mdc:{cls} (rdf:type/rdfs:subClassOf*)."
 
-        if _has(q, "combien", "nombre"):
-            sparql = P + """SELECT ?classe (COUNT(?m) AS ?nombre) WHERE {
+    def _q_comptage(self, e, s):
+        return self.P + """SELECT ?classe (COUNT(?m) AS ?nombre) WHERE {
     ?m mdc:nomCommercial ?n ; rdf:type ?c .
-    ?c rdfs:subClassOf mdc:Medicament .
     FILTER(?c IN (""" + CLASSES_IN + """))
     BIND(STRAFTER(STR(?c), "#") AS ?classe)
-} GROUP BY ?classe ORDER BY DESC(?nombre)"""
-            return sparql, "Nombre de médicaments par classe thérapeutique", \
-                "L'IA regroupe (GROUP BY) les médicaments par classe et les compte (COUNT)."
+} GROUP BY ?classe ORDER BY DESC(?nombre)""", "Nombre de médicaments par classe thérapeutique", \
+            "Regroupement (GROUP BY) par classe et comptage (COUNT)."
 
-        if _has(q, "code atc", "atc"):
-            sparql = P + """SELECT ?medicament ?codeATC WHERE {
+    def _q_code_atc(self, e, s):
+        med = e["meds"][0] if e["meds"] else None
+        filtre = f"FILTER(?m = mdc:{med})" if med else ""
+        return self.P + f"""SELECT ?medicament ?codeATC WHERE {{
     ?m mdc:nomCommercial ?medicament ; mdc:codeATC ?codeATC .
-} ORDER BY ?codeATC"""
-            return sparql, "Codes ATC des médicaments", \
-                "L'IA lit mdc:codeATC (classification anatomique, thérapeutique et chimique de l'OMS)."
+    {filtre}
+}} ORDER BY ?codeATC""", "Codes ATC des médicaments", \
+            "Lecture de mdc:codeATC (classification anatomique, thérapeutique et chimique de l'OMS)."
 
-        # ==============================================================
-        # 9. FICHE D'UN MÉDICAMENT
-        # ==============================================================
-        if med:
-            sparql = P + f"""SELECT ?propriete ?valeur WHERE {{
+    def _q_fiche_medicament(self, e, s):
+        med = e["meds"][0]
+        return self.P + f"""SELECT ?propriete ?valeur WHERE {{
     mdc:{med} ?p ?v .
     FILTER(isLiteral(?v))
     BIND(STRAFTER(STR(?p), "#") AS ?propriete)
     BIND(STR(?v) AS ?valeur)
-}}"""
-            return sparql, f"Fiche du médicament {med}", \
-                f"L'IA récupère toutes les propriétés de données (littéraux) de mdc:{med}."
-
-        # ==============================================================
-        # 10. PAR DÉFAUT : TOUS LES MÉDICAMENTS
-        # ==============================================================
-        sparql = P + """SELECT ?medicament ?molecule ?dosage ?prixTND ?ordonnance WHERE {
-    ?m mdc:nomCommercial ?medicament .
-    OPTIONAL { ?m mdc:contientMolecule/mdc:nomMolecule ?molecule }
-    OPTIONAL { ?m mdc:dosage ?dosage }
-    OPTIONAL { ?m mdc:prixTND ?prixTND }
-    OPTIONAL { ?m mdc:necessiteOrdonnance ?ordonnance }
-} ORDER BY ?medicament"""
-        return sparql, "Tous les médicaments de l'ontologie", \
-            "L'IA liste l'ensemble des médicaments avec leur molécule, dosage, prix et statut d'ordonnance."
+}}""", f"Fiche du médicament {med}", \
+            f"Toutes les propriétés de données (littéraux) de mdc:{med}."

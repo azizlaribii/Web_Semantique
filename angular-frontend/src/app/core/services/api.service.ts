@@ -40,6 +40,27 @@ export class ApiService {
     return this.http.get<any[]>('/api/medicaments');
   }
 
+  getMedicamentOptions(): Observable<any> {
+    return this.http.get<any>('/api/medicament-options');
+  }
+
+  // CRUD Médicament : chaque appel exécute une requête SPARQL Update côté serveur
+  createMedicament(data: any): Observable<any> {
+    return this.http.post<any>('/api/medicaments', data);
+  }
+
+  updateMedicament(id: string, data: any): Observable<any> {
+    return this.http.put<any>(`/api/medicaments/${encodeURIComponent(id)}`, data);
+  }
+
+  deleteMedicament(id: string): Observable<any> {
+    return this.http.delete<any>(`/api/medicaments/${encodeURIComponent(id)}`);
+  }
+
+  resetMedicaments(): Observable<any> {
+    return this.http.post<any>('/api/medicaments/reset', {});
+  }
+
   // ── SPARQL ────────────────────────────────────────────
   runSparql(query: string): Observable<any> {
     return this.http.post<any>('/api/sparql', { query });
