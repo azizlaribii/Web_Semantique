@@ -39,14 +39,36 @@ class RDFLibService:
         """
         self.graph = Graph()
         self.loaded_sources = []
+        import glob
+        sources = []
 
-        sources = [
-            (os.path.join(BASE_DIR, "ontologie_personne.owl"), "xml"),
-            (os.path.join(BASE_DIR, "ontologie_medicale (1).ttl"), "turtle"),
-            (os.path.join(BASE_DIR, "ontologie_medicale.owl"), "xml"),
-            (os.path.join(BASE_DIR, "ontologie_maladie.owl"), "xml"),
-            (os.path.join(BASE_DIR, "ontologie_medicament.owl"), "xml"),
+        # 1. Priorité absolue aux fichiers Turtle (.ttl), en commençant par ontologie_medicale (1).ttl et ontologie_medicale.ttl
+        ttl_priority = [
+            os.path.join(BASE_DIR, "ontologie_medicale (1).ttl"),
+            os.path.join(BASE_DIR, "ontologie_medicale.ttl"),
         ]
+        for p in ttl_priority:
+            if os.path.exists(p) and (p, "turtle") not in sources:
+                sources.append((p, "turtle"))
+
+        for p in glob.glob(os.path.join(BASE_DIR, "*.ttl")):
+            if (p, "turtle") not in sources:
+                sources.append((p, "turtle"))
+
+        # 2. Fichiers OWL complémentaires
+        owl_order = [
+            os.path.join(BASE_DIR, "ontologie_personne.owl"),
+            os.path.join(BASE_DIR, "ontologie_maladie.owl"),
+            os.path.join(BASE_DIR, "ontologie_medicament.owl"),
+            os.path.join(BASE_DIR, "ontologie_medicale.owl"),
+        ]
+        for p in owl_order:
+            if os.path.exists(p) and (p, "xml") not in sources:
+                sources.append((p, "xml"))
+
+        for p in glob.glob(os.path.join(BASE_DIR, "*.owl")):
+            if (p, "xml") not in sources and not p.endswith(".original.owl"):
+                sources.append((p, "xml"))
 
         for path, fmt in sources:
             if os.path.exists(path):
@@ -243,6 +265,230 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
         return list(personnes_dict.values())
 
+    def get_ontology_schema(self) -> Dict[str, Any]:
+        """
+        Extrait dynamiquement l'intégralité du schéma et des instances de l'ontologie :
+        - Classes (owl:Class, rdfs:Class) avec labels et compteurs d'instances
+        - Object Properties (owl:ObjectProperty) avec domaine, portée et triplets concrets
+        - Datatype Properties (owl:DatatypeProperty) avec domaine, portée et type XSD
+        - Individus / Instances (owl:NamedIndividual) avec types et nombre de propriétés
+        """
+        from rdflib import RDF, RDFS, OWL, URIRef, BNode, Literal
+
+        # 1. Classes
+        classes_dict = {}
+        for c in set(self.graph.subjects(RDF.type, OWL.Class)) | set(self.graph.subjects(RDF.type, RDFS.Class)):
+            if isinstance(c, BNode):
+                continue
+            uri_str = str(c)
+            local_name = uri_str.split("#")[-1].split("/")[-1]
+            if not local_name or (local_name.startswith("N") and len(local_name) > 25 and any(ch.isdigit() for ch in local_name)):
+                continue
+            label = ""
+            for l in self.graph.objects(c, RDFS.label):
+                label = str(l)
+                break
+            
+            inst_count = len(set(self.graph.subjects(RDF.type, c)))
+            super_classes = [str(sc).split("#")[-1].split("/")[-1] for sc in self.graph.objects(c, RDFS.subClassOf) if not isinstance(sc, BNode)]
+
+            classes_dict[uri_str] = {
+                "uri": uri_str,
+                "nom": local_name,
+                "label": label or local_name,
+                "superClasses": super_classes,
+                "instances_count": inst_count
+            }
+
+        # 2. Object Properties (Relations)
+        obj_props = []
+        for p in self.graph.subjects(RDF.type, OWL.ObjectProperty):
+            if isinstance(p, BNode):
+                continue
+            uri_str = str(p)
+            local_name = uri_str.split("#")[-1].split("/")[-1]
+            label = ""
+            for l in self.graph.objects(p, RDFS.label):
+                label = str(l)
+                break
+            domains = [str(d).split("#")[-1].split("/")[-1] for d in self.graph.objects(p, RDFS.domain) if not isinstance(d, BNode)]
+            ranges = [str(r).split("#")[-1].split("/")[-1] for r in self.graph.objects(p, RDFS.range) if not isinstance(r, BNode)]
+
+            triplets = []
+            for s, o in self.graph.subject_objects(p):
+                s_name = str(s).split("#")[-1].split("/")[-1]
+                o_name = str(o).split("#")[-1].split("/")[-1]
+                triplets.append({
+                    "sujet": s_name,
+                    "sujet_uri": str(s),
+                    "objet": o_name,
+                    "objet_uri": str(o)
+                })
+
+            obj_props.append({
+                "uri": uri_str,
+                "nom": local_name,
+                "label": label or local_name,
+                "domain": ", ".join(domains) if domains else "Tout",
+                "range": ", ".join(ranges) if ranges else "Tout",
+                "triplets_count": len(triplets),
+                "triplets_sample": triplets[:15]
+            })
+
+        # 3. Datatype Properties
+        data_props = []
+        for p in self.graph.subjects(RDF.type, OWL.DatatypeProperty):
+            if isinstance(p, BNode):
+                continue
+            uri_str = str(p)
+            local_name = uri_str.split("#")[-1].split("/")[-1]
+            label = ""
+            for l in self.graph.objects(p, RDFS.label):
+                label = str(l)
+                break
+            domains = [str(d).split("#")[-1].split("/")[-1] for d in self.graph.objects(p, RDFS.domain) if not isinstance(d, BNode)]
+            ranges = [str(r).split("#")[-1].split("/")[-1] for r in self.graph.objects(p, RDFS.range) if not isinstance(r, BNode)]
+
+            sample_values = []
+            count = 0
+            for s, o in self.graph.subject_objects(p):
+                count += 1
+                if len(sample_values) < 5:
+                    sample_values.append(str(o))
+
+            data_props.append({
+                "uri": uri_str,
+                "nom": local_name,
+                "label": label or local_name,
+                "domain": ", ".join(domains) if domains else "Tout",
+                "range": ", ".join(ranges) if ranges else "xsd:string",
+                "triplets_count": count,
+                "samples": sample_values
+            })
+
+        # 4. Individus / Instances
+        inds_dict = {}
+        all_named_inds = set(self.graph.subjects(RDF.type, OWL.NamedIndividual))
+        for uri, c_info in classes_dict.items():
+            for s in self.graph.subjects(RDF.type, URIRef(uri)):
+                if not isinstance(s, BNode):
+                    all_named_inds.add(s)
+
+        for ind in all_named_inds:
+            if isinstance(ind, BNode):
+                continue
+            uri_str = str(ind)
+            local_name = uri_str.split("#")[-1].split("/")[-1]
+            types = []
+            for t in self.graph.objects(ind, RDF.type):
+                if not isinstance(t, BNode) and t != OWL.NamedIndividual:
+                    t_name = str(t).split("#")[-1].split("/")[-1]
+                    if t_name and t_name not in types:
+                        types.append(t_name)
+            
+            label = ""
+            for l in self.graph.objects(ind, RDFS.label):
+                label = str(l)
+                break
+            if not label:
+                for _, p, o in self.graph.triples((ind, None, None)):
+                    p_name = str(p).split("#")[-1].split("/")[-1]
+                    if p_name in ["nom", "nomMedicament", "nomMaladie"]:
+                        label = str(o)
+                        break
+
+            prop_count = len(list(self.graph.predicate_objects(ind)))
+
+            inds_dict[uri_str] = {
+                "uri": uri_str,
+                "nom": local_name,
+                "label": label or local_name.replace("_", " "),
+                "types": types if types else ["Individu"],
+                "properties_count": prop_count
+            }
+
+        sorted_classes = sorted(classes_dict.values(), key=lambda x: x["nom"].lower())
+        sorted_obj_props = sorted(obj_props, key=lambda x: x["nom"].lower())
+        sorted_data_props = sorted(data_props, key=lambda x: x["nom"].lower())
+        sorted_individuals = sorted(inds_dict.values(), key=lambda x: x["nom"].lower())
+
+        return {
+            "classes": sorted_classes,
+            "object_properties": sorted_obj_props,
+            "datatype_properties": sorted_data_props,
+            "individuals": sorted_individuals,
+            "summary": {
+                "total_classes": len(sorted_classes),
+                "total_object_properties": len(sorted_obj_props),
+                "total_datatype_properties": len(sorted_data_props),
+                "total_individuals": len(sorted_individuals),
+                "total_triplets": len(self.graph),
+                "loaded_files": getattr(self, "loaded_sources", [])
+            }
+        }
+
+    def get_individual_details(self, ind_ident: str) -> Dict[str, Any]:
+        """Extrait toutes les propriétés (données et relations) d'un individu quelconque."""
+        from rdflib import URIRef, Literal, RDF, RDFS, OWL
+        
+        target_uri = None
+        for s in self.graph.subjects():
+            s_str = str(s)
+            s_name = s_str.split("#")[-1].split("/")[-1]
+            if s_str == ind_ident or s_name.lower() == ind_ident.lower():
+                target_uri = s
+                break
+
+        if not target_uri:
+            return {"error": f"Individu '{ind_ident}' non trouvé dans l'ontologie."}
+
+        uri_str = str(target_uri)
+        nom = uri_str.split("#")[-1].split("/")[-1]
+        types = [str(t).split("#")[-1].split("/")[-1] for t in self.graph.objects(target_uri, RDF.type) if t != OWL.NamedIndividual]
+        
+        data_props = []
+        relations_sortantes = []
+        for p, o in self.graph.predicate_objects(target_uri):
+            p_name = str(p).split("#")[-1].split("/")[-1]
+            if p == RDF.type:
+                continue
+            if isinstance(o, Literal):
+                data_props.append({
+                    "propriete": p_name,
+                    "propriete_uri": str(p),
+                    "valeur": str(o),
+                    "datatype": str(o.datatype) if o.datatype else "string"
+                })
+            else:
+                o_name = str(o).split("#")[-1].split("/")[-1]
+                relations_sortantes.append({
+                    "relation": p_name,
+                    "relation_uri": str(p),
+                    "cible": o_name,
+                    "cible_uri": str(o)
+                })
+
+        relations_entrantes = []
+        for s, p in self.graph.subject_predicates(target_uri):
+            s_name = str(s).split("#")[-1].split("/")[-1]
+            p_name = str(p).split("#")[-1].split("/")[-1]
+            relations_entrantes.append({
+                "relation": p_name,
+                "source": s_name,
+                "source_uri": str(s)
+            })
+
+        return {
+            "uri": uri_str,
+            "nom": nom,
+            "label": nom.replace("_", " "),
+            "types": types,
+            "data_properties": data_props,
+            "relations_sortantes": relations_sortantes,
+            "relations_entrantes": relations_entrantes,
+            "total_proprietes": len(data_props) + len(relations_sortantes)
+        }
+
     def add_personne(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Ajoute un nouvel individu dans l'ontologie de manière dynamique et bidirectionnelle.
@@ -383,14 +629,27 @@ class MaladieService:
         self._load()
 
     def _load(self):
-        # 1. Charger ontologie_medicale (1).ttl en priorité absolue
-        if os.path.exists(TTL_PATH):
-            try:
-                self.graph.parse(TTL_PATH, format="turtle")
-                self.loaded = True
-                print(f"[MaladieService] 'ontologie_medicale (1).ttl' chargée ({len(self.graph)} triplets).")
-            except Exception as e:
-                print(f"[MaladieService] Erreur chargement TTL : {e}")
+        # RESET complet du graphe pour garantir un rechargement dynamique propre
+        self.graph = Graph()
+
+        # 1. Charger ontologie_medicale (1).ttl et tout fichier Turtle (.ttl) en priorité absolue
+        import glob
+        ttl_priority = [
+            TTL_PATH,
+            os.path.join(BASE_DIR, "ontologie_medicale.ttl")
+        ]
+        for p in glob.glob(os.path.join(BASE_DIR, "*.ttl")):
+            if p not in ttl_priority:
+                ttl_priority.append(p)
+
+        for p in ttl_priority:
+            if os.path.exists(p):
+                try:
+                    self.graph.parse(p, format="turtle")
+                    self.loaded = True
+                    print(f"[MaladieService] '{os.path.basename(p)}' chargée ({len(self.graph)} triplets).")
+                except Exception as e:
+                    print(f"[MaladieService] Erreur chargement TTL ({os.path.basename(p)}) : {e}")
 
         # 2. Compléter avec ontologie_maladie.owl si présent
         if os.path.exists(MALADIE_OWL_PATH):
@@ -456,13 +715,23 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         return {"head": {"vars": vars_list}, "results": {"bindings": bindings}}
 
     def get_all_maladies(self) -> List[Dict[str, Any]]:
-        """Retourne tous les individus Maladie depuis ontologie_medicale (1).ttl."""
+        """Retourne tous les individus Maladie depuis ontologie_medicale (1).ttl — 100% dynamique."""
         q = """
         SELECT DISTINCT ?m ?type ?label ?medNom ?desc ?gravite ?contagieuse ?cim ?duree WHERE {
             ?m rdf:type owl:NamedIndividual .
             ?m rdf:type ?type .
-            FILTER(?type IN (med:Maladie, med:MaladieInfectieuse, med:MaladieChronique, med:MaladieDigestive, mal:Maladie, mal:MaladieInfectieuse, mal:MaladieChronique, mal:MaladieDigestive) || EXISTS { ?type rdfs:subClassOf* med:Maladie } || EXISTS { ?type rdfs:subClassOf* mal:Maladie } || EXISTS { ?type rdfs:subClassOf* med:Type })
-            FILTER(?type NOT IN (med:Maladie, med:Symptome, med:SymptomeGeneral, med:SymptomeDigestif, med:SymptomeRespiratoire, med:Type, owl:NamedIndividual))
+            {
+                ?type rdfs:subClassOf* med:Maladie .
+            } UNION {
+                ?type rdfs:subClassOf* mal:Maladie .
+            }
+            FILTER(?type NOT IN (owl:NamedIndividual, owl:Thing))
+            FILTER NOT EXISTS { ?m rdf:type med:Symptome }
+            FILTER NOT EXISTS { ?m rdf:type med:SymptomeGeneral }
+            FILTER NOT EXISTS { ?m rdf:type med:SymptomeDigestif }
+            FILTER NOT EXISTS { ?m rdf:type med:SymptomeRespiratoire }
+            FILTER NOT EXISTS { ?m rdf:type med:Medicament }
+            FILTER NOT EXISTS { ?m rdf:type/rdfs:subClassOf* med:Medicament }
             OPTIONAL { ?m rdfs:label ?label }
             OPTIONAL { ?m med:nom ?medNom }
             OPTIONAL { ?m med:description ?desc }

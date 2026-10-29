@@ -35,6 +35,7 @@ export class NavbarComponent {
     return (u.prenom ? u.prenom[0] : (u.nom ? u.nom[0] : '?')).toUpperCase();
   }
 
+
   onReload(): void {
     if (this.isReloading()) return;
     this.isReloading.set(true);
@@ -44,6 +45,7 @@ export class NavbarComponent {
       next: (res) => {
         this.isReloading.set(false);
         this.reloadMessage.set('✓ Ontologies rechargées');
+        this.api.notifyOntologyChanged();
         setTimeout(() => this.reloadMessage.set(''), 3000);
       },
       error: () => {

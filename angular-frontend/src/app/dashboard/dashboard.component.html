@@ -74,6 +74,9 @@
       <button type="button" class="tab-btn" [class.active]="activeTab() === 'profil'" (click)="setTab('profil')">
         <span class="tab-icon">🆔</span><span>Mon Profil</span>
       </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab() === 'explorateur-ontologie'" (click)="setTab('explorateur-ontologie')">
+        <span class="tab-icon">🌐</span><span>Explorateur Ontologie</span>
+      </button>
     </nav>
 
     <!-- ============================================================ -->
@@ -384,7 +387,7 @@
                     </div>
                   }
 
-                  <!-- ── CAS 4 : VUE TABLEAU POUR LISTES MULTIPLES D'INDIVIDUS ── -->
+                  <!-- ── CAS 4 : VUE TABLEAU POUR LISTES DYNAMIQUES D'INDIVIDUS / RELATIONS ── -->
                   @else {
                     <div class="ia-data-table-wrap">
                       <div class="table-head-bar">
@@ -405,14 +408,9 @@
                               <th>Type d'Annotation</th>
                               <th colspan="3">Valeur / Commentaire</th>
                             } @else {
-                              <th>Nom &amp; Prénom</th>
-                              <th>Rôle / Spécialité</th>
-                              @if (iaPersonneResult().donnees[0]?.age !== undefined) {
-                                <th>Âge</th>
+                              @for (col of getPersonneColumns(iaPersonneResult().donnees); track col) {
+                                <th>{{ getPersonneColTitle(col) }}</th>
                               }
-                              <th>Email</th>
-                              <th>CIN</th>
-                              <th>Téléphone</th>
                             }
                           </tr>
                         </thead>
@@ -430,18 +428,34 @@
                                 <td><span class="badge badge-cyan">{{ item.typeAnnotation || 'rdfs:comment' }}</span></td>
                                 <td class="col-text" colspan="3">{{ item.valeurAnnotation || item.valeur || '—' }}</td>
                               } @else {
-                                <td class="col-name"><span class="name-text">{{ item.nom || item.nomDisplay || item.nomClean || '—' }}</span></td>
-                                <td>
-                                  <span class="badge badge-cyan">{{ item.specialite || item.role || item.type || 'Personne' }}</span>
-                                  @if (item.numeroOrdre) { <span class="id-tag" style="margin-left:6px;">{{ item.numeroOrdre }}</span> }
-                                  @if (item.numeroDossier) { <span class="id-tag" style="margin-left:6px;">{{ item.numeroDossier }}</span> }
-                                </td>
-                                @if (iaPersonneResult().donnees[0]?.age !== undefined) {
-                                  <td class="col-text"><span class="badge badge-amber">{{ item.age ? item.age + ' ans' : '—' }}</span></td>
+                                @for (col of getPersonneColumns(iaPersonneResult().donnees); track col) {
+                                  <td class="col-text" [ngClass]="{'col-name': col === 'nom' || col === 'ordonnance' || col === 'consultation' || col === 'personne1'}">
+                                    @if (col === 'nom' || col === 'nomDisplay' || col === 'nomClean') {
+                                      <span class="name-text">{{ item[col] || '—' }}</span>
+                                    } @else if (col === 'role' || col === 'specialite') {
+                                      <span class="badge badge-cyan">{{ item[col] || 'Personne' }}</span>
+                                      @if (item.numeroOrdre) { <span class="id-tag" style="margin-left:6px;">{{ item.numeroOrdre }}</span> }
+                                    } @else if (col === 'ordonnance') {
+                                      <span class="badge badge-purple" style="font-weight:700;">💊 {{ item[col] }}</span>
+                                    } @else if (col === 'consultation') {
+                                      <span class="badge badge-cyan" style="font-weight:700;">🩺 {{ item[col] }}</span>
+                                    } @else if (col === 'salle') {
+                                      <span class="badge badge-amber">🚪 {{ item[col] }}</span>
+                                    } @else if (col === 'date') {
+                                      <span class="badge badge-dim">📅 {{ item[col] }}</span>
+                                    } @else if (col === 'medicaments') {
+                                      <span class="badge badge-rose">{{ item[col] || '—' }}</span>
+                                    } @else if (col === 'relation') {
+                                      <span class="badge badge-emerald">↔ {{ item[col] }}</span>
+                                    } @else if (col === 'medecin' || col === 'patient' || col === 'personne' || col === 'personne1' || col === 'personne2' || col === 'connaissance') {
+                                      <span class="name-text" style="font-weight:600;">{{ item[col] || '—' }}</span>
+                                    } @else if (col === 'age') {
+                                      <span class="badge badge-amber">{{ item[col] ? item[col] + ' ans' : '—' }}</span>
+                                    } @else {
+                                      <span>{{ item[col] || '—' }}</span>
+                                    }
+                                  </td>
                                 }
-                                <td class="col-text">{{ item.email || '—' }}</td>
-                                <td class="col-text">{{ item.cin || '—' }}</td>
-                                <td class="col-text">{{ item.telephone || item.tel || '—' }}</td>
                               }
                             </tr>
                           }
@@ -1341,6 +1355,415 @@
         </div>
       </div>
     }
+
+    <!-- ============================================================ -->
+    <!-- TAB: EXPLORATEUR DYNAMIQUE D'ONTOLOGIE                       -->
+    <!-- ============================================================ -->
+    @if (activeTab() === 'explorateur-ontologie') {
+      <section class="tab-content">
+        <!-- Top Toolbar & Refresh Banner -->
+        <div class="content-toolbar glass-panel" style="flex-direction: column; align-items: stretch; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <span class="badge badge-purple" style="font-size: 0.8rem; font-weight: 700;">100% Dynamique</span>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Synchronisation temps réel avec <code>ontologie_medicale (1).ttl</code></span>
+              </div>
+              <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main);">
+                Explorateur Dynamique de l'Ontologie Médicale
+              </h2>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button type="button" class="btn-primary" (click)="reloadOntology()" [disabled]="isReloadingOntology()" style="display: flex; align-items: center; gap: 8px; padding: 10px 18px; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #7c3aed); color: white; border: none; cursor: pointer;">
+                <span>{{ isReloadingOntology() ? '⏳' : '🔄' }}</span>
+                <span>{{ isReloadingOntology() ? 'Synchronisation...' : 'Recharger Ontologie (TTL)' }}</span>
+              </button>
+            </div>
+          </div>
+
+          @if (reloadMessage()) {
+            <div style="padding: 10px 14px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+              {{ reloadMessage() }}
+            </div>
+          }
+
+          <!-- Metrics summary -->
+          <div class="metrics-grid" style="margin-top: 4px;">
+            <div class="metric-card">
+              <span class="metric-num emerald">{{ ontologySchema()?.summary?.total_individuals || 0 }}</span>
+              <span class="metric-label">Individus / Instances</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num cyan">{{ ontologySchema()?.summary?.total_object_properties || 0 }}</span>
+              <span class="metric-label">Object Properties (Relations)</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num amber">{{ ontologySchema()?.summary?.total_datatype_properties || 0 }}</span>
+              <span class="metric-label">Datatype Properties</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num purple">{{ ontologySchema()?.summary?.total_classes || 0 }}</span>
+              <span class="metric-label">Classes OWL</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num">{{ ontologySchema()?.summary?.total_triplets || 0 }}</span>
+              <span class="metric-label">Total Triplets RDF</span>
+            </div>
+          </div>
+
+          <!-- Search & Sub-tabs filter -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 8px;">
+            <div class="search-box" style="flex: 1; min-width: 280px;">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="input-glass search-input"
+                placeholder="Filtrer en direct par nom, propriété, type, relation..."
+                [ngModel]="ontologySearch()" (ngModelChange)="ontologySearch.set($event)" />
+            </div>
+            <div class="role-filter-group">
+              <button type="button" class="filter-pill" [class.active]="ontologyActiveSubTab() === 'all'" (click)="ontologyActiveSubTab.set('all')">Tout voir</button>
+              <button type="button" class="filter-pill" [class.active]="ontologyActiveSubTab() === 'individuals'" (click)="ontologyActiveSubTab.set('individuals')">
+                👤 Individus ({{ filteredOntologyIndividuals().length }})
+              </button>
+              <button type="button" class="filter-pill" [class.active]="ontologyActiveSubTab() === 'object_properties'" (click)="ontologyActiveSubTab.set('object_properties')">
+                🔗 Relations ({{ filteredOntologyObjProps().length }})
+              </button>
+              <button type="button" class="filter-pill" [class.active]="ontologyActiveSubTab() === 'datatype_properties'" (click)="ontologyActiveSubTab.set('datatype_properties')">
+                🔢 Propriétés Données ({{ filteredOntologyDataProps().length }})
+              </button>
+              <button type="button" class="filter-pill" [class.active]="ontologyActiveSubTab() === 'classes'" (click)="ontologyActiveSubTab.set('classes')">
+                🏷️ Classes ({{ filteredOntologyClasses().length }})
+              </button>
+            </div>
+          </div>
+        </div>
+
+        @if (loadingOntologySchema()) {
+          <div class="glass-panel" style="padding: 40px; text-align: center;">
+            <span style="font-size: 1.5rem;">⏳ Chargement du graphe ontologique...</span>
+          </div>
+        } @else {
+
+          <!-- 1. SECTION INDIVIDUS / INSTANCES -->
+          @if (ontologyActiveSubTab() === 'all' || ontologyActiveSubTab() === 'individuals') {
+            <div class="glass-panel table-wrapper" style="margin-bottom: 24px;">
+              <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <span>👤</span><span>Individus &amp; Instances Déclarés</span>
+                  <span class="badge badge-emerald">{{ filteredOntologyIndividuals().length }}</span>
+                </h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Instances présentes dans <code>ontologie_medicale (1).ttl</code></span>
+              </div>
+              <div class="table-scroll-container">
+                <table class="onto-table">
+                  <thead>
+                    <tr>
+                      <th>Nom de l'Individu</th>
+                      <th>Type / Classe OWL</th>
+                      <th>Nb Propriétés</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (ind of filteredOntologyIndividuals(); track ind.uri) {
+                      <tr>
+                        <td class="col-name">
+                          <span class="name-text" style="font-weight: 700;">{{ ind.nom }}</span>
+                          @if (ind.label && ind.label !== ind.nom) {
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">« {{ ind.label }} »</div>
+                          }
+                        </td>
+                        <td>
+                          @for (t of ind.types; track t) {
+                            <span class="badge badge-cyan" style="margin-right: 4px;">{{ t }}</span>
+                          }
+                        </td>
+                        <td>
+                          <span class="badge badge-purple">{{ ind.properties_count }} assertions</span>
+                        </td>
+                        <td>
+                          <button type="button" class="btn-table-action" (click)="viewIndividualDetail(ind.nom)" style="background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(2, 132, 199, 0.3); color: #0284c7; padding: 5px 12px; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            🔍 Inspecter Fiche
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          <!-- 2. SECTION OBJECT PROPERTIES (RELATIONS) -->
+          @if (ontologyActiveSubTab() === 'all' || ontologyActiveSubTab() === 'object_properties') {
+            <div class="glass-panel table-wrapper" style="margin-bottom: 24px;">
+              <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <span>🔗</span><span>Relations / Object Properties (owl:ObjectProperty)</span>
+                  <span class="badge badge-cyan">{{ filteredOntologyObjProps().length }}</span>
+                </h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Relations reliant les entités</span>
+              </div>
+              <div class="table-scroll-container">
+                <table class="onto-table">
+                  <thead>
+                    <tr>
+                      <th>Relation (Nom)</th>
+                      <th>Domaine (Source)</th>
+                      <th>Portée / Range (Cible)</th>
+                      <th>Triplets Actifs</th>
+                      <th>Exemples d'Associations Réelles</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (prop of filteredOntologyObjProps(); track prop.uri) {
+                      <tr>
+                        <td class="col-name">
+                          <code style="font-weight: 700; color: #7c3aed;">:{{ prop.nom }}</code>
+                          @if (prop.label && prop.label !== prop.nom) {
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">« {{ prop.label }} »</div>
+                          }
+                        </td>
+                        <td><span class="badge badge-cyan">{{ prop.domain }}</span></td>
+                        <td><span class="badge badge-amber">{{ prop.range }}</span></td>
+                        <td><span class="badge badge-emerald">{{ prop.triplets_count }} liens</span></td>
+                        <td>
+                          @if (prop.triplets_sample?.length) {
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 450px;">
+                              @for (t of prop.triplets_sample.slice(0, 3); track $index) {
+                                <span style="font-size: 0.8rem; padding: 2px 8px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+                                  <strong>{{ t.sujet }}</strong> ➔ <em>{{ t.objet }}</em>
+                                </span>
+                              }
+                              @if (prop.triplets_sample.length > 3) {
+                                <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">+{{ prop.triplets_sample.length - 3 }} autres</span>
+                              }
+                            </div>
+                          } @else {
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">—</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          <!-- 3. SECTION DATATYPE PROPERTIES -->
+          @if (ontologyActiveSubTab() === 'all' || ontologyActiveSubTab() === 'datatype_properties') {
+            <div class="glass-panel table-wrapper" style="margin-bottom: 24px;">
+              <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <span>🔢</span><span>Propriétés de Données (owl:DatatypeProperty)</span>
+                  <span class="badge badge-amber">{{ filteredOntologyDataProps().length }}</span>
+                </h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Attributs littéraux (nom, age, etc.)</span>
+              </div>
+              <div class="table-scroll-container">
+                <table class="onto-table">
+                  <thead>
+                    <tr>
+                      <th>Attribut (Nom)</th>
+                      <th>Domaine (Classe)</th>
+                      <th>Type XSD / Range</th>
+                      <th>Occurrences</th>
+                      <th>Exemples de Valeurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (dp of filteredOntologyDataProps(); track dp.uri) {
+                      <tr>
+                        <td class="col-name">
+                          <code style="font-weight: 700; color: #d97706;">:{{ dp.nom }}</code>
+                          @if (dp.label && dp.label !== dp.nom) {
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">« {{ dp.label }} »</div>
+                          }
+                        </td>
+                        <td><span class="badge badge-cyan">{{ dp.domain }}</span></td>
+                        <td><span class="badge badge-purple">{{ dp.range }}</span></td>
+                        <td><span class="badge badge-emerald">{{ dp.triplets_count }} valeurs</span></td>
+                        <td>
+                          @if (dp.samples?.length) {
+                            <span style="font-size: 0.85rem; color: var(--text-main);">{{ dp.samples.slice(0, 3).join(', ') }}</span>
+                          } @else {
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">—</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          <!-- 4. SECTION CLASSES OWL -->
+          @if (ontologyActiveSubTab() === 'all' || ontologyActiveSubTab() === 'classes') {
+            <div class="glass-panel table-wrapper">
+              <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <span>🏷️</span><span>Classes OWL Définies (owl:Class)</span>
+                  <span class="badge badge-purple">{{ filteredOntologyClasses().length }}</span>
+                </h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Taxonomie &amp; Hiérarchie des concepts</span>
+              </div>
+              <div class="table-scroll-container">
+                <table class="onto-table">
+                  <thead>
+                    <tr>
+                      <th>Classe OWL</th>
+                      <th>Label</th>
+                      <th>Super-classes (subClassOf)</th>
+                      <th>Nombre d'Instances</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (cls of filteredOntologyClasses(); track cls.uri) {
+                      <tr>
+                        <td class="col-name">
+                          <strong style="color: #0284c7;">:{{ cls.nom }}</strong>
+                        </td>
+                        <td>{{ cls.label }}</td>
+                        <td>
+                          @if (cls.superClasses?.length) {
+                            @for (sc of cls.superClasses; track sc) {
+                              <span class="badge badge-amber" style="margin-right: 4px;">{{ sc }}</span>
+                            }
+                          } @else {
+                            <span class="badge badge-dim">owl:Thing</span>
+                          }
+                        </td>
+                        <td>
+                          <span class="badge" [class.badge-emerald]="cls.instances_count > 0" [class.badge-dim]="cls.instances_count === 0">
+                            {{ cls.instances_count }} instance(s)
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+        }
+      </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- MODAL DÉTAILS D'UN INDIVIDU DYNAMIQUE                        -->
+    <!-- ============================================================ -->
+    @if (selectedIndividualDetail()) {
+      <div class="onto-modal-backdrop" (click)="closeIndividualDetail()">
+        <div class="onto-modal-dialog" (click)="$event.stopPropagation()" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+          <div class="onto-modal-header" style="border-bottom: 1px solid var(--border-subtle); padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div>
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                  @for (t of selectedIndividualDetail().types; track t) {
+                    <span class="badge badge-cyan">{{ t }}</span>
+                  }
+                </div>
+                <h3 style="margin: 0; font-size: 1.4rem; font-weight: 800;">
+                  {{ selectedIndividualDetail().label || selectedIndividualDetail().nom }}
+                </h3>
+                <code style="font-size: 0.75rem; color: var(--text-muted);">{{ selectedIndividualDetail().uri }}</code>
+              </div>
+              <button type="button" class="onto-modal-close-btn" (click)="closeIndividualDetail()" style="background: none; border: none; font-size: 1.3rem; cursor: pointer;">✕</button>
+            </div>
+          </div>
+
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+            <!-- Propriétés de Données -->
+            <div>
+              <h4 style="margin: 0 0 10px 0; font-size: 1rem; font-weight: 700; color: #d97706; display: flex; align-items: center; gap: 6px;">
+                <span>🔢</span><span>Propriétés de Données (Attributs)</span>
+              </h4>
+              @if (selectedIndividualDetail().data_properties?.length) {
+                <table class="onto-table">
+                  <thead>
+                    <tr><th>Propriété</th><th>Valeur</th><th>Type</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (dp of selectedIndividualDetail().data_properties; track $index) {
+                      <tr>
+                        <td style="font-weight: 600; color: #7c3aed;">:{{ dp.propriete }}</td>
+                        <td style="font-weight: 700;">{{ dp.valeur }}</td>
+                        <td><span class="badge badge-dim">{{ dp.datatype }}</span></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune propriété de données directe.</p>
+              }
+            </div>
+
+            <!-- Relations Sortantes -->
+            <div>
+              <h4 style="margin: 0 0 10px 0; font-size: 1rem; font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 6px;">
+                <span>↗️</span><span>Relations Sortantes (Object Properties)</span>
+              </h4>
+              @if (selectedIndividualDetail().relations_sortantes?.length) {
+                <table class="onto-table">
+                  <thead>
+                    <tr><th>Relation</th><th>Cible / Individu relié</th><th>Action</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (rel of selectedIndividualDetail().relations_sortantes; track $index) {
+                      <tr>
+                        <td style="font-weight: 600; color: #0284c7;">:{{ rel.relation }}</td>
+                        <td><strong style="color: #10b981;">{{ rel.cible }}</strong></td>
+                        <td>
+                          <button type="button" class="btn-table-action" (click)="viewIndividualDetail(rel.cible)" style="font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.05); cursor: pointer; border: 1px solid var(--border-subtle);">
+                            Voir cible ➔
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune relation sortante.</p>
+              }
+            </div>
+
+            <!-- Relations Entrantes -->
+            @if (selectedIndividualDetail().relations_entrantes?.length) {
+              <div>
+                <h4 style="margin: 0 0 10px 0; font-size: 1rem; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 6px;">
+                  <span>↙️</span><span>Relations Entrantes (Références par d'autres entités)</span>
+                </h4>
+                <table class="onto-table">
+                  <thead>
+                    <tr><th>Entité Source</th><th>Est relié via</th><th>Action</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (rel of selectedIndividualDetail().relations_entrantes; track $index) {
+                      <tr>
+                        <td><strong style="color: #7c3aed;">{{ rel.source }}</strong></td>
+                        <td style="font-weight: 600; color: #0284c7;">:{{ rel.relation }}</td>
+                        <td>
+                          <button type="button" class="btn-table-action" (click)="viewIndividualDetail(rel.source)" style="font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.05); cursor: pointer; border: 1px solid var(--border-subtle);">
+                            Voir source ➔
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+
+          <div class="onto-modal-footer" style="padding: 16px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end;">
+            <button type="button" class="btn-modal-cancel" (click)="closeIndividualDetail()">Fermer</button>
+          </div>
+        </div>
+      </div>
+    }
+
 
     <!-- ============================================================ -->
     <!-- MODAL : STRUCTURE ONTOLOGIQUE DE LA CLASSE MALADIE (OWL 2)   -->

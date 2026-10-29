@@ -31,14 +31,20 @@ ANGULAR_DIST = os.path.join(BASE_DIR, "angular-frontend", "dist", "onto-sante-fr
 STATIC_FALLBACK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "frontend")
 FRONTEND_DIR = ANGULAR_DIST if os.path.exists(ANGULAR_DIST) else STATIC_FALLBACK
 
+import glob
+
 # Chemins des ontologies surveillées en temps réel (Hot-Reload)
-OWL_FILES = {
-    "personne":       os.path.join(BASE_DIR, "ontologie_personne.owl"),
-    "medicale_ttl":   os.path.join(BASE_DIR, "ontologie_medicale (1).ttl"),
-    "medicale_owl":   os.path.join(BASE_DIR, "ontologie_medicale.owl"),
-    "maladie":        os.path.join(BASE_DIR, "ontologie_maladie.owl"),
-    "medicament":     os.path.join(BASE_DIR, "ontologie_medicament.owl"),
-}
+def _get_ontology_files():
+    """Découvre dynamiquement tous les fichiers .ttl et .owl dans BASE_DIR."""
+    files = {}
+    for p in glob.glob(os.path.join(BASE_DIR, "*.ttl")):
+        files[os.path.basename(p)] = p
+    for p in glob.glob(os.path.join(BASE_DIR, "*.owl")):
+        if not p.endswith(".original.owl"):
+            files[os.path.basename(p)] = p
+    return files
+
+OWL_FILES = _get_ontology_files()
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
@@ -79,7 +85,7 @@ print("[Architecture] Initialisation du module Authentification...")
 auth_service = AuthService(rdflib_service)
 
 # ---------------------------------------------------------------------------
-# Hot-Reload : rechargement automatique quand un .owl est modifié
+# Hot-Reload : rechargement automatique quand un .ttl ou .owl est modifié
 # ---------------------------------------------------------------------------
 _reload_lock = threading.Lock()
 _last_reload_info = {"ts": time.time(), "reason": "Démarrage initial"}
@@ -93,36 +99,39 @@ def _get_mtime(path: str) -> float:
 
 def reload_all_services(reason: str = "Manuel"):
     """
-    Recharge toutes les ontologies OWL dans les services sans redémarrer le serveur.
+    Recharge toutes les ontologies OWL/TTL dans les services sans redémarrer le serveur.
     Thread-safe grâce au verrou _reload_lock.
     """
     global rdflib_service, fuseki_service, ia_service
     global maladie_service, ia_maladie_service
     global medicament_service, ia_medicament_service
+    global auth_service, OWL_FILES
 
     with _reload_lock:
         print(f"[HotReload] Rechargement déclenché ({reason})...")
+        OWL_FILES = _get_ontology_files()
         errors = []
         try:
             import importlib
-            import ia_service as _ia_mod
             import rdflib_service as _rdf_mod
+            import ia_service as _ia_mod
             importlib.reload(_rdf_mod)
             importlib.reload(_ia_mod)
             rdflib_service = _rdf_mod.RDFLibService()
             fuseki_service = FusekiAPIService(rdflib_service)
             ia_service = _ia_mod.IAService(rdflib_service)
-            print("[HotReload] OK ontologies personne/medicale rechargees")
+            auth_service = AuthService(rdflib_service)
+            print(f"[HotReload] OK ontologies rechargées ({len(rdflib_service.graph)} triplets)")
         except Exception as e:
-            errors.append(f"personne: {e}")
-            print(f"[HotReload] ERREUR personne : {e}")
+            errors.append(f"personne/medicale: {e}")
+            print(f"[HotReload] ERREUR ontologies : {e}")
         try:
             import importlib
             import ia_maladie_service as _ia_mal_mod
             importlib.reload(_ia_mal_mod)
-            maladie_service._load()
+            maladie_service = _rdf_mod.MaladieService()
             ia_maladie_service = _ia_mal_mod.IAMaladieService(maladie_service)
-            print("[HotReload] OK ontologie_maladie.owl rechargee")
+            print("[HotReload] OK module maladie rechargé")
         except Exception as e:
             errors.append(f"maladie: {e}")
             print(f"[HotReload] ERREUR maladie : {e}")
@@ -139,40 +148,50 @@ def reload_all_services(reason: str = "Manuel"):
                 import ia_medicament_service as _ia_med_mod
                 importlib.reload(_ia_med_mod)
                 ia_medicament_service = _ia_med_mod.IAMedicamentService(medicament_service)
-            print("[HotReload] OK ontologie_medicament.owl rechargee")
+            print("[HotReload] OK module médicament rechargé")
         except Exception as e:
             errors.append(f"medicament: {e}")
             print(f"[HotReload] ERREUR medicament : {e}")
 
         _last_reload_info["ts"] = time.time()
         _last_reload_info["reason"] = reason
-        print("[HotReload] Rechargement terminé.")
+        print(f"[HotReload] Rechargement terminé ({len(rdflib_service.graph)} triplets au total).")
         return errors
 
 
 def _owl_watcher(interval: int = 3):
     """
-    Vérifie toutes les `interval` secondes si un fichier OWL a été modifié.
+    Vérifie toutes les `interval` secondes si un fichier OWL ou TTL a été modifié ou ajouté.
     Si oui, déclenche un rechargement automatique de tous les services.
     """
-    mtimes = {name: _get_mtime(path) for name, path in OWL_FILES.items()}
+    current_files = _get_ontology_files()
+    mtimes = {name: _get_mtime(path) for name, path in current_files.items()}
     while True:
         time.sleep(interval)
-        changed = []
-        for name, path in OWL_FILES.items():
-            current = _get_mtime(path)
-            if current != 0.0 and current != mtimes[name]:
-                changed.append(name)
-                mtimes[name] = current
-        if changed:
-            reason = f"Fichier(s) modifié(s) : {', '.join(changed)}"
-            print(f"[HotReload] Changement detecte -> {reason}")
-            reload_all_services(reason)
+        try:
+            latest_files = _get_ontology_files()
+            changed = []
+            # Vérifier si des fichiers ont été ajoutés ou supprimés
+            if set(latest_files.keys()) != set(mtimes.keys()):
+                changed.append("liste des fichiers ontologiques modifiée")
+                mtimes = {name: _get_mtime(path) for name, path in latest_files.items()}
+            else:
+                for name, path in latest_files.items():
+                    current = _get_mtime(path)
+                    if current != 0.0 and current != mtimes.get(name, 0.0):
+                        changed.append(name)
+                        mtimes[name] = current
+            if changed:
+                reason = f"Fichier(s) modifié(s) : {', '.join(changed)}"
+                print(f"[HotReload] Changement détecté -> {reason}")
+                reload_all_services(reason)
+        except Exception as err:
+            print(f"[HotReload Watcher] Avertissement : {err}")
 
 # Démarrage du watcher (thread daemon = s'arrête avec le serveur)
 _watcher_thread = threading.Thread(target=_owl_watcher, args=(3,), daemon=True)
 _watcher_thread.start()
-print("[HotReload] Watcher OWL actif - rechargement auto toutes les 3 secondes")
+print("[HotReload] Watcher ontologies actif - détection dynamique .ttl et .owl toutes les 3s")
 
 
 # ----------------------------------------------------------------------
@@ -434,8 +453,8 @@ def ia_ask():
             for b in bindings:
                 item = {k: _clean_val(v.get("value", "")) for k, v in b.items()}
 
-                # Enrichir seulement si ce n'est pas une requête de métadonnées
-                if result_type not in ["subclasses", "classes", "properties"]:
+                # Enrichir seulement si ce n'est pas une requête de métadonnées ou dynamique
+                if result_type not in ["subclasses", "classes", "properties", "ontology_entity", "ontology_class", "ontology_property"]:
                     ind_match = None
                     for k, v in b.items():
                         raw_v = v.get("value", "")
@@ -772,13 +791,120 @@ def ontologie_status():
             "timestamp": mtime,
             "existe": os.path.exists(path)
         }
+# ----------------------------------------------------------------------
+# Route Upload / Import d'une Ontologie (.ttl ou .owl)
+# ----------------------------------------------------------------------
+@app.route("/api/ontology/upload", methods=["POST"])
+def upload_ontology():
+    """
+    Reçoit un fichier d'ontologie (.ttl ou .owl), le valide, l'enregistre dans le dossier racine,
+    et déclenche un rechargement dynamique complet et instantané.
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "Aucun fichier fourni dans la requête (clé 'file' attendue)."}), 400
+    file = request.files["file"]
+    if not file.filename:
+        return jsonify({"error": "Nom de fichier vide."}), 400
+
+    filename = os.path.basename(file.filename)
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".ttl", ".owl"]:
+        return jsonify({"error": "Format non supporté. Veuillez uploader un fichier .ttl (Turtle) ou .owl (RDF/XML)."}), 400
+
+    dest_path = os.path.join(BASE_DIR, filename)
+    try:
+        content = file.read()
+        import rdflib
+        test_g = rdflib.Graph()
+        fmt = "turtle" if ext == ".ttl" else "xml"
+        test_g.parse(data=content, format=fmt)
+        triple_count = len(test_g)
+
+        with open(dest_path, "wb") as f:
+            f.write(content)
+
+        reload_all_services(f"Import du fichier ontologique {filename} ({triple_count} triplets)")
+
+        return jsonify({
+            "success": True,
+            "filename": filename,
+            "format": fmt,
+            "triplets": triple_count,
+            "total_triplets": len(rdflib_service.graph),
+            "message": f"Ontologie '{filename}' importée avec succès ({triple_count} triplets validés)."
+        })
+    except Exception as e:
+        return jsonify({"error": f"Erreur de validation de l'ontologie {ext} : {str(e)}"}), 400
+
+
+# ----------------------------------------------------------------------
+# Route Liste des Ontologies Chargées
+# ----------------------------------------------------------------------
+@app.route("/api/ontology/files", methods=["GET"])
+def get_ontology_files_info():
+    """Retourne la liste des ontologies chargées avec statut et métadonnées."""
+    import datetime
+    files_info = []
+    current_files = _get_ontology_files()
+    for name, path in current_files.items():
+        mtime = _get_mtime(path)
+        dt = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S") if mtime else "—"
+        size_kb = round(os.path.getsize(path) / 1024, 1) if os.path.exists(path) else 0
+        ext = os.path.splitext(name)[1].lower()
+        files_info.append({
+            "filename": name,
+            "path": path,
+            "format": "Turtle (.ttl)" if ext == ".ttl" else "RDF/XML (.owl)",
+            "taille_kb": size_kb,
+            "derniere_modification": dt,
+            "timestamp": mtime,
+            "est_actif": name in getattr(rdflib_service, "loaded_sources", []) or name == "ontologie_medicale (1).ttl"
+        })
     return jsonify({
-        "ontologies": status,
-        "dernier_rechargement": {
-            "raison": _last_reload_info.get("reason", ""),
-            "timestamp": _last_reload_info.get("ts", 0),
-        }
+        "files": files_info,
+        "total_triplets": len(rdflib_service.graph),
+        "dernier_rechargement": _last_reload_info
     })
+
+
+# ----------------------------------------------------------------------
+# Route Schéma Dynamique de l'Ontologie (Classes, Properties, Individus)
+# ----------------------------------------------------------------------
+@app.route("/api/ontology/schema", methods=["GET"])
+def get_ontology_schema():
+    """Retourne le schéma complet de l'ontologie : classes, object/datatype properties, individus."""
+    try:
+        schema = rdflib_service.get_ontology_schema()
+        return jsonify(schema)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/ontology/individual/<path:name>", methods=["GET"])
+def get_individual_detail(name):
+    """Retourne le détail complet d'un individu (propriétés, relations entrantes/sortantes)."""
+    try:
+        detail = rdflib_service.get_individual_details(name)
+        if "error" in detail:
+            return jsonify(detail), 404
+        return jsonify(detail)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/ontology/reload", methods=["POST"])
+def api_reload_ontology():
+    """Déclenche le rechargement immédiat de ontologie_medicale (1).ttl et de tous les fichiers ontologiques."""
+    try:
+        reload_all_services("Demande manuelle interface /api/ontology/reload")
+        return jsonify({
+            "success": True,
+            "total_triplets": len(rdflib_service.graph),
+            "loaded_files": getattr(rdflib_service, "loaded_sources", []),
+            "message": "Ontologie rechargée avec succès ! Données et relations synchronisées."
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

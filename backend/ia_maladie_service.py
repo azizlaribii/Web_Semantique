@@ -204,38 +204,48 @@ class IAMaladieService:
         # 15. "Quelles sont les maladies infectieuses ?" (Maladie infectieuse)
         if ("maladie infectieuse" in q or "maladies infectieuses" in q) and not any(w in q for w in ["symptome", "patient"]):
             sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladieInfectieuse ?nom ?codeCIM WHERE {
-    { ?m rdf:type med:MaladieInfectieuse .
-      BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
-      OPTIONAL { ?m rdfs:label ?nom }
-      OPTIONAL { ?m med:codeCIM ?codeCIM } }
+    {
+        ?m rdf:type/rdfs:subClassOf* med:MaladieInfectieuse .
+        ?m rdf:type owl:NamedIndividual .
+        BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
+        OPTIONAL { ?m rdfs:label ?nom }
+        OPTIONAL { ?m med:codeCIM ?codeCIM }
+    }
     UNION
-    { ?m rdf:type/rdfs:subClassOf* mal:MaladieInfectieuse .
-      FILTER(?m != owl:NamedIndividual && ?m != mal:MaladieInfectieuse)
-      BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
-      OPTIONAL { ?m mal:nom ?nom }
-      OPTIONAL { ?m mal:codeCIM ?codeCIM } }
+    {
+        ?m rdf:type/rdfs:subClassOf* mal:MaladieInfectieuse .
+        FILTER(?m != owl:NamedIndividual && ?m != mal:MaladieInfectieuse)
+        BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
+        OPTIONAL { ?m mal:nom ?nom }
+        OPTIONAL { ?m mal:codeCIM ?codeCIM }
+    }
 } ORDER BY ?maladieInfectieuse"""
             return sparql, "Maladies infectieuses de l'ontologie", \
-                   "L'IA extrait toutes les instances de la classe MaladieInfectieuse (Grippe, Angine, Paludisme, Bronchite)."
+                   "L'IA extrait dynamiquement toutes les maladies infectieuses (med: et mal:)."
 
         # 6. "Quelles sont les maladies chroniques dans l’ontologie ?" (Maladie chronique)
         if ("maladie chronique" in q or "maladies chroniques" in q) and not any(w in q for w in ["symptome", "patient"]):
             sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?type ?nom ?dureeTraitement WHERE {
-    { ?m rdf:type med:MaladieChronique .
-      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
-      BIND("MaladieChronique" AS ?type)
-      OPTIONAL { ?m rdfs:label ?nom }
-      OPTIONAL { ?m med:dureeTraitement ?dureeTraitement } }
+    {
+        ?m rdf:type/rdfs:subClassOf* med:MaladieChronique .
+        ?m rdf:type owl:NamedIndividual .
+        BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+        BIND("MaladieChronique" AS ?type)
+        OPTIONAL { ?m rdfs:label ?nom }
+        OPTIONAL { ?m med:dureeTraitement ?dureeTraitement }
+    }
     UNION
-    { ?m rdf:type/rdfs:subClassOf* mal:MaladieChronique .
-      FILTER(?m != owl:NamedIndividual && ?m != mal:MaladieChronique)
-      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
-      BIND("MaladieChronique" AS ?type)
-      OPTIONAL { ?m mal:nom ?nom }
-      OPTIONAL { ?m mal:dureeTraitement ?dureeTraitement } }
+    {
+        ?m rdf:type/rdfs:subClassOf* mal:MaladieChronique .
+        FILTER(?m != owl:NamedIndividual && ?m != mal:MaladieChronique)
+        BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+        BIND("MaladieChronique" AS ?type)
+        OPTIONAL { ?m mal:nom ?nom }
+        OPTIONAL { ?m mal:dureeTraitement ?dureeTraitement }
+    }
 } ORDER BY ?maladie"""
             return sparql, "Maladies chroniques de l'ontologie", \
-                   "L'IA extrait les maladies chroniques répertoriées (Diabète, Hypertension, Asthme, Anémie, Arthrite)."
+                   "L'IA extrait dynamiquement toutes les maladies chroniques depuis l'ontologie (med: et mal:)."
 
         # 7. "Quels sont les symptômes du diabète ?" (Maladie | Symptôme)
         if "symptome" in q and "diabete" in q:
@@ -1197,23 +1207,24 @@ class IAMaladieService:
             return sparql, "Maladies triées par gravité", \
                    "L'IA applique ORDER BY DESC(?gravite) sur l'ensemble des maladies."
 
-        # "Toutes les maladies" (par défaut / générique) - utilise l'ontologie enrichie med:
+        # "Toutes les maladies" (par défaut / générique) - dynamique via rdfs:subClassOf*
         sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?type ?label ?description ?gravite WHERE {
+    ?m rdf:type owl:NamedIndividual .
+    ?m rdf:type ?t .
     {
-        ?m rdf:type med:MaladieInfectieuse .
-        BIND("MaladieInfectieuse" AS ?type)
+        ?t rdfs:subClassOf* med:Maladie .
     } UNION {
-        ?m rdf:type med:MaladieChronique .
-        BIND("MaladieChronique" AS ?type)
-    } UNION {
-        ?m rdf:type med:MaladieDigestive .
-        BIND("MaladieDigestive" AS ?type)
+        ?t rdfs:subClassOf* mal:Maladie .
     }
-    FILTER(isIRI(?m))
+    FILTER(?t NOT IN (owl:NamedIndividual, owl:Thing))
+    FILTER NOT EXISTS { ?m rdf:type med:Symptome }
+    FILTER NOT EXISTS { ?m rdf:type med:SymptomeGeneral }
+    FILTER NOT EXISTS { ?m rdf:type/rdfs:subClassOf* med:Medicament }
+    BIND(STRAFTER(STR(?t), "#") AS ?type)
     OPTIONAL { ?m rdfs:label ?label }
     OPTIONAL { ?m med:description ?description }
     OPTIONAL { ?m med:gravite ?gravite }
     BIND(STRAFTER(STR(?m), "#") AS ?maladie)
 } ORDER BY ?type ?maladie"""
         return sparql, "Toutes les maladies de l'ontologie", \
-               "L'IA liste toutes les maladies de l'ontologie med: enrichie (MaladieInfectieuse, MaladieChronique, MaladieDigestive)."
+               "L'IA liste dynamiquement toutes les maladies de l'ontologie via rdfs:subClassOf*."

@@ -397,6 +397,92 @@ class IAService:
     def __init__(self, rdflib_service=None):
         self.rdflib_service = rdflib_service
 
+    def _find_matching_entity_in_graph(self, q_norm: str):
+        """
+        Découvre dynamiquement si la question porte sur un Individu, une Classe
+        ou une Propriété (Object / Data Property) présent dans l'ontologie.
+        Permet la prise en compte immédiate de tout ajout dans ontologie_medicale (1).ttl.
+        """
+        if not self.rdflib_service or not hasattr(self.rdflib_service, "graph"):
+            return None
+
+        graph = self.rdflib_service.graph
+        from rdflib import RDF, RDFS, OWL, URIRef, BNode
+
+        STOPWORDS = {
+            "qui", "est", "le", "la", "les", "un", "une", "des", "dans", "pour", "avec",
+            "donne", "moi", "tous", "toutes", "quel", "quels", "quelle", "quelles", "sont",
+            "ontologie", "medicale", "classe", "classes", "propriete", "proprietes",
+            "individu", "individus", "relation", "relations", "donnee", "donnees", "trouver",
+            "afficher", "montre", "liste", "savoir", "information", "informations", "detail", "details"
+        }
+
+        # 1. Recherche par Individu (NamedIndividual)
+        candidate_inds = []
+        for s in set(graph.subjects(RDF.type, OWL.NamedIndividual)):
+            if isinstance(s, BNode):
+                continue
+            s_str = str(s)
+            local_name = s_str.split("#")[-1].split("/")[-1]
+            if not local_name or len(local_name) < 3 or local_name.lower() in STOPWORDS:
+                continue
+            candidate_inds.append((local_name, s_str))
+
+        candidate_inds.sort(key=lambda x: len(x[0]), reverse=True)
+        padded_q = f" {q_norm} "
+        for local_name, s_str in candidate_inds:
+            clean_word = local_name.lower()
+            norm_space = clean_word.replace("_", " ").replace("-", " ")
+            if (f" {norm_space} " in padded_q or
+                f" {clean_word} " in padded_q or
+                clean_word in q_norm.split() or
+                (len(norm_space) >= 4 and norm_space in q_norm)):
+                return {"type": "individual", "name": local_name, "uri": s_str}
+
+        # 2. Recherche par Classe
+        candidate_classes = []
+        for c in set(graph.subjects(RDF.type, OWL.Class)) | set(graph.subjects(RDF.type, RDFS.Class)):
+            if isinstance(c, BNode):
+                continue
+            c_str = str(c)
+            local_name = c_str.split("#")[-1].split("/")[-1]
+            if not local_name or len(local_name) < 4 or local_name.lower() in STOPWORDS or local_name in ["Class", "Thing", "Nothing"]:
+                continue
+            candidate_classes.append((local_name, c_str))
+
+        candidate_classes.sort(key=lambda x: len(x[0]), reverse=True)
+        for local_name, c_str in candidate_classes:
+            clean_word = local_name.lower()
+            norm_space = clean_word.replace("_", " ").replace("-", " ")
+            if (f" {norm_space} " in padded_q or
+                f" {clean_word} " in padded_q or
+                clean_word in q_norm.split() or
+                (len(norm_space) >= 5 and norm_space in q_norm)):
+                return {"type": "class", "name": local_name, "uri": c_str}
+
+        # 3. Recherche par Propriété (ObjectProperty ou DatatypeProperty)
+        candidate_props = []
+        for p in set(graph.subjects(RDF.type, OWL.ObjectProperty)) | set(graph.subjects(RDF.type, OWL.DatatypeProperty)):
+            if isinstance(p, BNode):
+                continue
+            p_str = str(p)
+            local_name = p_str.split("#")[-1].split("/")[-1]
+            if not local_name or len(local_name) < 4 or local_name.lower() in STOPWORDS:
+                continue
+            candidate_props.append((local_name, p_str))
+
+        candidate_props.sort(key=lambda x: len(x[0]), reverse=True)
+        for local_name, p_str in candidate_props:
+            clean_word = local_name.lower()
+            norm_space = clean_word.replace("_", " ").replace("-", " ")
+            if (f" {norm_space} " in padded_q or
+                f" {clean_word} " in padded_q or
+                clean_word in q_norm.split() or
+                (len(norm_space) >= 5 and norm_space in q_norm)):
+                return {"type": "property", "name": local_name, "uri": p_str}
+
+        return None
+
     def translate_question_to_sparql(self, question: str) -> Tuple[str, str, str]:
         """
         Analyse la question utilisateur en langage naturel et génère la requête SPARQL.
@@ -425,6 +511,116 @@ class IAService:
         q_norm = (q.replace("â", "a").replace("à", "a").replace("é", "e")
                    .replace("è", "e").replace("ê", "e").replace("î", "i")
                    .replace("ô", "o").replace("û", "u").replace("ù", "u"))
+
+        # ============================================================
+        # PRIORITÉ -2 : ORDONNANCES, CONSULTATIONS ET RELATIONS
+        #               (directement depuis ontologie_medicale (1).ttl)
+        # ============================================================
+
+        # 0.1 ORDONNANCES (basées sur ontologie_medicale (1).ttl)
+        if any(w in q_norm for w in ["ordonnance", "ordonnances", "prescrit", "prescrite", "prescription"]):
+            extra_filter = ""
+            desc_target = ""
+            for pat in ["sami", "ahmed", "leila", "sara", "omar", "youssef", "amina", "maryem"]:
+                if pat in q_norm:
+                    extra_filter = f'FILTER(REGEX(STR(?patient), "{pat}", "i") || REGEX(STR(?pat), "{pat}", "i"))'
+                    desc_target = f" pour {pat.capitalize()}"
+                    break
+            for doc in ["ahmed", "fatima", "karim", "sophie", "jean", "aziz"]:
+                if f"dr {doc}" in q_norm or f"dr_{doc}" in q_norm or f"docteur {doc}" in q_norm:
+                    extra_filter = f'FILTER(REGEX(STR(?medecin), "{doc}", "i") || REGEX(STR(?doc), "{doc}", "i"))'
+                    desc_target = f" rédigée par Dr {doc.capitalize()}"
+                    break
+
+            sparql = PREFIXES + f"""SELECT DISTINCT ?ordonnance ?medecin ?patient ?date (GROUP_CONCAT(DISTINCT ?medNom; separator=", ") AS ?medicaments) WHERE {{
+    ?o rdf:type/rdfs:subClassOf* med:Ordonnance .
+    BIND(REPLACE(STR(?o), "^.*[#/]", "") AS ?ordonnance)
+    OPTIONAL {{
+        {{ ?doc med:redige ?o }} UNION {{ ?doc med:rédige ?o }} UNION {{ ?doc med:prescrit ?o }}
+        BIND(REPLACE(STR(?doc), "^.*[#/]", "") AS ?medecin)
+    }}
+    OPTIONAL {{
+        {{ ?o med:estDestineeA ?pat }} UNION {{ ?o med:estPrescritePour ?pat }}
+        BIND(REPLACE(STR(?pat), "^.*[#/]", "") AS ?patient)
+    }}
+    OPTIONAL {{ ?o med:dateOrdonnance ?date }}
+    OPTIONAL {{
+        {{ ?o med:contientMedicament ?m }} UNION {{ ?o med:contient ?m }}
+        BIND(REPLACE(STR(?m), "^.*[#/]", "") AS ?medNom)
+    }}
+    {extra_filter}
+}} GROUP BY ?ordonnance ?medecin ?patient ?date"""
+            return sparql, f"Ordonnance(s) médicale(s){desc_target}", \
+                   "L'IA extrait les ordonnances, médecins prescripteurs, patients destinataires et médicaments prescrits depuis ontologie_medicale (1).ttl."
+
+        # 0.2 CONSULTATIONS (basées sur ontologie_medicale (1).ttl)
+        if any(w in q_norm for w in ["consultation", "consultations", "visite medicale", "visites medicales"]):
+            extra_filter = ""
+            desc_target = ""
+            for pat in ["sami", "ahmed", "leila", "sara", "omar", "youssef", "amina"]:
+                if pat in q_norm:
+                    extra_filter = f'FILTER(REGEX(STR(?patient), "{pat}", "i") || REGEX(STR(?pat), "{pat}", "i"))'
+                    desc_target = f" concernant {pat.capitalize()}"
+                    break
+            for doc in ["ahmed", "fatima", "karim", "sophie", "jean", "aziz"]:
+                if f"dr {doc}" in q_norm or f"dr_{doc}" in q_norm or f"docteur {doc}" in q_norm or doc in q_norm:
+                    extra_filter = f'FILTER(REGEX(STR(?medecin), "{doc}", "i") || REGEX(STR(?doc), "{doc}", "i"))'
+                    desc_target = f" réalisée par Dr {doc.capitalize()}"
+                    break
+
+            sparql = PREFIXES + f"""SELECT DISTINCT ?consultation ?medecin ?patient ?date ?salle WHERE {{
+    {{ ?c rdf:type/rdfs:subClassOf* med:Consultation }}
+    UNION {{ ?doc med:realise ?c }}
+    UNION {{ ?pat med:participeA ?c }}
+    BIND(REPLACE(STR(?c), "^.*[#/]", "") AS ?consultation)
+    OPTIONAL {{
+        ?doc med:realise ?c .
+        BIND(REPLACE(STR(?doc), "^.*[#/]", "") AS ?medecin)
+    }}
+    OPTIONAL {{
+        ?pat med:participeA ?c .
+        BIND(REPLACE(STR(?pat), "^.*[#/]", "") AS ?patient)
+    }}
+    OPTIONAL {{ ?c med:dateConsultation ?date }}
+    OPTIONAL {{
+        ?c med:a_lieu_dans ?s .
+        BIND(REPLACE(STR(?s), "^.*[#/]", "") AS ?salle)
+    }}
+    {extra_filter}
+}} ORDER BY ?date ?consultation"""
+            return sparql, f"Consultation(s) médicale(s){desc_target}", \
+                   "L'IA extrait les consultations, médecins participants, patients, dates et salles depuis ontologie_medicale (1).ttl."
+
+        # 0.3 RELATIONS DE CONNAISSANCE (med:connait - SymmetricProperty)
+        if any(w in q_norm for w in ["connait", "connaissent", "collegue", "collegues"]) and not any(w in q_norm for w in ["symptome", "maladie"]):
+            matched_person = None
+            for p in ["ahmed", "karim", "fatima", "sophie", "jean", "aziz", "sami", "leila"]:
+                if p in q_norm:
+                    matched_person = p
+                    break
+
+            if matched_person:
+                sparql = PREFIXES + f"""SELECT DISTINCT ?personne (COALESCE(?nomClean, ?personne) AS ?nom) ?relation ?connaissance WHERE {{
+    {{ ?p1 med:connait ?p2 }} UNION {{ ?p2 med:connait ?p1 }}
+    BIND(REPLACE(STR(?p1), "^.*[#/]", "") AS ?personne)
+    BIND(REPLACE(STR(?p2), "^.*[#/]", "") AS ?connaissance)
+    BIND("connaît (Symétrique)" AS ?relation)
+    OPTIONAL {{ ?p1 med:nom ?nomClean }}
+    FILTER(?p1 != ?p2)
+    FILTER(REGEX(?connaissance, "{matched_person}", "i") && !REGEX(?personne, "{matched_person}", "i"))
+}}"""
+                return sparql, f"Personnes connaissant {matched_person.capitalize()} (Relation med:connait)", \
+                       f"L'IA applique la relation symétrique med:connait pour trouver qui est en lien avec {matched_person.capitalize()}."
+            else:
+                sparql = PREFIXES + """SELECT DISTINCT ?personne1 ?relation ?personne2 WHERE {
+    ?p1 med:connait ?p2 .
+    BIND(REPLACE(STR(?p1), "^.*[#/]", "") AS ?personne1)
+    BIND(REPLACE(STR(?p2), "^.*[#/]", "") AS ?personne2)
+    BIND("connaît" AS ?relation)
+    FILTER(?p1 != ?p2)
+} ORDER BY ?personne1 ?personne2"""
+                return sparql, "Liens de connaissance entre personnes (med:connait)", \
+                       "L'IA extrait l'ensemble des relations symétriques med:connait déclarées dans l'ontologie."
 
         # ============================================================
         # PRIORITÉ -1 : Questions relatives à la Classe Maladie,
@@ -1830,6 +2026,60 @@ class IAService:
                    "L'IA utilise rdfs:subClassOf pour reconstruire l'arbre d'héritage de la classe Personne."
 
         # ============================================================
+        # PRIORITÉ 14.5 : DÉTECTION DYNAMIQUE DANS LE GRAPHE RDFLIB
+        # (Individus, Classes, Relations / Object Properties, Data Properties)
+        # Permet de trouver instantanément tout individu, relation ou classe
+        # ajouté dans ontologie_medicale (1).ttl sans aucune règle statique !
+        # ============================================================
+        dynamic_match = self._find_matching_entity_in_graph(q_norm)
+        if dynamic_match:
+            m_type = dynamic_match["type"]
+            m_name = dynamic_match["name"]
+            m_uri = dynamic_match["uri"]
+
+            if m_type == "individual":
+                sparql = PREFIXES + f"""SELECT DISTINCT ?propriete ?valeur_ou_cible ?type WHERE {{
+    {{
+        <{m_uri}> ?p ?v .
+        FILTER(?p != rdf:type)
+        BIND(REPLACE(STR(?p), "^.*[#/]", "") AS ?propriete)
+        BIND(IF(isLiteral(?v), STR(?v), REPLACE(STR(?v), "^.*[#/]", "")) AS ?valeur_ou_cible)
+    }} UNION {{
+        ?s ?p <{m_uri}> .
+        BIND(CONCAT("est relié par ", REPLACE(STR(?p), "^.*[#/]", "")) AS ?propriete)
+        BIND(REPLACE(STR(?s), "^.*[#/]", "") AS ?valeur_ou_cible)
+    }}
+    OPTIONAL {{ <{m_uri}> rdf:type ?t . FILTER(?t != owl:NamedIndividual && ?t != owl:Thing) BIND(REPLACE(STR(?t), "^.*[#/]", "") AS ?type) }}
+}} ORDER BY ?propriete"""
+                return sparql, f"Propriétés et relations de l'individu '{m_name}' (Dynamique)", \
+                       f"L'IA a détecté dynamiquement l'individu '{m_name}' dans ontologie_medicale (1).ttl et extrait toutes ses assertions et relations."
+
+            elif m_type == "class":
+                sparql = PREFIXES + f"""SELECT DISTINCT ?individu (SAMPLE(?nomClean) AS ?nom) (SAMPLE(?typeClean) AS ?type) (COUNT(?p) AS ?nb_proprietes) WHERE {{
+    ?individu rdf:type/rdfs:subClassOf* <{m_uri}> .
+    FILTER(?individu != owl:NamedIndividual && ?individu != owl:Thing)
+    OPTIONAL {{ ?individu :nom ?nomProp }}
+    OPTIONAL {{ ?individu rdfs:label ?labelProp }}
+    BIND(COALESCE(?nomProp, ?labelProp, REPLACE(REPLACE(STR(?individu), "^.*[#/]", ""), "_", " ")) AS ?nomClean)
+    BIND(REPLACE(REPLACE(STR(<{m_uri}>), "^.*[#/]", ""), "_", " ") AS ?typeClean)
+    OPTIONAL {{ ?individu ?p ?o }}
+}} GROUP BY ?individu ORDER BY ?nomClean"""
+                return sparql, f"Instances de la classe '{m_name}' (Dynamique)", \
+                       f"L'IA interroge dynamiquement toutes les instances de la classe '{m_name}' depuis l'ontologie."
+
+            elif m_type == "property":
+                sparql = PREFIXES + f"""SELECT DISTINCT ?sujet (SAMPLE(?nomSujet) AS ?nom_sujet) ?propriete ?valeur_ou_cible WHERE {{
+    ?s <{m_uri}> ?o .
+    BIND(REPLACE(REPLACE(STR(?s), "^.*[#/]", ""), "_", " ") AS ?sujet)
+    OPTIONAL {{ ?s :nom ?nomSujet }}
+    OPTIONAL {{ ?s rdfs:label ?nomSujet }}
+    BIND(REPLACE(REPLACE(STR(<{m_uri}>), "^.*[#/]", ""), "_", " ") AS ?propriete)
+    BIND(IF(isLiteral(?o), STR(?o), REPLACE(REPLACE(STR(?o), "^.*[#/]", ""), "_", " ")) AS ?valeur_ou_cible)
+}} GROUP BY ?s ?o ORDER BY ?sujet"""
+                return sparql, f"Triplets reliés par la propriété '{m_name}' (Dynamique)", \
+                       f"L'IA extrait l'ensemble des relations concrètes créées via la propriété '{m_name}'."
+
+        # ============================================================
         # PRIORITÉ 15 : Requête générale par défaut
         # ============================================================
         sparql = PREFIXES + """SELECT ?personne ?type ?nom ?age ?tel ?cin WHERE {
@@ -1968,7 +2218,14 @@ Règle absolue : Retourne UNIQUEMENT le code SPARQL valide commençant par PREFI
         sq_low = (sparql_query or "").lower()
         int_low = (intention or "").lower()
 
-        if "?sousclasse" in sq_low or "sous-classe" in int_low or "sous classe" in int_low:
+        if "(dynamique)" in int_low:
+            if "?valeur_ou_cible" in sq_low and "?propriete" in sq_low and "?sujet" not in sq_low:
+                result_type = "ontology_entity"
+            elif "?nb_proprietes" in sq_low:
+                result_type = "ontology_class"
+            elif "?valeur_ou_cible" in sq_low and "?propriete" in sq_low and "?sujet" in sq_low:
+                result_type = "ontology_property"
+        elif "?sousclasse" in sq_low or "sous-classe" in int_low or "sous classe" in int_low:
             result_type = "subclasses"
         elif ("?classe" in sq_low and ("owl:class" in sq_low or "rdfs:class" in sq_low)) or "classes de l'ontologie" in int_low:
             result_type = "classes"
@@ -2046,7 +2303,17 @@ Règle absolue : Retourne UNIQUEMENT le code SPARQL valide commençant par PREFI
             )
             if "#" in p_nom:
                 p_nom = p_nom.split("#")[-1].replace("_", " ")
-            summary_text = f"1 résultat trouvé — Fiche complète de {p_nom}."
+        elif result_type == "ontology_entity":
+            props_sample = [b.get("propriete", {}).get("value", "") for b in bindings if b.get("propriete", {}).get("value")]
+            summary_text = f"{nb_results} propriété(s) et relation(s) extraites de l'ontologie — {', '.join(props_sample[:6])}."
+
+        elif result_type == "ontology_class":
+            inds_sample = [b.get("nom", {}).get("value", "") for b in bindings if b.get("nom", {}).get("value")]
+            summary_text = f"{nb_results} instance(s) trouvée(s) pour cette classe dans l'ontologie — {', '.join(inds_sample[:6])}."
+
+        elif result_type == "ontology_property":
+            sujets_sample = [b.get("sujet", {}).get("value", "") for b in bindings if b.get("sujet", {}).get("value")]
+            summary_text = f"{nb_results} association(s) concrète(s) utilisant cette propriété dans l'ontologie — Exemples : {', '.join(sujets_sample[:6])}."
 
         else:
             # Extraire les noms trouvés pour construire une réponse humaine
@@ -2056,10 +2323,13 @@ Règle absolue : Retourne UNIQUEMENT le code SPARQL valide commençant par PREFI
                     b.get("nom", {}).get("value") or
                     b.get("nomDisplay", {}).get("value") or
                     b.get("nomClean", {}).get("value") or
+                    b.get("ordonnance", {}).get("value") or
+                    b.get("consultation", {}).get("value") or
                     b.get("personne", {}).get("value") or
                     b.get("medecin", {}).get("value") or
                     b.get("patient", {}).get("value") or
                     b.get("individu", {}).get("value") or
+                    b.get("personne1", {}).get("value") or
                     b.get("stagiaire", {}).get("value") or ""
                 )
                 if "#" in nom_val:
