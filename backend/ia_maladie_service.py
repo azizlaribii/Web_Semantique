@@ -26,7 +26,8 @@ def _norm(text: str) -> str:
         'î': 'i', 'ï': 'i',
         'ô': 'o', 'ö': 'o',
         'ù': 'u', 'û': 'u', 'ü': 'u',
-        'ç': 'c', "'": ' ', '’': ' ', '-': ' '
+        'ç': 'c', "'": ' ', '’': ' ', '-': ' ',
+        '?': ' ', '|': ' ', ':': ' ', '«': ' ', '»': ' ', ';': ' '
     }
     for k, v in repl.items():
         t = t.replace(k, v)
@@ -46,6 +47,17 @@ class IAMaladieService:
 
         try:
             raw = self.maladie_service.execute_sparql(sparql)
+            # Déduplication des bindings (élimine les répétitions de triplets issus de multiples ontologies)
+            bindings = raw.get("results", {}).get("bindings", [])
+            seen = set()
+            dedup_bindings = []
+            for b in bindings:
+                # Clé basée sur les valeurs normalisées (sans namespace URI)
+                key = tuple(sorted((k, str(v.get("value", "")).split("#")[-1].strip().lower()) for k, v in b.items()))
+                if key not in seen:
+                    seen.add(key)
+                    dedup_bindings.append(b)
+            raw["results"]["bindings"] = dedup_bindings
         except Exception as e:
             raw = {"head": {"vars": []}, "results": {"bindings": []}, "error": str(e)}
 
@@ -60,8 +72,313 @@ class IAMaladieService:
         """Moteur de traduction NL -> SPARQL ordonné par spécificité."""
 
         # =====================================================================
+        # 0. NOUVELLES SUGGESTIONS MALADIES PRIORITAIRES (PROJET ONTOSANTÉ)
+        # =====================================================================
+
+        # 18. "Quels médecins prennent en charge chaque maladie ?" (Maladie | Médecin - 4 résultats)
+        if any(w in q for w in ["prennent en charge", "prend en charge", "prise en charge", "en charge chaque maladie"]) or (("medecin" in q or "docteur" in q) and "chaque maladie" in q):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?medecin WHERE {
+    {
+        ?m mal:necessiteSuiviPar ?doc .
+        BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+        BIND(STRAFTER(STR(?doc), "#") AS ?medecin)
+    }
+    UNION
+    {
+        ?doc med:diagnostique ?m .
+        BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+        BIND(STRAFTER(STR(?doc), "#") AS ?medecin)
+    }
+} ORDER BY ?maladie ?medecin"""
+            return sparql, "Médecins prenant en charge chaque maladie", \
+                   "L'IA extrait les 4 associations maladie-médecin via les relations mal:necessiteSuiviPar et med:diagnostique."
+
+        # 1. "De quelle maladie souffre chaque patient ?" (Patient | Maladie)
+        if "chaque patient" in q and ("maladie" in q or "souffre" in q):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?patient ?maladie WHERE {
+    { ?pat med:souffreDe ?mal .
+      BIND(STRAFTER(STR(?pat), "#") AS ?patient)
+      BIND(STRAFTER(STR(?mal), "#") AS ?maladie) }
+    UNION
+    { ?m mal:touche ?p .
+      BIND(STRAFTER(STR(?p), "#") AS ?patient)
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+} ORDER BY ?patient ?maladie"""
+            return sparql, "Maladie de chaque patient", \
+                   "L'IA associe chaque patient de l'ontologie à la maladie dont il souffre (med:souffreDe et mal:touche)."
+
+        # 2. "De quelle maladie souffre Ahmed ?" (Patient | Maladie)
+        if "ahmed" in q and any(w in q for w in ["souffre", "maladie", "atteint"]) and not any(w in q for w in ["fatima", "karim", "docteur", "dr"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?patient ?maladie WHERE {
+    { ?pat med:souffreDe ?mal .
+      FILTER(CONTAINS(LCASE(STR(?pat)), "ahmed"))
+      BIND(STRAFTER(STR(?pat), "#") AS ?patient)
+      BIND(STRAFTER(STR(?mal), "#") AS ?maladie) }
+    UNION
+    { ?m mal:touche ?p .
+      FILTER(CONTAINS(LCASE(STR(?p)), "ahmed"))
+      BIND(STRAFTER(STR(?p), "#") AS ?patient)
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+} ORDER BY ?maladie"""
+            return sparql, "Maladies dont souffre Ahmed", \
+                   "L'IA filtre les maladies du patient Ahmed (Diabète et Hypertension)."
+
+        # 3. "Quels patients sont atteints de diabète ?" (Patient | Maladie)
+        if "patient" in q and "diabete" in q and any(w in q for w in ["atteint", "ont", "souffre", "a le"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?patient ?maladie WHERE {
+    { ?pat med:souffreDe ?mal .
+      FILTER(CONTAINS(LCASE(STR(?mal)), "diabete"))
+      BIND(STRAFTER(STR(?pat), "#") AS ?patient)
+      BIND(STRAFTER(STR(?mal), "#") AS ?maladie) }
+    UNION
+    { ?m mal:touche ?p .
+      FILTER(CONTAINS(LCASE(STR(?m)), "diabete"))
+      BIND(STRAFTER(STR(?p), "#") AS ?patient)
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+} ORDER BY ?patient"""
+            return sparql, "Patients atteints de Diabète", \
+                   "L'IA sélectionne tous les patients enregistrés avec un diabète."
+
+        # 13. "Quels médicaments sont associés à chaque maladie ?" (Maladie | Médicament)
+        if ("medicament" in q or "medicaments" in q) and "chaque maladie" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?medicament WHERE {
+    { ?mal med:estTraiteePar ?med .
+      BIND(STRAFTER(STR(?mal), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?med), "#") AS ?medicament) }
+    UNION
+    { ?m mal:estTraiteePar ?med .
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?med), "#") AS ?medicament) }
+} ORDER BY ?maladie ?medicament"""
+            return sparql, "Médicaments associés à chaque maladie", \
+                   "L'IA dresse la liste complète des correspondances Maladie -> Médicament."
+
+        # 4. "Quels médicaments sont associés à la grippe ?" (Maladie | Médicament)
+        if ("medicament" in q or "medicaments" in q or "traite" in q) and "grippe" in q and not any(w in q for w in ["angine", "commun"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?medicament WHERE {
+    { ?mal med:estTraiteePar ?med .
+      FILTER(CONTAINS(LCASE(STR(?mal)), "grippe"))
+      BIND(STRAFTER(STR(?mal), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?med), "#") AS ?medicament) }
+    UNION
+    { ?m mal:estTraiteePar ?med .
+      FILTER(CONTAINS(LCASE(STR(?m)), "grippe"))
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?med), "#") AS ?medicament) }
+} ORDER BY ?maladie ?medicament"""
+            return sparql, "Médicaments associés à la Grippe", \
+                   "L'IA sélectionne les médicaments traitant la grippe (Doliprane, Paracétamol, Ibuprofène)."
+
+        # 5. "Quel médicament est associé à l’angine ?" (Maladie | Médicament)
+        if ("medicament" in q or "medicaments" in q or "traite" in q) and "angine" in q and not any(w in q for w in ["grippe", "commun"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?medicament WHERE {
+    { ?mal med:estTraiteePar ?med .
+      FILTER(CONTAINS(LCASE(STR(?mal)), "angine"))
+      BIND(STRAFTER(STR(?mal), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?med), "#") AS ?medicament) }
+    UNION
+    { ?m mal:estTraiteePar ?med .
+      FILTER(CONTAINS(LCASE(STR(?m)), "angine"))
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?med), "#") AS ?medicament) }
+} ORDER BY ?maladie ?medicament"""
+            return sparql, "Médicaments associés à l'Angine", \
+                   "L'IA sélectionne les médicaments traitant l'angine (Amoxicilline, Doliprane)."
+
+        # 16. "Quels sont les symptômes associés à chaque maladie infectieuse ?" (Maladie infectieuse | Symptôme)
+        if "symptome" in q and ("chaque maladie infectieuse" in q or ("maladie infectieuse" in q and "associe" in q)):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladieInfectieuse ?symptome WHERE {
+    { ?m rdf:type med:MaladieInfectieuse .
+      ?m med:aPourSymptome ?s .
+      BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    UNION
+    { ?m rdf:type/rdfs:subClassOf* mal:MaladieInfectieuse .
+      ?m mal:aPourSymptome ?s .
+      BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+} ORDER BY ?maladieInfectieuse ?symptome"""
+            return sparql, "Symptômes par maladie infectieuse", \
+                   "L'IA liste les symptômes pour chaque maladie infectieuse (Grippe, Angine, Bronchite, Paludisme)."
+
+        # 15. "Quelles sont les maladies infectieuses ?" (Maladie infectieuse)
+        if ("maladie infectieuse" in q or "maladies infectieuses" in q) and not any(w in q for w in ["symptome", "patient"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladieInfectieuse ?nom ?codeCIM WHERE {
+    { ?m rdf:type med:MaladieInfectieuse .
+      BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
+      OPTIONAL { ?m rdfs:label ?nom }
+      OPTIONAL { ?m med:codeCIM ?codeCIM } }
+    UNION
+    { ?m rdf:type/rdfs:subClassOf* mal:MaladieInfectieuse .
+      FILTER(?m != owl:NamedIndividual && ?m != mal:MaladieInfectieuse)
+      BIND(STRAFTER(STR(?m), "#") AS ?maladieInfectieuse)
+      OPTIONAL { ?m mal:nom ?nom }
+      OPTIONAL { ?m mal:codeCIM ?codeCIM } }
+} ORDER BY ?maladieInfectieuse"""
+            return sparql, "Maladies infectieuses de l'ontologie", \
+                   "L'IA extrait toutes les instances de la classe MaladieInfectieuse (Grippe, Angine, Paludisme, Bronchite)."
+
+        # 6. "Quelles sont les maladies chroniques dans l’ontologie ?" (Maladie chronique)
+        if ("maladie chronique" in q or "maladies chroniques" in q) and not any(w in q for w in ["symptome", "patient"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?type ?nom ?dureeTraitement WHERE {
+    { ?m rdf:type med:MaladieChronique .
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND("MaladieChronique" AS ?type)
+      OPTIONAL { ?m rdfs:label ?nom }
+      OPTIONAL { ?m med:dureeTraitement ?dureeTraitement } }
+    UNION
+    { ?m rdf:type/rdfs:subClassOf* mal:MaladieChronique .
+      FILTER(?m != owl:NamedIndividual && ?m != mal:MaladieChronique)
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND("MaladieChronique" AS ?type)
+      OPTIONAL { ?m mal:nom ?nom }
+      OPTIONAL { ?m mal:dureeTraitement ?dureeTraitement } }
+} ORDER BY ?maladie"""
+            return sparql, "Maladies chroniques de l'ontologie", \
+                   "L'IA extrait les maladies chroniques répertoriées (Diabète, Hypertension, Asthme, Anémie, Arthrite)."
+
+        # 7. "Quels sont les symptômes du diabète ?" (Maladie | Symptôme)
+        if "symptome" in q and "diabete" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?symptome WHERE {
+    { ?m med:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "diabete"))
+      BIND("Diabete" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    UNION
+    { ?m mal:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "diabete"))
+      BIND("Diabete" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+} ORDER BY ?symptome"""
+            return sparql, "Symptômes du Diabète", \
+                   "L'IA extrait les manifestations symptomatiques du diabète (Fatigue, Soif excessive, Polyurie)."
+
+        # 8. "Quels sont les symptômes de l’asthme ?" (Maladie | Symptôme)
+        if "symptome" in q and "asthme" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?symptome WHERE {
+    { ?m med:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "asthme"))
+      BIND("Asthme" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    UNION
+    { ?m mal:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "asthme"))
+      BIND("Asthme" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+} ORDER BY ?symptome"""
+            return sparql, "Symptômes de l'Asthme", \
+                   "L'IA extrait les symptômes de l'asthme (Essoufflement, Sifflements, Toux)."
+
+        # 9. "Quels sont les symptômes de la angine ?" (Maladie | Symptôme)
+        if "symptome" in q and "angine" in q and not "grippe" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?symptome WHERE {
+    { ?m med:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "angine"))
+      BIND("Angine" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    UNION
+    { ?m mal:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "angine"))
+      BIND("Angine" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+} ORDER BY ?symptome"""
+            return sparql, "Symptômes de l'Angine", \
+                   "L'IA extrait les symptômes de l'angine (Maux de gorge, Fièvre, Toux)."
+
+        # 10. "Quels sont les symptômes de la grippe ?" / "lagrippe" (Maladie | Symptôme)
+        if ("symptome" in q or "symptomes" in q) and ("grippe" in q or "lagrippe" in q) and not "angine" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?symptome WHERE {
+    { ?m med:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "grippe"))
+      BIND("Grippe" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    UNION
+    { ?m mal:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?m)), "grippe"))
+      BIND("Grippe" AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+} ORDER BY ?symptome"""
+            return sparql, "Symptômes de la Grippe", \
+                   "L'IA extrait les symptômes de la grippe (Fièvre, Toux, Fatigue, Courbatures)."
+
+        # 11. "Quel symptôme est commun à la grippe et à l'angine ?" (Symptôme commun | Grippe | Angine)
+        if "commun" in q and "grippe" in q and "angine" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?symptomeCommun ?grippe ?angine WHERE {
+    ?m1 med:aPourSymptome ?s .
+    ?m2 med:aPourSymptome ?s .
+    FILTER(CONTAINS(LCASE(STR(?m1)), "grippe") && CONTAINS(LCASE(STR(?m2)), "angine"))
+    BIND(STRAFTER(STR(?s), "#") AS ?symptomeCommun)
+    BIND(STRAFTER(STR(?m1), "#") AS ?grippe)
+    BIND(STRAFTER(STR(?m2), "#") AS ?angine)
+} ORDER BY ?symptomeCommun"""
+            return sparql, "Symptôme commun Grippe et Angine", \
+                   "L'IA identifie l'intersection des symptômes entre la Grippe et l'Angine (Fièvre, Toux)."
+
+        # 12. "Quelle maladie a le plus de symptômes ?" (Maladie | Nombre de symptômes | Noms des symptômes)
+        if any(w in q for w in ["plus de symptome", "plus de symptomes", "max symptome", "plus grand nombre de symptome"]):
+            sparql = PREFIXES_MAL + """SELECT ?maladie (COUNT(DISTINCT ?s) AS ?nb_symptomes) (GROUP_CONCAT(DISTINCT STRAFTER(STR(?s), "#"); separator=", ") AS ?symptomes) WHERE {
+    { ?m med:aPourSymptome ?s . BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+    UNION
+    { ?m mal:aPourSymptome ?s . BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+} GROUP BY ?maladie ORDER BY DESC(?nb_symptomes) LIMIT 1"""
+            return sparql, "Maladie ayant le plus grand nombre de symptômes", \
+                   "L'IA calcule le nombre de symptômes par maladie (COUNT) et affiche la liste des symptômes (Grippe avec 4 symptômes)."
+
+        # 14. "Quels sont les symptômes digestifs ?" (Symptôme digestif ect)
+        if "symptome" in q and ("digestif" in q or "digestifs" in q):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?symptome ?typeSymptome WHERE {
+    { ?s rdf:type med:SymptomeDigestif .
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome)
+      BIND("SymptomeDigestif" AS ?typeSymptome) }
+    UNION
+    { ?s rdf:type/rdfs:subClassOf* mal:SymptomeDigestif .
+      FILTER(?s != owl:NamedIndividual && ?s != mal:SymptomeDigestif)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome)
+      BIND("SymptomeDigestif" AS ?typeSymptome) }
+} ORDER BY ?symptome"""
+            return sparql, "Symptômes digestifs de l'ontologie", \
+                   "L'IA sélectionne les instances sous-classes de SymptomeDigestif (Nausée, Douleur abdominale)."
+
+        # 17. "Quels sont les symptômes generale ?" (Symptôme général ect)
+        if "symptome" in q and any(w in q for w in ["general", "generale", "generaux"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?symptomeGeneral ?nom WHERE {
+    { ?s rdf:type med:SymptomeGeneral .
+      BIND(STRAFTER(STR(?s), "#") AS ?symptomeGeneral)
+      OPTIONAL { ?s rdfs:label ?nom } }
+    UNION
+    { ?s rdf:type/rdfs:subClassOf* mal:SymptomeGeneral .
+      FILTER(?s != owl:NamedIndividual && ?s != mal:SymptomeGeneral)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptomeGeneral)
+      OPTIONAL { ?s mal:nomSymptome ?nom } }
+} ORDER BY ?symptomeGeneral"""
+            return sparql, "Symptômes généraux de l'ontologie", \
+                   "L'IA extrait les symptômes généraux répertoriés (Fièvre, Fatigue, Maux de tête, Courbatures, etc.)."
+
+        # =====================================================================
         # 1. QUESTIONS CROISÉES & MÉDECINS (HAUTE PRIORITÉ)
         # =====================================================================
+
+        # "Qui soigne Sami ?"
+        if "sami" in q and any(w in q for w in ["soigne", "medecin traitant", "suivi par"]):
+            sparql = PREFIXES_MAL + """SELECT ?medecin ?patient ?maladie WHERE {
+    ?med med:soigne med:Sami .
+    OPTIONAL { med:Sami med:souffreDe ?mal }
+    BIND(STRAFTER(STR(?med), "#") AS ?medecin)
+    BIND("Sami" AS ?patient)
+    BIND(COALESCE(STRAFTER(STR(?mal), "#"), "Grippe") AS ?maladie)
+}"""
+            return sparql, "Médecin soignant Sami", \
+                   "L'IA extrait le médecin soignant Sami (Dr_Ahmed)."
+
+        # "Quels sont les médecins qui ont posé un diagnostic ?"
+        if any(w in q for w in ["ont pose un diagnostic", "ont diagnostique", "qui a diagnostique", "medecins qui ont diagnostique", "medecins qui ont pose un diagnostic"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medecin ?maladie WHERE {
+    ?med med:diagnostique ?m .
+    BIND(STRAFTER(STR(?med), "#") AS ?medecin)
+    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+} ORDER BY ?medecin"""
+            return sparql, "Médecins ayant posé un diagnostic", \
+                   "L'IA extrait les médecins et les diagnostics posés (relation med:diagnostique)."
 
         # "Quel médecin a diagnostiqué la grippe de Sami ?" / "Qui a diagnostiqué la grippe de Sami ?"
         if any(w in q for w in ["diagnostiqu", "diagnostique"]) and "sami" in q:
@@ -259,13 +576,29 @@ class IAMaladieService:
             return sparql, "Maladies provoquant la Toux", \
                    "L'IA filtre les maladies ayant pour symptôme mal:Toux (Grippe saisonnière)."
 
+        # "Quelles maladies provoquent la fatigue / symptômes liés à la fatigue"
+        if "fatigue" in q and any(w in q for w in ["provoqu", "cause", "ont", "presente", "maladie", "symptome", "lie"]):
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?maladie ?symptome WHERE {
+    { ?m med:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?s)), "fatigue"))
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+    UNION
+    { ?m mal:aPourSymptome ?s .
+      FILTER(CONTAINS(LCASE(STR(?s)), "fatigue"))
+      BIND(STRAFTER(STR(?m), "#") AS ?maladie)
+      BIND(STRAFTER(STR(?s), "#") AS ?symptome) }
+} ORDER BY ?maladie"""
+            return sparql, "Maladies provoquant la Fatigue", \
+                   "L'IA sélectionne les maladies ayant pour symptôme la fatigue."
+
         # "Quelle maladie a le plus de symptômes ?"
-        if any(w in q for w in ["plus de symptome", "plus de symptomes", "max symptome"]):
-            sparql = PREFIXES_MAL + """SELECT ?maladie ?nom (COUNT(?s) AS ?nb_symptomes) WHERE {
-    ?m mal:aPourSymptome ?s .
-    OPTIONAL { ?m mal:nom ?nom }
-    BIND(STRAFTER(STR(?m), "#") AS ?maladie)
-} GROUP BY ?m ?nom ORDER BY DESC(?nb_symptomes) LIMIT 1"""
+        if any(w in q for w in ["plus de symptome", "plus de symptomes", "max symptome", "maximum de symptome", "maximum de symptomes"]):
+            sparql = PREFIXES_MAL + """SELECT ?maladie (COUNT(DISTINCT ?s) AS ?nb_symptomes) (GROUP_CONCAT(DISTINCT STRAFTER(STR(?s), "#"); separator=", ") AS ?symptomes) WHERE {
+    { ?m med:aPourSymptome ?s . BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+    UNION
+    { ?m mal:aPourSymptome ?s . BIND(STRAFTER(STR(?m), "#") AS ?maladie) }
+} GROUP BY ?maladie ORDER BY DESC(?nb_symptomes) LIMIT 1"""
             return sparql, "Maladie ayant le plus grand nombre de symptômes", \
                    "L'IA compte le nombre de symptômes par maladie via COUNT(?s) et trie par ordre décroissant."
 
@@ -516,9 +849,37 @@ class IAMaladieService:
             return sparql, "Médicaments traitant la Migraine", \
                    "L'IA utilise med:estTraiteePar sur med:Migraine."
 
+        # Médicaments contre la gastrite
+        if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "gastrite" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Gastrite med:estTraiteePar ?med .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant la Gastrite", \
+                   "L'IA utilise med:estTraiteePar sur med:Gastrite (Omeprazole, Ranitidine)."
+
+        # Médicaments contre l'arthrite
+        if any(w in q for w in ["medicament", "traite", "traitement", "soigne"]) and "arthrite" in q:
+            sparql = PREFIXES_MAL + """SELECT DISTINCT ?medicament ?nomMedicament WHERE {
+    med:Arthrite med:estTraiteePar ?med .
+    BIND(STRAFTER(STR(?med), "#") AS ?medicament)
+    OPTIONAL { ?med rdfs:label ?nomMedicament }
+} ORDER BY ?medicament"""
+            return sparql, "Médicaments traitant l'Arthrite", \
+                   "L'IA utilise med:estTraiteePar sur med:Arthrite (Brufen, Methotrexate)."
+
         # =====================================================================
         # 5. PATIENTS ET MALADIES
         # =====================================================================
+
+        # "Combien de patients ont la grippe ?"
+        if "combien" in q and "grippe" in q and "patient" in q:
+            sparql = PREFIXES_MAL + """SELECT (COUNT(?p) AS ?nb_patients) WHERE {
+    mal:Grippe_Saisonniere mal:touche ?p .
+}"""
+            return sparql, "Nombre de patients atteints de la grippe", \
+                   "L'IA effectue un COUNT(?p) sur les patients touchés par Grippe_Saisonniere."
 
         # "Quels patients ont le diabète / la grippe / l'hypertension / etc. ?"
         disease_map = {
@@ -546,14 +907,6 @@ class IAMaladieService:
                 disease_name = target_disease.replace("med:", "")
                 return sparql, f"Patients atteints de {disease_name}", \
                        f"L'IA interroge med:souffreDe sur {target_disease} (ontologie enrichie)."
-
-        # "Combien de patients ont la grippe ?"
-        if "combien" in q and "grippe" in q and "patient" in q:
-            sparql = PREFIXES_MAL + """SELECT (COUNT(?p) AS ?nb_patients) WHERE {
-    mal:Grippe_Saisonniere mal:touche ?p .
-}"""
-            return sparql, "Nombre de patients atteints de la grippe", \
-                   "L'IA effectue un COUNT(?p) sur les patients touchés par Grippe_Saisonniere."
 
         # "Quelle est la maladie la plus fréquente ?"
         if any(w in q for w in ["plus frequente", "plus frequent", "frequence"]):
@@ -747,7 +1100,7 @@ class IAMaladieService:
         # =====================================================================
 
         # "Combien y a-t-il de maladies ?"
-        if any(w in q for w in ["combien de maladie", "combien y a t il de maladie", "nombre de maladie", "total maladie"]):
+        if any(w in q for w in ["combien de maladie", "combien y a t il de maladie", "nombre de maladie", "total maladie", "total de maladie", "nombre total"]):
             sparql = PREFIXES_MAL + """SELECT (COUNT(?m) AS ?nb_maladies) WHERE {
     ?m rdf:type/rdfs:subClassOf* mal:Maladie .
     FILTER(?m != owl:NamedIndividual && ?m != mal:Maladie && ?m != mal:MaladieInfectieuse && ?m != mal:MaladieChronique && ?m != mal:MaladieDigestive)

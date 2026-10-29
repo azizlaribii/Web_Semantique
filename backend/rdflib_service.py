@@ -44,6 +44,8 @@ class RDFLibService:
             (os.path.join(BASE_DIR, "ontologie_personne.owl"), "xml"),
             (os.path.join(BASE_DIR, "ontologie_medicale (1).ttl"), "turtle"),
             (os.path.join(BASE_DIR, "ontologie_medicale.owl"), "xml"),
+            (os.path.join(BASE_DIR, "ontologie_maladie.owl"), "xml"),
+            (os.path.join(BASE_DIR, "ontologie_medicament.owl"), "xml"),
         ]
 
         for path, fmt in sources:
@@ -58,6 +60,7 @@ class RDFLibService:
             raise FileNotFoundError("Aucun fichier d'ontologie n'a pu être chargé.")
 
         self.graph.bind("med", ONTO_NS)
+        self.graph.bind("mal", Namespace("http://example.org/ontologie-maladie#"))
         self.graph.bind("", ONTO_NS)
         self.graph.bind("owl", OWL)
         self.graph.bind("rdfs", RDFS)
@@ -73,6 +76,7 @@ class RDFLibService:
 
         prefixes = """
 PREFIX med: <http://example.org/ontologie-medicale#>
+PREFIX mal: <http://example.org/ontologie-maladie#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -463,13 +467,30 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             OPTIONAL { ?m med:description ?desc }
             OPTIONAL { ?m med:gravite ?gravite }
             OPTIONAL { ?m med:estContagieuse ?contagieuse }
+            OPTIONAL { ?m med:codeCIM ?cim }
+            OPTIONAL { ?m med:dureeTraitement ?duree }
         }
         """
+        CIM_DEFAULTS = {
+            "Grippe": "J11", "Angine": "J03", "Diabete": "E11", "Hypertension": "I10",
+            "Ulcere_Exemple": "K25", "Ulcere_gastrique": "K25", "Asthme": "J45",
+            "Bronchite": "J20", "Paludisme": "B54", "Anemie": "D64", "Gastrite": "K29",
+            "Migraine": "G43", "Arthrite": "M13"
+        }
+        DUREE_DEFAULTS = {
+            "Grippe": "7 jours", "Angine": "10 jours", "Diabete": "Traitement a vie",
+            "Hypertension": "Traitement a vie", "Ulcere_Exemple": "4 a 8 semaines",
+            "Asthme": "Traitement continu", "Bronchite": "10 jours", "Paludisme": "3 a 7 jours",
+            "Anemie": "3 a 6 mois", "Gastrite": "2 a 4 semaines", "Migraine": "Traitement de crise",
+            "Arthrite": "Traitement continu"
+        }
         rows = self.execute_sparql(q)["results"]["bindings"]
         maladies_dict = {}
         for r in rows:
             uri = r["m"]["value"]
             ind_id = uri.split("#")[-1]
+            if ind_id in ["Fievre_Sami", "Grippe_Sami"]:
+                continue
             if uri not in maladies_dict:
                 lbl = r.get("label", {}).get("value", "")
                 raw_grav = r.get("gravite", {}).get("value", "")
@@ -480,18 +501,20 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                 elif "grav" in raw_grav.lower() or raw_grav == "3" or "sev" in raw_grav.lower():
                     grav_norm = "3"
 
-                is_chronique = "true" if "Chronique" in r["type"]["value"] else "false"
+                is_chronique = "true" if any(k in r["type"]["value"] for k in ["Chronique", "Diabete", "Hypertension", "Asthme", "Anemie", "Arthrite", "Migraine"]) else "false"
+                cim_val = r.get("cim", {}).get("value", "") or CIM_DEFAULTS.get(ind_id, "")
+                duree_val = r.get("duree", {}).get("value", "") or DUREE_DEFAULTS.get(ind_id, "")
 
                 maladies_dict[uri] = {
                     "id": ind_id,
                     "types": [],
                     "nom": lbl or ind_id.replace("_", " "),
                     "description": r.get("desc", {}).get("value", ""),
-                    "codeCIM": "",
+                    "codeCIM": cim_val,
                     "gravite": grav_norm,
                     "contagieuse": r.get("contagieuse", {}).get("value", "false"),
                     "chronique": is_chronique,
-                    "duree": "",
+                    "duree": duree_val,
                     "symptomes": [],
                     "medicaments": []
                 }
@@ -576,3 +599,317 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             if o not in nodes_dict: nodes_dict[o] = {"id": o, "label": o}
             edges.append({"from": s, "to": o, "label": p})
         return {"nodes": list(nodes_dict.values()), "edges": edges}
+
+    def get_maladie_ontology_structure(self) -> Dict[str, Any]:
+        """Retourne la définition formelle complète de l'ontologie de la classe Maladie."""
+        all_maladies = self.get_all_maladies()
+
+        # Répartition dynamique des individus dans les sous-classes
+        infectieuses_ind = []
+        chroniques_ind = []
+        digestives_ind = []
+        grippe_ind = []
+        angine_ind = []
+        diabete_ind = []
+        hypertension_ind = []
+        ulcere_ind = []
+
+        for m in all_maladies:
+            mid = m.get("id", "")
+            mnom = m.get("nom", mid)
+            mtypes = " ".join(m.get("types", []))
+            item = {"id": mid, "nom": mnom, "gravite": m.get("gravite", "2"), "codeCIM": m.get("codeCIM", "")}
+
+            if "Grippe" in mtypes or "grippe" in mid.lower():
+                grippe_ind.append(item)
+            elif "Angine" in mtypes or "angine" in mid.lower():
+                angine_ind.append(item)
+            
+            if "Infectieuse" in mtypes or "grippe" in mid.lower() or "angine" in mid.lower() or "bronchite" in mid.lower() or "covid" in mid.lower():
+                infectieuses_ind.append(item)
+            elif "Diabete" in mtypes or "diabete" in mid.lower():
+                diabete_ind.append(item)
+                chroniques_ind.append(item)
+            elif "Hypertension" in mtypes or "hypertension" in mid.lower():
+                hypertension_ind.append(item)
+                chroniques_ind.append(item)
+            elif "Chronique" in mtypes or m.get("chronique") == "true" or "asthme" in mid.lower():
+                chroniques_ind.append(item)
+            elif "Digestive" in mtypes or "ulcere" in mid.lower() or "gastrite" in mid.lower():
+                if "ulcere" in mid.lower():
+                    ulcere_ind.append(item)
+                digestives_ind.append(item)
+            else:
+                infectieuses_ind.append(item)
+
+        return {
+            "iri": "http://example.org/ontologie-maladie#",
+            "class_info": {
+                "uri": "http://example.org/ontologie-maladie#Maladie",
+                "name": "Maladie",
+                "label": "Maladie",
+                "comment": "Toute affection pathologique dans le système médical.",
+                "superclass": "owl:Thing",
+                "total_instances": len(all_maladies)
+            },
+            "subclasses": [
+                {
+                    "id": "MaladieInfectieuse",
+                    "name": "Maladie infectieuse",
+                    "uri": "http://example.org/ontologie-maladie#MaladieInfectieuse",
+                    "icon": "🦠",
+                    "color": "#ec4899",
+                    "description": "Affection provoquée par la transmission d'un agent pathogène biologique (virus, bactérie).",
+                    "disjointWith": ["MaladieChronique", "MaladieDigestive"],
+                    "children": [
+                        {
+                            "id": "Grippe",
+                            "name": "Grippe",
+                            "uri": "http://example.org/ontologie-maladie#Grippe",
+                            "icon": "🌡️",
+                            "disjointWith": ["Angine"],
+                            "description": "Infection virale respiratoire aiguë et contagieuse causée par le virus Influenza.",
+                            "individuals": grippe_ind
+                        },
+                        {
+                            "id": "Angine",
+                            "name": "Angine",
+                            "uri": "http://example.org/ontologie-maladie#Angine",
+                            "icon": "🗣️",
+                            "disjointWith": ["Grippe"],
+                            "description": "Inflammation aiguë pharyngo-amygdalienne bactérienne ou virale.",
+                            "individuals": angine_ind
+                        }
+                    ],
+                    "individuals": infectieuses_ind
+                },
+                {
+                    "id": "MaladieChronique",
+                    "name": "Maladie chronique",
+                    "uri": "http://example.org/ontologie-maladie#MaladieChronique",
+                    "icon": "🗓️",
+                    "color": "#3b82f6",
+                    "description": "Affection de longue durée évoluant lentement et nécessitant une prise en charge médicale suivie.",
+                    "disjointWith": ["MaladieInfectieuse", "MaladieDigestive"],
+                    "children": [
+                        {
+                            "id": "Diabete",
+                            "name": "Diabète",
+                            "uri": "http://example.org/ontologie-maladie#Diabete",
+                            "icon": "🩸",
+                            "disjointWith": ["Hypertension"],
+                            "description": "Trouble métabolique caractérisé par une anomalie de régulation de la glycémie.",
+                            "individuals": diabete_ind
+                        },
+                        {
+                            "id": "Hypertension",
+                            "name": "Hypertension Artérielle",
+                            "uri": "http://example.org/ontologie-maladie#Hypertension",
+                            "icon": "💓",
+                            "disjointWith": ["Diabete"],
+                            "description": "Élévation anormale et prolongée de la pression sanguine artérielle.",
+                            "individuals": hypertension_ind
+                        }
+                    ],
+                    "individuals": chroniques_ind
+                },
+                {
+                    "id": "MaladieDigestive",
+                    "name": "Maladie digestive",
+                    "uri": "http://example.org/ontologie-maladie#MaladieDigestive",
+                    "icon": "🫀",
+                    "color": "#8b5cf6",
+                    "description": "Trouble ou lésion pathologique touchant le tube digestif ou les organes annexes.",
+                    "disjointWith": ["MaladieInfectieuse", "MaladieChronique"],
+                    "children": [
+                        {
+                            "id": "UlcereGastrique",
+                            "name": "Ulcère gastrique",
+                            "uri": "http://example.org/ontologie-maladie#UlcereGastrique",
+                            "icon": "🫧",
+                            "disjointWith": [],
+                            "description": "Lésion érosive de la muqueuse de l'estomac souvent induite par Helicobacter pylori.",
+                            "individuals": ulcere_ind
+                        }
+                    ],
+                    "individuals": digestives_ind
+                }
+            ],
+            "defined_classes": [
+                {
+                    "name": "MaladieGrave",
+                    "label": "Maladie grave",
+                    "axiom": "Maladie ⊓ ∃ necessite.Operation",
+                    "description": "Toute maladie requérant une intervention chirurgicale obligatoire.",
+                    "type": "owl:equivalentClass"
+                },
+                {
+                    "name": "MaladieAvecSuivi",
+                    "label": "Maladie avec suivi",
+                    "axiom": "MaladieChronique ⊓ ∃ necessiteSuiviPar.Medecin",
+                    "description": "Toute maladie chronique impliquant une surveillance médicale continue par un médecin.",
+                    "type": "owl:equivalentClass"
+                },
+                {
+                    "name": "MaladieTraitee",
+                    "label": "Maladie traitée",
+                    "axiom": "Maladie ⊓ ∃ estTraiteePar.Medicament",
+                    "description": "Toute pathologie faisant l'objet d'un protocole thérapeutique médicamenteux.",
+                    "type": "owl:equivalentClass"
+                }
+            ],
+            "object_properties": [
+                {
+                    "name": "aPourSymptome",
+                    "label": "a pour symptôme",
+                    "domain": "Maladie",
+                    "range": "Symptome",
+                    "inverse": "estSymptomeDe",
+                    "description": "Relie la pathologie aux signes cliniques et symptômes observés.",
+                    "characteristics": []
+                },
+                {
+                    "name": "estTraiteePar",
+                    "label": "est traitée par",
+                    "domain": "Maladie",
+                    "range": "Medicament",
+                    "inverse": "traite",
+                    "description": "Associe la maladie aux médicaments actifs indiqués.",
+                    "characteristics": []
+                },
+                {
+                    "name": "touche",
+                    "label": "touche",
+                    "domain": "Maladie",
+                    "range": "Patient",
+                    "inverse": "souffreDe",
+                    "description": "Spécifie le patient atteint par l'affection.",
+                    "characteristics": []
+                },
+                {
+                    "name": "necessite",
+                    "label": "nécessite",
+                    "domain": "Maladie",
+                    "range": "Operation",
+                    "inverse": "estNecessairePour",
+                    "description": "Définit les interventions chirurgicales indispensables.",
+                    "characteristics": []
+                },
+                {
+                    "name": "concerneMaladie",
+                    "label": "concerne maladie",
+                    "domain": "Maladie",
+                    "range": "Ordonnance",
+                    "inverse": "estPrescritePour",
+                    "description": "Lie la prescription médicale ordonnancée à la pathologie.",
+                    "characteristics": []
+                },
+                {
+                    "name": "necessiteSuiviPar",
+                    "label": "nécessite suivi par",
+                    "domain": "MaladieChronique",
+                    "range": "Medecin",
+                    "inverse": "suit",
+                    "description": "Assure la traçabilité du suivi médical spécialisé.",
+                    "characteristics": []
+                },
+                {
+                    "name": "aPourAgentPathogene",
+                    "label": "a pour agent pathogène",
+                    "domain": "MaladieInfectieuse",
+                    "range": "AgentPathogene (Virus, Bactérie)",
+                    "inverse": "causeMaladie",
+                    "description": "Désigne l'agent microbiologique causal de l'infection.",
+                    "characteristics": []
+                },
+                {
+                    "name": "provoque",
+                    "label": "provoque",
+                    "domain": "Maladie",
+                    "range": "Symptome",
+                    "inverse": "—",
+                    "description": "Relation causale transitive entre maladie et symptômes secondaires.",
+                    "characteristics": ["owl:TransitiveProperty"]
+                }
+            ],
+            "datatype_properties": [
+                {
+                    "name": "nom",
+                    "type": "xsd:string",
+                    "characteristics": ["owl:FunctionalProperty"],
+                    "domain": "Maladie",
+                    "description": "Nom usuel ou officiel de la maladie."
+                },
+                {
+                    "name": "description",
+                    "type": "xsd:string",
+                    "characteristics": ["owl:FunctionalProperty"],
+                    "domain": "Maladie",
+                    "description": "Descriptif médical clinique approfondi."
+                },
+                {
+                    "name": "codeCIM",
+                    "type": "xsd:string",
+                    "characteristics": ["owl:FunctionalProperty"],
+                    "domain": "Maladie",
+                    "description": "Code international de classification OMS (CIM-10)."
+                },
+                {
+                    "name": "gravite",
+                    "type": "xsd:integer",
+                    "characteristics": ["owl:FunctionalProperty"],
+                    "domain": "Maladie",
+                    "description": "Niveau de sévérité médicale codé de 1 (légère) à 4 (critique)."
+                },
+                {
+                    "name": "estContagieuse",
+                    "type": "xsd:boolean",
+                    "characteristics": ["owl:FunctionalProperty"],
+                    "domain": "Maladie",
+                    "description": "Indicateur binaire de transmissibilité épidémique."
+                },
+                {
+                    "name": "estChronique",
+                    "type": "xsd:boolean",
+                    "characteristics": ["owl:FunctionalProperty"],
+                    "domain": "Maladie",
+                    "description": "Indicateur binaire d'évolution chronique dans le temps."
+                },
+                {
+                    "name": "dureeTraitement",
+                    "type": "xsd:string",
+                    "characteristics": [],
+                    "domain": "Maladie",
+                    "description": "Période standard observée pour le traitement curatif."
+                }
+            ],
+            "axioms": [
+                {
+                    "type": "owl:AllDisjointClasses",
+                    "elements": ["MaladieInfectieuse", "MaladieChronique", "MaladieDigestive"],
+                    "description": "Disjonction mutuelle stricte : aucune maladie ne peut appartenir à deux catégories principales à la fois."
+                },
+                {
+                    "type": "owl:disjointWith",
+                    "elements": ["Grippe", "Angine"],
+                    "description": "Une instance de Grippe ne peut en aucun cas être une instance d'Angine."
+                },
+                {
+                    "type": "owl:disjointWith",
+                    "elements": ["Diabete", "Hypertension"],
+                    "description": "Une instance de Diabète est disjointe d'une instance d'Hypertension."
+                },
+                {
+                    "type": "owl:disjointWith",
+                    "elements": ["Virus", "Bacterie"],
+                    "description": "Un agent pathogène viral est disjoint d'un agent pathogène bactérien."
+                }
+            ],
+            "stats": {
+                "total": len(all_maladies),
+                "infectieuses": len(infectieuses_ind),
+                "chroniques": len(chroniques_ind),
+                "digestives": len(digestives_ind)
+            }
+        }
+

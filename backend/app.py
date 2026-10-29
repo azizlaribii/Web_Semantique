@@ -24,6 +24,7 @@ from ia_maladie_service import IAMaladieService
 from medicament_service import MedicamentService
 from ia_medicament_service import IAMedicamentService
 from auth_service import AuthService
+import ontology_crud_service
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANGULAR_DIST = os.path.join(BASE_DIR, "angular-frontend", "dist", "onto-sante-frontend", "browser")
@@ -116,15 +117,21 @@ def reload_all_services(reason: str = "Manuel"):
             errors.append(f"personne: {e}")
             print(f"[HotReload] ERREUR personne : {e}")
         try:
+            import importlib
+            import ia_maladie_service as _ia_mal_mod
+            importlib.reload(_ia_mal_mod)
             maladie_service._load()
-            ia_maladie_service = IAMaladieService(maladie_service)
+            ia_maladie_service = _ia_mal_mod.IAMaladieService(maladie_service)
             print("[HotReload] OK ontologie_maladie.owl rechargee")
         except Exception as e:
             errors.append(f"maladie: {e}")
             print(f"[HotReload] ERREUR maladie : {e}")
         try:
+            import importlib
+            import ia_medicament_service as _ia_med_mod
+            importlib.reload(_ia_med_mod)
             medicament_service._load()
-            ia_medicament_service = IAMedicamentService(medicament_service)
+            ia_medicament_service = _ia_med_mod.IAMedicamentService(medicament_service)
             print("[HotReload] OK ontologie_medicament.owl rechargee")
         except Exception as e:
             errors.append(f"medicament: {e}")
@@ -132,9 +139,9 @@ def reload_all_services(reason: str = "Manuel"):
 
         _last_reload_info["ts"] = time.time()
         _last_reload_info["reason"] = reason
-        _last_reload_info["errors"] = errors
         print("[HotReload] Rechargement terminé.")
         return errors
+
 
 def _owl_watcher(interval: int = 3):
     """
@@ -261,6 +268,39 @@ def _clean_val(val: str) -> str:
     val = val.lstrip(":")
     return val.strip()
 
+import unicodedata
+
+def _normalize_txt(text: str) -> str:
+    """Normalise un texte en retirant accents et espaces superflus."""
+    if not text:
+        return ""
+    nfkd = unicodedata.normalize('NFKD', str(text))
+    return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+def _dedup_dicts(items: list) -> list:
+    """Supprime les doublons dans une liste de dictionnaires tout en préservant l'ordre."""
+    seen = set()
+    deduped = []
+    for item in items:
+        # Clé tuple basée sur les paires triées (clé, valeur normalisée sans accents)
+        key = tuple(sorted((str(k), _normalize_txt(v)) for k, v in item.items() if v))
+        if key not in seen:
+            seen.add(key)
+            deduped.append(item)
+    return deduped
+
+def _dedup_list(items: list) -> list:
+    """Supprime les doublons dans une liste de chaînes tout en préservant l'ordre."""
+    seen = set()
+    deduped = []
+    for x in items:
+        cleaned = str(x).strip()
+        norm_key = _normalize_txt(cleaned)
+        if cleaned and norm_key not in seen:
+            seen.add(norm_key)
+            deduped.append(cleaned)
+    return deduped
+
 
 # ----------------------------------------------------------------------
 # 1. Route IA : Question Utilisateur -> Requête SPARQL -> Données
@@ -275,34 +315,39 @@ def ia_ask():
         return jsonify({"error": "Veuillez poser une question."}), 400
 
     try:
-        ql = question.lower()
+        q_norm = _normalize_txt(question)
         med_keywords = [
-            "medicament", "médicament", "antibiotique", "molecule", "molécule", "dosage",
-            "clamoxyl", "paracetamol", "paracétamol", "doliprane", "posologie", "atc",
-            "forme", "anti-inflammatoire", "antalgique", "sirop", "comprime", "comprimé"
+            "medicament", "antibiotique", "molecule", "dosage",
+            "clamoxyl", "paracetamol", "doliprane", "posologie", "atc",
+            "forme", "anti-inflammatoire", "antalgique", "sirop", "comprime"
         ]
         mal_keywords = [
-            "maladie", "symptome", "symptôme", "diabete", "diabète", "asthme", "hypertension",
+            "maladie", "symptome", "diabete", "asthme", "hypertension",
             "covid", "grippe", "pathologie", "infection", "bronchite", "cancer", "cardiaque",
-            "chronique", "aigue", "aiguë", "cause", "gravite", "gravité", "transmission"
+            "chronique", "aigue", "cause", "gravite", "transmission", "angine", "pathogene",
+            "agent", "virus", "bacterie", "ulcere", "gastrite", "arthrite", "anemie"
         ]
 
         # 1. Routing vers Médicaments
-        if target_module == "medicament" or (target_module == "auto" and any(k in ql for k in med_keywords)):
+        if target_module == "medicament" or (target_module == "auto" and any(k in q_norm for k in med_keywords)):
             res = ia_medicament_service.answer_question(question)
             bindings = res.get("data", {}).get("results", {}).get("bindings", [])
-            donnees = []
+            raw_donnees = []
             for b in bindings:
                 item = {k: _clean_val(v.get("value", "")) for k, v in b.items()}
-                donnees.append(item)
+                raw_donnees.append(item)
 
-            # Réponse dynamique basée sur les données réelles
+            # Déduplication des lignes
+            donnees = _dedup_dicts(raw_donnees)
+
+            # Réponse dynamique sans répétitions
             noms_med = [d.get("medicament") or d.get("nom") or d.get("antibiotique") or d.get("antalgique") or "" for d in donnees if d.get("medicament") or d.get("nom")]
-            noms_med = [n for n in noms_med if n]
+            unique_noms = _dedup_list(noms_med)
+
             if not donnees:
                 reponse_txt = f"Aucun médicament trouvé dans l'ontologie pour : « {question} »."
-            elif noms_med:
-                reponse_txt = f"{len(donnees)} résultat(s) — {res.get('intention', '')} : {', '.join(noms_med[:6])}."
+            elif unique_noms:
+                reponse_txt = f"{len(donnees)} résultat(s) — {res.get('intention', '')} : {', '.join(unique_noms[:6])}."
             else:
                 reponse_txt = f"{len(donnees)} résultat(s) extrait(s) de l'ontologie des médicaments."
 
@@ -317,21 +362,41 @@ def ia_ask():
             })
 
         # 2. Routing vers Maladies
-        elif target_module == "maladie" or (target_module == "auto" and any(k in ql for k in mal_keywords)):
+        elif target_module == "maladie" or (target_module == "auto" and any(k in q_norm for k in mal_keywords)):
             res = ia_maladie_service.answer_question(question)
             bindings = res.get("data", {}).get("results", {}).get("bindings", [])
-            donnees = []
+            raw_donnees = []
             for b in bindings:
                 item = {k: _clean_val(v.get("value", "")) for k, v in b.items()}
-                donnees.append(item)
+                raw_donnees.append(item)
 
-            # Réponse dynamique basée sur les données réelles
-            noms_mal = [d.get("nom") or d.get("maladie") or d.get("symptome") or "" for d in donnees]
-            noms_mal = [n for n in noms_mal if n]
+            # Déduplication des lignes
+            donnees = _dedup_dicts(raw_donnees)
+
+            # Détection ciblée de l'attribut principal à lister pour une réponse claire sans répétition
+            items_to_display = []
+            if any(k in q_norm for k in ["symptome", "signe"]):
+                items_to_display = [d.get("symptome") or d.get("symptomeGeneral") or d.get("symptomeCommun") or "" for d in donnees]
+            elif any(k in q_norm for k in ["medicament", "traite", "traitement"]):
+                items_to_display = [d.get("medicament") or d.get("nomMedicament") or "" for d in donnees]
+            elif any(k in q_norm for k in ["medecin", "docteur", "soigne", "suivi", "charge"]):
+                items_to_display = [d.get("medecin") or "" for d in donnees]
+            elif any(k in q_norm for k in ["patient"]):
+                items_to_display = [d.get("patient") or d.get("nom") or "" for d in donnees]
+            elif any(k in q_norm for k in ["pathogene", "agent", "virus", "bacterie"]):
+                items_to_display = [d.get("agentPathogene") or d.get("nom") or "" for d in donnees]
+            elif any(k in q_norm for k in ["gravite"]):
+                items_to_display = [f"Niveau {d.get('gravite')}" if d.get('gravite') else "" for d in donnees]
+
+            if not any(items_to_display):
+                items_to_display = [d.get("nom") or d.get("maladie") or d.get("maladieInfectieuse") or d.get("symptome") or "" for d in donnees]
+
+            unique_items = _dedup_list(items_to_display)
+
             if not donnees:
                 reponse_txt = f"Aucune maladie trouvée dans l'ontologie pour : « {question} »."
-            elif noms_mal:
-                reponse_txt = f"{len(donnees)} résultat(s) — {res.get('intention', '')} : {', '.join(noms_mal[:6])}."
+            elif unique_items:
+                reponse_txt = f"{len(donnees)} résultat(s) — {res.get('intention', '')} : {', '.join(unique_items[:6])}."
             else:
                 reponse_txt = f"{len(donnees)} résultat(s) extrait(s) de l'ontologie des maladies."
 
@@ -356,7 +421,7 @@ def ia_ask():
             for p in list(all_personnes.values()):
                 all_personnes[p["uri"]] = p
 
-            donnees = []
+            raw_donnees = []
             for b in bindings:
                 item = {k: _clean_val(v.get("value", "")) for k, v in b.items()}
 
@@ -390,7 +455,9 @@ def ia_ask():
                             item["role"] = _clean_val(item["type"])
                         if "role" in item:
                             item["role"] = _clean_val(item["role"])
-                donnees.append(item)
+                raw_donnees.append(item)
+
+            donnees = _dedup_dicts(raw_donnees)
 
             return jsonify({
                 "module": "Personnes",
@@ -450,6 +517,53 @@ def add_personne_api():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+# ----------------------------------------------------------------------
+# Routes CRUD interactif Ontologie (Action Modifier, Supprimer, + Ajouter)
+# ----------------------------------------------------------------------
+@app.route("/api/ontology/dynamic-entities", methods=["GET"])
+def get_dynamic_entities_api():
+    """Retourne la liste dynamique des entités de l'ontologie pour les formulaires."""
+    try:
+        entities = ontology_crud_service.get_dynamic_entities(rdflib_service.graph)
+        return jsonify(entities)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ontology/row/delete", methods=["POST"])
+def delete_ontology_row_api():
+    """Supprime une relation RDF sans supprimer le patient ou la maladie."""
+    body = request.get_json(force=True, silent=True) or {}
+    item = body.get("item", {})
+    try:
+        res = ontology_crud_service.delete_relation(item, reload_callback=reload_all_services)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/ontology/row/update", methods=["POST"])
+def update_ontology_row_api():
+    """Modifie une relation RDF dans l'ontologie."""
+    body = request.get_json(force=True, silent=True) or {}
+    old_item = body.get("old_item", {})
+    new_item = body.get("new_item", {})
+    try:
+        res = ontology_crud_service.update_relation(old_item, new_item, reload_callback=reload_all_services)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/ontology/row/add", methods=["POST"])
+def add_ontology_contextual_api():
+    """Ajoute une relation ou un individu selon le contexte de la question."""
+    body = request.get_json(force=True, silent=True) or {}
+    data_type = body.get("type", "")
+    data = body.get("data", {})
+    try:
+        res = ontology_crud_service.add_contextual_item(data_type, data, reload_callback=reload_all_services)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 @app.route("/api/graph", methods=["GET"])
 def get_graph():
     try:
@@ -481,6 +595,15 @@ def get_graph_maladie():
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ontology/maladie-structure", methods=["GET"])
+def get_ontology_maladie_structure():
+    try:
+        data = maladie_service.get_maladie_ontology_structure()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/ia-maladie/ask", methods=["POST"])
 def ia_maladie_ask():

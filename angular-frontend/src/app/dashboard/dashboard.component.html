@@ -508,63 +508,89 @@
               <div class="result-details">
                 <div class="response-header">
                   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                    <span class="badge badge-emerald">✓ Réponse IA</span>
-                    <span class="badge badge-rose">Module Maladies</span>
+                    @if (iaMaladieResult().is_modification) {
+                      <span class="badge badge-green" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;font-size:.8rem;padding:3px 10px;border-radius:99px;">✓ Ontologie OWL Modifiée</span>
+                      @if (iaMaladieResult().action) {
+                        <span class="badge badge-purple" style="font-size:.75rem;opacity:.9;">{{ iaMaladieResult().action }}</span>
+                      }
+                    } @else {
+                      <span class="badge badge-emerald">✓ Réponse IA</span>
+                      <span class="badge badge-rose">Module Maladies</span>
+                    }
                   </div>
                   <span class="res-count">{{ iaMaladieResult().count || 0 }} résultat(s)</span>
                 </div>
+
                 <div class="ia-human-response">{{ iaMaladieResult().reponse }}</div>
+
                 @if (iaMaladieResult().sparql) {
                   <div class="sparql-preview-box">
-                    <div class="sparql-code-bar"><span class="sparql-code-tag">SPARQL Généré</span></div>
+                    <div class="sparql-code-bar"><span class="sparql-code-tag">{{ iaMaladieResult().is_modification ? 'SPARQL INSERT/DELETE Exécuté' : 'SPARQL Généré' }}</span></div>
                     <pre class="sparql-code sparql-code-rose"><code>{{ iaMaladieResult().sparql }}</code></pre>
                   </div>
                 }
                 @if (iaMaladieResult().donnees?.length > 0) {
                   <div class="ia-data-table-wrap">
-                    <h4>Résultats extraits de l'ontologie :</h4>
+                    <div class="table-action-header">
+                      <div class="table-header-title">
+                        <h4>Résultats extraits de l'ontologie :</h4>
+                        <span class="table-entity-count">{{ iaMaladieResult().donnees.length }} élément(s)</span>
+                      </div>
+                      <!-- BOUTON CONTEXTUEL + AJOUTER SELON LA QUESTION -->
+                      @if (!getAddButtonConfig().hidden) {
+                        <button type="button" class="btn-contextual-add" (click)="openAddModal()" [title]="getAddButtonConfig().title">
+                          <span class="btn-add-icon">➕</span>
+                          <span>{{ getAddButtonConfig().label }}</span>
+                        </button>
+                      }
+                    </div>
+
                     <table class="onto-table">
                       <thead>
                         <tr>
-                          @if (iaMaladieResult().donnees[0]?.maladie || iaMaladieResult().donnees[0]?.nom) {
-                            <th>Maladie / Entité</th>
-                            <th>Symptôme / Type</th>
-                            <th>Code CIM</th>
-                            <th>Gravité</th>
-                            <th>Contagieuse</th>
-                          } @else if (iaMaladieResult().donnees[0]?.symptome) {
-                            <th>Symptôme</th><th>Nom</th>
-                          } @else if (iaMaladieResult().donnees[0]?.medicament) {
-                            <th>Médicament</th><th>Maladie traitée</th>
-                          } @else {
-                            <th>Entité</th><th>Valeur</th>
+                          @for (col of getMaladieColumns(iaMaladieResult().donnees); track col) {
+                            <th>{{ getColTitle(col) }}</th>
                           }
+                          <th style="text-align:center; min-width: 170px;">ACTION</th>
                         </tr>
                       </thead>
                       <tbody>
                         @for (item of iaMaladieResult().donnees; track $index) {
                           <tr>
-                            @if (item.maladie !== undefined || item.nom !== undefined) {
-                              <td class="col-name"><span class="name-text">{{ item.nom || item.maladie || '—' }}</span></td>
-                              <td><span class="badge badge-rose">{{ item.symptome || item.type || item.description || 'Maladie' }}</span></td>
-                              <td class="col-text">{{ item.codeCIM || '—' }}</td>
-                              <td class="col-text">{{ item.gravite || '—' }}</td>
-                              <td class="col-text">
-                                @if (item.contagieuse === 'true') { <span class="badge badge-amber">⚠ Oui</span> }
-                                @else if (item.contagieuse === 'false') { <span class="badge badge-dim">Non</span> }
-                                @else { <span>—</span> }
+                            @for (col of getMaladieColumns(iaMaladieResult().donnees); track col) {
+                              <td [ngClass]="{'col-name': col === 'patient' || col === 'maladie' || col === 'symptome' || col === 'medicament', 'col-text': true}">
+                                @if (col === 'contagieuse') {
+                                  @if (item[col] === 'true') { <span class="badge badge-amber">⚠ Oui</span> }
+                                  @else if (item[col] === 'false') { <span class="badge badge-dim">Non</span> }
+                                  @else { <span>{{ item[col] || '—' }}</span> }
+                                } @else if (col === 'medecin') {
+                                  <span class="badge badge-cyan">{{ item[col] || '—' }}</span>
+                                } @else if (col === 'patient') {
+                                  <span class="badge badge-emerald">{{ item[col] || '—' }}</span>
+                                } @else if (col === 'maladie' || col === 'maladieInfectieuse') {
+                                  <span class="name-text" style="font-weight:700;">{{ item[col] || '—' }}</span>
+                                } @else if (col === 'symptome' || col === 'symptomeGeneral' || col === 'symptomeCommun') {
+                                  <span class="badge badge-rose">{{ item[col] || '—' }}</span>
+                                } @else if (col === 'medicament') {
+                                  <span class="badge badge-purple">{{ item[col] || '—' }}</span>
+                                } @else if (col === 'nb_symptomes') {
+                                  <span class="badge badge-amber">{{ item[col] }} symptômes</span>
+                                } @else {
+                                  <span>{{ item[col] || '—' }}</span>
+                                }
                               </td>
-                            } @else if (item.symptome !== undefined) {
-                              <td class="col-name"><span class="name-text">{{ item.symptome }}</span></td>
-                              <td class="col-text">{{ item.nom || '—' }}</td>
-                            } @else if (item.medicament !== undefined) {
-                              <td class="col-name"><span class="name-text">{{ item.medicament }}</span></td>
-                              <td class="col-text">{{ item.maladie || item.nomMaladie || '—' }}</td>
-                            } @else {
-                              @for (kv of item | keyvalue; track kv.key) {
-                                <td class="col-text">{{ kv.value }}</td>
-                              }
                             }
+                            <!-- COLONNE ACTION : MODIFIER & SUPPRIMER -->
+                            <td class="action-cell" style="text-align:center;">
+                              <div class="row-actions-group">
+                                <button type="button" class="btn-row-edit" (click)="openEditModal(item)" title="Modifier cette relation dans l'ontologie">
+                                  <span>✏️ Modifier</span>
+                                </button>
+                                <button type="button" class="btn-row-delete" (click)="openDeleteModal(item)" title="Supprimer cette relation RDF">
+                                  <span>🗑️ Supprimer</span>
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         }
                       </tbody>
@@ -578,6 +604,110 @@
                 <p class="ia-empty-title">Interrogez l'ontologie des Maladies</p>
                 <p class="ia-empty-hint">Symptômes, traitements, agents pathogènes, codes CIM-10…</p>
               </div>
+            }
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MODULE MALADIE : Grille de Cartes & Filtres Ontologiques     -->
+        <!-- ============================================================ -->
+        <div class="maladies-catalog-block glass-panel" style="margin-top: 2rem;">
+          <div class="section-toolbar-maladie">
+            <div>
+              <h2 class="section-title-maladie">Module Maladie</h2>
+              <p class="subtitle-maladie">Maladies infectieuses, chroniques &amp; digestives définies dans <code>ontologie_maladie.owl</code></p>
+            </div>
+            <div class="filter-group-maladie">
+              <button type="button" class="mal-filter-pill" [class.active]="selectedMaladieFilter() === 'ALL'" (click)="setMaladieFilter('ALL')">
+                Toutes ({{ countAllMaladies() }})
+              </button>
+              <button type="button" class="mal-filter-pill" [class.active]="selectedMaladieFilter() === 'MaladieInfectieuse'" (click)="setMaladieFilter('MaladieInfectieuse')">
+                🦠 Infectieuses
+              </button>
+              <button type="button" class="mal-filter-pill" [class.active]="selectedMaladieFilter() === 'MaladieChronique'" (click)="setMaladieFilter('MaladieChronique')">
+                🗓️ Chroniques
+              </button>
+              <button type="button" class="mal-filter-pill" [class.active]="selectedMaladieFilter() === 'MaladieDigestive'" (click)="setMaladieFilter('MaladieDigestive')">
+                🫀 Digestives
+              </button>
+              <button type="button" class="btn-contextual-add" (click)="openAddMaladieModal()" title="Ajouter une nouvelle maladie à l'ontologie">
+                <span class="btn-add-icon">➕</span>
+                <span>+ Ajouter une maladie</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="cards-grid-maladies">
+            @for (m of filteredMaladies(); track m.id || $index) {
+              <div class="maladie-card-item">
+                <div class="maladie-card-header">
+                  <div class="maladie-avatar" [style.background]="getMaladieAvatarBg(m)">
+                    <span>{{ getMaladieIcon(m) }}</span>
+                  </div>
+                  <div class="maladie-info-box">
+                    <h3 class="maladie-name">{{ m.nom || m.id }}</h3>
+                    <div class="maladie-subrole" [style.color]="getMaladieGraviteColor(m)">
+                      {{ getMaladieMainTypeLabel(m) }}
+                    </div>
+                    <div class="maladie-badges-row">
+                      <span class="badge badge-gravite" [style.background]="getMaladieGraviteColor(m) + '22'" [style.color]="getMaladieGraviteColor(m)" [style.border]="'1px solid ' + getMaladieGraviteColor(m) + '55'">
+                        ● Gravité : {{ getMaladieGraviteLabel(m) }}
+                      </span>
+                      @if (m.codeCIM) {
+                        <span class="badge badge-cim">CIM-10: {{ m.codeCIM }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <div class="maladie-card-details">
+                  <div class="detail-line">
+                    <span class="detail-label">Statut</span>
+                    <span class="detail-val">
+                      {{ m.contagieuse === 'true' ? '⚠️ Contagieuse' : '✅ Non contagieuse' }} ·
+                      {{ m.chronique === 'true' ? '🩺 Chronique' : '🫁 Aiguë' }}
+                    </span>
+                  </div>
+                  @if (m.duree) {
+                    <div class="detail-line">
+                      <span class="detail-label">Durée</span>
+                      <span class="detail-val">{{ m.duree }}</span>
+                    </div>
+                  }
+                  <div class="detail-line-chips">
+                    <span class="detail-label">🔬 Symptômes</span>
+                    <div class="chips-flex">
+                      @for (s of m.symptomes; track s) {
+                        <span class="chip-symptome" (click)="onAskMaladies('Quels sont les symptômes de ' + (m.nom || m.id) + ' ?')">{{ s }}</span>
+                      } @empty {
+                        <span class="chip-empty">Aucun</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="detail-line-chips">
+                    <span class="detail-label">💊 Traitements</span>
+                    <div class="chips-flex">
+                      @for (t of m.medicaments; track t) {
+                        <span class="chip-traitement" (click)="onAskMaladies('Quels médicaments traitent ' + (m.nom || m.id) + ' ?')">{{ t }}</span>
+                      } @empty {
+                        <span class="chip-empty">Aucun</span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- ACTIONS CRUD SUR LA MALADIE -->
+                  <div class="card-actions-footer">
+                    <button type="button" class="btn-card-action-edit" (click)="openEditMaladieCard(m)" title="Modifier cette maladie dans l'ontologie">
+                      <span>✏️ Modifier</span>
+                    </button>
+                    <button type="button" class="btn-card-action-delete" (click)="openDeleteMaladieCard(m)" title="Supprimer cette maladie de l'ontologie">
+                      <span>🗑️ Supprimer</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <p class="empty-msg">Aucune maladie trouvée dans cette catégorie.</p>
             }
           </div>
         </div>
@@ -738,29 +868,119 @@
     <!-- ============================================================ -->
     <!-- TAB: CONSOLE SPARQL                                          -->
     <!-- ============================================================ -->
+    <!-- ============================================================ -->
+    <!-- TAB: CONSOLE SPARQL ENDPOINT                                 -->
+    <!-- ============================================================ -->
     @if (activeTab() === 'sparql') {
       <section class="tab-content">
         <div class="sparql-console glass-panel">
           <div class="console-header">
             <div>
-              <h2>Console SPARQL Endpoint</h2>
-              <p class="panel-sub">Exécutez vos requêtes SPARQL directement sur le graphe RDFLib.</p>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h2>Console SPARQL Endpoint</h2>
+                <span class="badge badge-emerald" style="font-size: 0.72rem;">Unified Graph (Personne + Maladie)</span>
+              </div>
+              <p class="panel-sub">Exécutez vos requêtes SPARQL directement sur le graphe unifié RDFLib / Apache Jena Fuseki.</p>
             </div>
-            <button type="button" class="btn-primary" (click)="onExecuteSparql()" [disabled]="sparqlLoading()">
-              <span>▶ Exécuter</span>
-            </button>
+            <div class="console-actions" style="display: flex; gap: 10px; align-items: center;">
+              <button type="button" class="btn-clear-editor" (click)="sparqlQuery = ''" [disabled]="sparqlLoading()">
+                🗑️ Effacer
+              </button>
+              <button type="button" class="btn-primary" (click)="onExecuteSparql()" [disabled]="sparqlLoading() || !sparqlQuery.trim()">
+                <span>▶ Exécuter la Requête</span>
+              </button>
+            </div>
           </div>
 
-          <textarea class="sparql-editor" rows="10" [(ngModel)]="sparqlQuery" placeholder="Entrez votre requête SPARQL..."></textarea>
+          <!-- Sélecteur de Catégorie de Requêtes Prédéfinies -->
+          <div class="sparql-quick-header">
+            <span class="sparql-quick-title">⚡ Modèles de Requêtes Rapides :</span>
+            <div class="sparql-category-tabs">
+              <button type="button" class="category-btn" [class.active]="sparqlCategory() === 'maladie'" (click)="sparqlCategory.set('maladie')">
+                🩺 Classe Maladie (18 Requêtes)
+              </button>
+              <button type="button" class="category-btn" [class.active]="sparqlCategory() === 'personne'" (click)="sparqlCategory.set('personne')">
+                👤 Classe Personne (6 Requêtes)
+              </button>
+            </div>
+          </div>
+
+          <!-- Suggestions Maladie (18 requêtes) -->
+          @if (sparqlCategory() === 'maladie') {
+            <div class="sparql-suggestions-grid">
+              @for (item of sparqlTemplatesMaladie; track item.label) {
+                <button type="button" class="sparql-sugg-btn sugg-maladie" (click)="loadSparqlTemplate(item)" [title]="item.label">
+                  <span class="sugg-icon">🩺</span>
+                  <span class="sugg-text">{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Suggestions Personne (6 requêtes) -->
+          @if (sparqlCategory() === 'personne') {
+            <div class="sparql-suggestions-grid">
+              @for (item of sparqlTemplatesPersonne; track item.label) {
+                <button type="button" class="sparql-sugg-btn sugg-personne" (click)="loadSparqlTemplate(item)" [title]="item.label">
+                  <span class="sugg-icon">👤</span>
+                  <span class="sugg-text">{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Éditeur SPARQL -->
+          <div class="editor-wrap">
+            <div class="editor-bar">
+              <span class="editor-lang">SPARQL 1.1 Query</span>
+              <span class="editor-hint">Cliquez sur un modèle ci-dessus ou écrivez votre requête personnalisée</span>
+            </div>
+            <textarea class="sparql-editor" rows="11" [(ngModel)]="sparqlQuery" placeholder="Entrez votre requête SPARQL..."></textarea>
+          </div>
 
           @if (sparqlLoading()) {
-            <div class="state-box"><span class="spinner-dot"></span><p>Exécution SPARQL...</p></div>
+            <div class="state-box"><span class="spinner-dot"></span><p>Exécution SPARQL en cours sur le graphe unifié...</p></div>
           } @else if (sparqlError()) {
             <div class="alert alert-error"><span>⚠️</span><span>{{ sparqlError() }}</span></div>
           } @else if (sparqlResult()) {
             <div class="sparql-res-wrap">
-              <h4>Résultats :</h4>
-              <pre class="json-code"><code>{{ sparqlResult() | json }}</code></pre>
+              <div class="sparql-res-header">
+                <div class="res-count-badge">
+                  <span class="res-check">✓</span>
+                  <strong>{{ getSparqlBindings().length }}</strong> résultat(s) extrait(s)
+                </div>
+                <div class="res-view-toggle">
+                  <button type="button" class="view-btn" [class.active]="sparqlViewMode() === 'table'" (click)="sparqlViewMode.set('table')">📊 Tableau</button>
+                  <button type="button" class="view-btn" [class.active]="sparqlViewMode() === 'json'" (click)="sparqlViewMode.set('json')">📄 JSON Brut</button>
+                </div>
+              </div>
+
+              @if (sparqlViewMode() === 'table' && getSparqlBindings().length > 0) {
+                <div class="table-container-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        @for (col of getSparqlVars(); track col) {
+                          <th>{{ getColTitle(col) }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of getSparqlBindings(); track $index) {
+                        <tr>
+                          @for (col of getSparqlVars(); track col) {
+                            <td>
+                              <span class="badge" [ngClass]="getColBadgeClass(col)">{{ cleanSparqlVal(row[col]) }}</span>
+                            </td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <pre class="json-code"><code>{{ sparqlResult() | json }}</code></pre>
+              }
             </div>
           }
         </div>
@@ -811,6 +1031,689 @@
           </div>
         </div>
       </section>
+    }
+
+    <!-- ============================================================ -->
+    <!-- MODAL POPUP : MODIFIER LA RELATION                           -->
+    <!-- ============================================================ -->
+    @if (editModalOpen()) {
+      <div class="onto-modal-backdrop" (click)="closeEditModal()">
+        <div class="onto-modal-card" (click)="$event.stopPropagation()">
+          <div class="onto-modal-header">
+            <div class="modal-title-wrap">
+              <span class="modal-icon">✏️</span>
+              <div>
+                <h3 class="modal-title">Modifier la relation dans l'ontologie</h3>
+                <p class="modal-subtitle">Mise à jour directe du graphe RDF</p>
+              </div>
+            </div>
+            <button type="button" class="btn-close-modal" (click)="closeEditModal()">✕</button>
+          </div>
+
+          <div class="onto-modal-body">
+            <div class="onto-info-box">
+              <span class="info-icon">ℹ️</span>
+              <p>Cette action modifie la relation RDF concernée sans supprimer les entités associées ni la structure des classes OWL.</p>
+            </div>
+
+            @if (editError()) {
+              <div class="alert alert-error"><span>⚠️</span><span>{{ editError() }}</span></div>
+            }
+
+            <div class="modal-form-grid">
+              @for (col of getMaladieColumns([editingRow()]); track col) {
+                <div class="form-group-onto">
+                  <label class="onto-label">{{ getColTitle(col) }}</label>
+
+                  <!-- Sélecteur dynamique Patient -->
+                  @if (col === 'patient' && dynamicEntities().patients.length > 0) {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      @for (p of dynamicEntities().patients; track p) {
+                        <option [value]="p">{{ p }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Sélecteur dynamique Maladie -->
+                  @else if ((col === 'maladie' || col === 'maladieInfectieuse') && dynamicEntities().maladies.length > 0 && (editingRow().patient || editingRow().symptome || editingRow().medicament || editingRow().medecin)) {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      @for (m of dynamicEntities().maladies; track m) {
+                        <option [value]="m">{{ m }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Type de maladie -->
+                  @else if (col === 'type') {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      @for (t of dynamicEntities().types_maladie; track t) {
+                        <option [value]="t">{{ t }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Gravité -->
+                  @else if (col === 'gravite') {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      <option value="1">1 - Légère</option>
+                      <option value="2">2 - Modérée</option>
+                      <option value="3">3 - Grave / Sévère</option>
+                    </select>
+                  }
+                  <!-- Sélecteur dynamique Symptôme -->
+                  @else if (col.includes('symptome') && dynamicEntities().symptomes.length > 0) {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      @for (s of dynamicEntities().symptomes; track s) {
+                        <option [value]="s">{{ s }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Sélecteur dynamique Médicament -->
+                  @else if (col.includes('medicament') && dynamicEntities().medicaments.length > 0) {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      @for (med of dynamicEntities().medicaments; track med) {
+                        <option [value]="med">{{ med }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Sélecteur dynamique Médecin -->
+                  @else if (col === 'medecin' && dynamicEntities().medecins.length > 0) {
+                    <select [(ngModel)]="editFormData[col]" class="onto-select">
+                      @for (d of dynamicEntities().medecins; track d) {
+                        <option [value]="d">{{ d }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Champ texte générique -->
+                  @else {
+                    <input type="text" [(ngModel)]="editFormData[col]" class="onto-input" />
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="onto-modal-footer">
+            <button type="button" class="btn-modal-cancel" (click)="closeEditModal()" [disabled]="editLoading()">Annuler</button>
+            <button type="button" class="btn-modal-save" (click)="saveEditModal()" [disabled]="editLoading()">
+              @if (editLoading()) { <span>Enregistrement...</span> } @else { <span>Enregistrer la modification</span> }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- MODAL POPUP : CONFIRMATION DE SUPPRESSION                     -->
+    <!-- ============================================================ -->
+    @if (deleteModalOpen()) {
+      <div class="onto-modal-backdrop" (click)="closeDeleteModal()">
+        <div class="onto-modal-card modal-card-danger" (click)="$event.stopPropagation()">
+          <div class="onto-modal-header danger-header">
+            <div class="modal-title-wrap">
+              <span class="modal-icon danger-icon">⚠️</span>
+              <div>
+                <h3 class="modal-title" style="color: #ef4444;">Confirmation de suppression</h3>
+                <p class="modal-subtitle">Suppression de la relation RDF</p>
+              </div>
+            </div>
+            <button type="button" class="btn-close-modal" (click)="closeDeleteModal()">✕</button>
+          </div>
+
+          <div class="onto-modal-body">
+            <p class="delete-confirm-text">
+              Êtes-vous sûr de vouloir supprimer <strong>{{ getDeletableLabel(deletingRow()) }}</strong> ?
+            </p>
+
+            <!-- Précision essentielle demandée par l'utilisateur -->
+            <div class="onto-notice-box-warning">
+              <span class="warning-badge-icon">ℹ️</span>
+              <div class="warning-text">
+                <strong>Précision Ontologique importante :</strong>
+                <p>
+                  Cette action supprime uniquement la relation (triplet RDF) concernée.
+                  <strong>Ni le patient, ni la maladie, ni la classe OWL ne sont supprimés de l'ontologie.</strong>
+                </p>
+              </div>
+            </div>
+
+            @if (deleteError()) {
+              <div class="alert alert-error" style="margin-top: 1rem;"><span>⚠️</span><span>{{ deleteError() }}</span></div>
+            }
+          </div>
+
+          <div class="onto-modal-footer">
+            <button type="button" class="btn-modal-cancel" (click)="closeDeleteModal()" [disabled]="deleteLoading()">Annuler</button>
+            <button type="button" class="btn-modal-danger" (click)="confirmDeleteModal()" [disabled]="deleteLoading()">
+              @if (deleteLoading()) { <span>Suppression...</span> } @else { <span>🗑️ Confirmer la suppression</span> }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- MODAL POPUP : AJOUT CONTEXTUEL (+ AJOUTER SELON QUESTION)     -->
+    <!-- ============================================================ -->
+    @if (addModalOpen()) {
+      <div class="onto-modal-backdrop" (click)="closeAddModal()">
+        <div class="onto-modal-card" (click)="$event.stopPropagation()">
+          <div class="onto-modal-header">
+            <div class="modal-title-wrap">
+              <span class="modal-icon">➕</span>
+              <div>
+                <h3 class="modal-title">{{ getAddButtonConfig().title }}</h3>
+                <p class="modal-subtitle">Formulaire dynamique issu de l'ontologie</p>
+              </div>
+            </div>
+            <button type="button" class="btn-close-modal" (click)="closeAddModal()">✕</button>
+          </div>
+
+          <div class="onto-modal-body">
+            <div class="onto-info-box">
+              <span class="info-icon">⚡</span>
+              <p>Formulaire contextuel configuré pour la question : « <em>{{ iaMaladieQuestion }}</em> ».</p>
+            </div>
+
+            @if (addError()) {
+              <div class="alert alert-error"><span>⚠️</span><span>{{ addError() }}</span></div>
+            }
+
+            <div class="modal-form-grid">
+              @for (f of getAddButtonConfig().fields; track f) {
+                <div class="form-group-onto">
+                  <label class="onto-label">{{ getColTitle(f) }}</label>
+
+                  <!-- Patient -->
+                  @if (f === 'patient') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select" [disabled]="!!getAddButtonConfig().prefill['patient']">
+                      @for (p of dynamicEntities().patients; track p) {
+                        <option [value]="p">{{ p }}</option>
+                      }
+                    </select>
+                    @if (getAddButtonConfig().allowNew['patient']) {
+                      <div class="or-divider"><span>ou saisir un nouveau patient</span></div>
+                      <input type="text" [(ngModel)]="addFormData['nouveau_patient']" class="onto-input" placeholder="Ex: Patient_Khaled" />
+                    }
+                  }
+                  <!-- Maladie -->
+                  @else if (f === 'maladie') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select" [disabled]="!!getAddButtonConfig().prefill['maladie']">
+                      @for (m of dynamicEntities().maladies; track m) {
+                        <option [value]="m">{{ m }}</option>
+                      }
+                    </select>
+                    @if (getAddButtonConfig().allowNew['maladie']) {
+                      <div class="or-divider"><span>ou saisir une nouvelle maladie</span></div>
+                      <input type="text" [(ngModel)]="addFormData['nouvelle_maladie']" class="onto-input" placeholder="Ex: BronchiteChronique, Covid19..." />
+                    }
+                  }
+                  <!-- Symptôme -->
+                  @else if (f === 'symptome') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select">
+                      @for (s of dynamicEntities().symptomes; track s) {
+                        <option [value]="s">{{ s }}</option>
+                      }
+                    </select>
+                    @if (getAddButtonConfig().allowNew['symptome']) {
+                      <div class="or-divider"><span>ou saisir un nouveau symptôme</span></div>
+                      <input type="text" [(ngModel)]="addFormData['nouveau_symptome']" class="onto-input" placeholder="Ex: Eternuements, Frissons, Vertiges..." />
+                    }
+                  }
+                  <!-- Médicament -->
+                  @else if (f === 'medicament') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select">
+                      @for (med of dynamicEntities().medicaments; track med) {
+                        <option [value]="med">{{ med }}</option>
+                      }
+                    </select>
+                    @if (getAddButtonConfig().allowNew['medicament']) {
+                      <div class="or-divider"><span>ou saisir un nouveau médicament</span></div>
+                      <input type="text" [(ngModel)]="addFormData['nouveau_medicament']" class="onto-input" placeholder="Ex: Ibuprofene, Aspirine, Cortisone..." />
+                    }
+                  }
+                  <!-- Médecin -->
+                  @else if (f === 'medecin') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select">
+                      @for (d of dynamicEntities().medecins; track d) {
+                        <option [value]="d">{{ d }}</option>
+                      }
+                    </select>
+                    @if (getAddButtonConfig().allowNew['medecin']) {
+                      <div class="or-divider"><span>ou saisir un nouveau médecin</span></div>
+                      <input type="text" [(ngModel)]="addFormData['nouveau_medecin']" class="onto-input" placeholder="Ex: Dr_Sami, Dr_Fatma..." />
+                    }
+                  }
+                  <!-- Type de maladie -->
+                  @else if (f === 'type') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select" [disabled]="!!getAddButtonConfig().prefill['type']">
+                      @for (t of dynamicEntities().types_maladie; track t) {
+                        <option [value]="t">{{ t }}</option>
+                      }
+                    </select>
+                  }
+                  <!-- Type de symptôme -->
+                  @else if (f === 'type_symptome') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select" disabled>
+                      <option value="SymptomeDigestif">SymptomeDigestif</option>
+                      <option value="SymptomeGeneral">SymptomeGeneral</option>
+                      <option value="SymptomeRespiratoire">SymptomeRespiratoire</option>
+                    </select>
+                  }
+                  <!-- Gravité -->
+                  @else if (f === 'gravite') {
+                    <select [(ngModel)]="addFormData[f]" class="onto-select">
+                      <option value="1">1 - Légère</option>
+                      <option value="2">2 - Modérée</option>
+                      <option value="3">3 - Grave / Sévère</option>
+                    </select>
+                  }
+                  <!-- Nom (champ de saisie) -->
+                  @else if (f === 'nom') {
+                    <input type="text" [(ngModel)]="addFormData[f]" class="onto-input" placeholder="Saisir le nom..." />
+                  }
+                  <!-- Autre champ texte -->
+                  @else {
+                    <input type="text" [(ngModel)]="addFormData[f]" class="onto-input" placeholder="Saisir {{ getColTitle(f) }}..." />
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="onto-modal-footer">
+            <button type="button" class="btn-modal-cancel" (click)="closeAddModal()" [disabled]="addLoading()">Annuler</button>
+            <button type="button" class="btn-modal-save" (click)="saveAddModal()" [disabled]="addLoading()">
+              @if (addLoading()) { <span>Enregistrement...</span> } @else { <span>Ajouter à l'ontologie</span> }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- MODAL : STRUCTURE ONTOLOGIQUE DE LA CLASSE MALADIE (OWL 2)   -->
+    <!-- ============================================================ -->
+    @if (maladieOntologyModalOpen()) {
+      <div class="onto-modal-backdrop" (click)="closeMaladieOntologyModal()">
+        <div class="onto-modal-dialog onto-modal-dialog-large" (click)="$event.stopPropagation()">
+          <!-- Header -->
+          <div class="onto-modal-header onto-modal-header-maladie">
+            <div class="onto-modal-header-icon-box">
+              <span class="onto-modal-header-icon">🏛️</span>
+            </div>
+            <div class="onto-modal-title-group">
+              <div class="onto-modal-badge-row">
+                <span class="badge badge-owl">owl:Class</span>
+                <span class="badge badge-ns">http://example.org/ontologie-maladie#Maladie</span>
+              </div>
+              <h3 class="onto-modal-title">Ontologie de la Classe Maladie</h3>
+              <p class="onto-modal-subtitle">
+                Taxonomie formelle OWL 2, Sous-classes, Axiomes de disjonction, Object &amp; Data Properties
+              </p>
+            </div>
+            <button type="button" class="onto-modal-close-btn" (click)="closeMaladieOntologyModal()" title="Fermer">✕</button>
+          </div>
+
+          <!-- Quick Metrics Bar -->
+          <div class="onto-metrics-bar">
+            <div class="onto-metric-item">
+              <span class="metric-icon">🎯</span>
+              <div class="metric-text">
+                <span class="metric-label">Super-classe</span>
+                <strong class="metric-val">owl:Thing</strong>
+              </div>
+            </div>
+            <div class="onto-metric-item">
+              <span class="metric-icon">🌿</span>
+              <div class="metric-text">
+                <span class="metric-label">Branches directes</span>
+                <strong class="metric-val">3 sous-classes</strong>
+              </div>
+            </div>
+            <div class="onto-metric-item">
+              <span class="metric-icon">🧬</span>
+              <div class="metric-text">
+                <span class="metric-label">Sous-classes feuilles</span>
+                <strong class="metric-val">5 classes spécialisées</strong>
+              </div>
+            </div>
+            <div class="onto-metric-item">
+              <span class="metric-icon">🧠</span>
+              <div class="metric-text">
+                <span class="metric-label">Classes définies (IA)</span>
+                <strong class="metric-val">3 inférences</strong>
+              </div>
+            </div>
+            <div class="onto-metric-item">
+              <span class="metric-icon">🔗</span>
+              <div class="metric-text">
+                <span class="metric-label">Object Properties</span>
+                <strong class="metric-val">8 relations</strong>
+              </div>
+            </div>
+            <div class="onto-metric-item">
+              <span class="metric-icon">📝</span>
+              <div class="metric-text">
+                <span class="metric-label">Data Properties</span>
+                <strong class="metric-val">7 attributs</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Navigation -->
+          <div class="onto-tabs-header">
+            <button type="button" class="onto-tab-btn" [class.active]="maladieOntologyTab() === 'tree'" (click)="setMaladieOntologyTab('tree')">
+              🌳 Taxonomie &amp; Sous-Classes
+            </button>
+            <button type="button" class="onto-tab-btn" [class.active]="maladieOntologyTab() === 'properties'" (click)="setMaladieOntologyTab('properties')">
+              🔗 Object Properties (Relations)
+            </button>
+            <button type="button" class="onto-tab-btn" [class.active]="maladieOntologyTab() === 'axioms'" (click)="setMaladieOntologyTab('axioms')">
+              🏷️ Data Properties &amp; Axiomes
+            </button>
+            <button type="button" class="onto-tab-btn" [class.active]="maladieOntologyTab() === 'code'" (click)="setMaladieOntologyTab('code')">
+              📜 Définition OWL / Protégé
+            </button>
+          </div>
+
+          <!-- Body content -->
+          <div class="onto-modal-body onto-modal-body-scrollable">
+            @if (loadingMaladieOntology()) {
+              <div class="onto-loading-state">
+                <div class="spinner"></div>
+                <p>Chargement de la structure ontologique depuis <code>ontologie_maladie.owl</code>...</p>
+              </div>
+            } @else {
+
+              <!-- TAB 1 : ARBRE TAXONOMIQUE -->
+              @if (maladieOntologyTab() === 'tree') {
+                <div class="onto-tab-content">
+                  <div class="onto-tree-search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" [(ngModel)]="maladieOntologySearch" placeholder="Filtrer une classe, sous-classe ou individu de maladie..." class="onto-search-input" />
+                    @if (maladieOntologySearch()) {
+                      <button type="button" class="clear-search-btn" (click)="maladieOntologySearch.set('')">✕</button>
+                    }
+                  </div>
+
+                  <!-- Root Class Card -->
+                  <div class="onto-root-card">
+                    <div class="onto-root-header">
+                      <span class="onto-root-badge">owl:Thing</span>
+                      <span class="onto-arrow">➔</span>
+                      <span class="onto-root-class">mal:Maladie</span>
+                      <span class="badge badge-superclass">Classe Racine Médicale</span>
+                      <span class="badge badge-count">{{ countAllMaladies() }} Individus dans l'ontologie</span>
+                    </div>
+                    <p class="onto-root-comment">
+                      « Toute affection pathologique dans le système médical. Classe générique parente de toutes les maladies infectieuses, chroniques et digestives. »
+                    </p>
+                  </div>
+
+                  <!-- Subclasses Branches -->
+                  <div class="onto-branches-grid">
+                    @for (sc of getFilteredOntoSubclasses(); track sc.id) {
+                      <div class="onto-branch-card" [style.border-top-color]="sc.color">
+                        <div class="branch-card-header">
+                          <div class="branch-icon-title">
+                            <span class="branch-icon">{{ sc.icon }}</span>
+                            <div>
+                              <h4 class="branch-title">{{ sc.name }}</h4>
+                              <code class="branch-code">mal:{{ sc.id }}</code>
+                            </div>
+                          </div>
+                          <span class="badge badge-branch-count" [style.background]="sc.color + '22'" [style.color]="sc.color">
+                            {{ sc.individuals?.length || 0 }} cas
+                          </span>
+                        </div>
+
+                        <p class="branch-desc">{{ sc.description }}</p>
+
+                        <!-- Disjoint Axiom Badge -->
+                        @if (sc.disjointWith?.length) {
+                          <div class="disjoint-pill">
+                            <span class="disjoint-label">Disjointe de :</span>
+                            @for (dj of sc.disjointWith; track dj) {
+                              <span class="dj-tag">⊘ {{ dj }}</span>
+                            }
+                          </div>
+                        }
+
+                        <!-- Specialized Child Classes -->
+                        @if (sc.children?.length) {
+                          <div class="children-classes-box">
+                            <span class="children-title">Sous-classes spécialisées :</span>
+                            <div class="children-list">
+                              @for (child of sc.children; track child.id) {
+                                <div class="child-class-card">
+                                  <div class="child-header">
+                                    <span class="child-icon">{{ child.icon }}</span>
+                                    <strong class="child-name">{{ child.name }}</strong>
+                                    <code class="child-iri">mal:{{ child.id }}</code>
+                                    @if (child.disjointWith?.length) {
+                                      <span class="badge badge-dj" title="Disjoint avec {{ child.disjointWith.join(', ') }}">
+                                        ⊘ Disjoint: {{ child.disjointWith[0] }}
+                                      </span>
+                                    }
+                                  </div>
+                                  <p class="child-desc">{{ child.description }}</p>
+                                  @if (child.individuals?.length) {
+                                    <div class="child-indiv-row">
+                                      <span class="indiv-label">Individus OWL :</span>
+                                      @for (ind of child.individuals; track ind.id) {
+                                        <span class="indiv-badge">{{ ind.nom || ind.id }}</span>
+                                      }
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+
+                        <!-- Attached Individuals List -->
+                        <div class="branch-individuals-box">
+                          <span class="indiv-title">Individus instanciés ({{ sc.individuals?.length || 0 }}) :</span>
+                          <div class="indiv-chips-wrap">
+                            @for (ind of sc.individuals; track ind.id) {
+                              <span class="indiv-chip" [style.border-color]="sc.color + '66'">
+                                <span class="chip-name">{{ ind.nom || ind.id }}</span>
+                                @if (ind.codeCIM) {
+                                  <span class="chip-cim">{{ ind.codeCIM }}</span>
+                                }
+                              </span>
+                            }
+                            @if (!sc.individuals?.length) {
+                              <span class="text-muted-empty">Aucun individu directement lié.</span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- TAB 2 : OBJECT PROPERTIES (RELATIONS) -->
+              @if (maladieOntologyTab() === 'properties') {
+                <div class="onto-tab-content">
+                  <div class="onto-section-intro">
+                    <p>
+                      Les <strong>Object Properties</strong> relient la classe <code>Maladie</code> à d'autres concepts de l'écosystème médical (Symptômes, Médicaments, Médecins, Patients, Opérations).
+                    </p>
+                  </div>
+
+                  <div class="properties-cards-grid">
+                    @for (prop of getFilteredOntoProperties(); track prop.name) {
+                      <div class="prop-card">
+                        <div class="prop-card-header">
+                          <div class="prop-name-box">
+                            <span class="prop-prefix">ObjectProperty</span>
+                            <h4 class="prop-name">mal:{{ prop.name }}</h4>
+                          </div>
+                          @if (prop.characteristics?.length) {
+                            <span class="badge badge-transitive">{{ prop.characteristics[0] }}</span>
+                          }
+                        </div>
+
+                        <!-- Relation Schema Diagram -->
+                        <div class="prop-relation-flow">
+                          <div class="flow-node flow-node-domain">
+                            <span class="node-label">Domaine (rdfs:domain)</span>
+                            <strong class="node-name">{{ prop.domain }}</strong>
+                          </div>
+                          <div class="flow-arrow">
+                            <span class="arrow-line">──────▶</span>
+                            <span class="arrow-label">{{ prop.name }}</span>
+                          </div>
+                          <div class="flow-node flow-node-range">
+                            <span class="node-label">Portée (rdfs:range)</span>
+                            <strong class="node-name">{{ prop.range }}</strong>
+                          </div>
+                        </div>
+
+                        <p class="prop-desc">{{ prop.description }}</p>
+
+                        <div class="prop-footer-info">
+                          <div class="inverse-info">
+                            <span class="info-k">Inverse (owl:inverseOf) :</span>
+                            <code class="info-v">{{ prop.inverse }}</code>
+                          </div>
+                          <div class="label-info">
+                            <span class="info-k">Label français :</span>
+                            <span class="info-v-txt">« {{ prop.label }} »</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- TAB 3 : DATA PROPERTIES & AXIOMES -->
+              @if (maladieOntologyTab() === 'axioms') {
+                <div class="onto-tab-content">
+                  <div class="onto-section-intro">
+                    <p>
+                      Attributs scalaires (<strong>Datatype Properties</strong>) de la classe <code>Maladie</code> et axiomes de contrainte logique (<strong>AllDisjointClasses</strong>, <strong>Classes Définies</strong>).
+                    </p>
+                  </div>
+
+                  <!-- Classes Définies / Inférences -->
+                  <h4 class="onto-subheading">🧠 Classes Définies &amp; Inférences Logiques (Raisonnement HermiT / Pellet)</h4>
+                  <div class="defined-classes-grid">
+                    @for (dc of maladieOntologyData()?.defined_classes || []; track dc.name) {
+                      <div class="defined-class-card">
+                        <div class="dc-header">
+                          <span class="badge badge-owl-eq">owl:equivalentClass</span>
+                          <h5 class="dc-title">mal:{{ dc.name }}</h5>
+                        </div>
+                        <div class="dc-axiom-box">
+                          <code>{{ dc.axiom }}</code>
+                        </div>
+                        <p class="dc-desc">{{ dc.description }}</p>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Datatype Properties Table -->
+                  <h4 class="onto-subheading" style="margin-top: 2rem;">📝 Datatype Properties (Attributs Littéraux de Maladie)</h4>
+                  <div class="onto-table-wrap">
+                    <table class="onto-table">
+                      <thead>
+                        <tr>
+                          <th>Propriété</th>
+                          <th>Type XML Schema</th>
+                          <th>Contrainte OWL</th>
+                          <th>Domaine</th>
+                          <th>Description &amp; Rôle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (dp of getFilteredOntoDatatypeProperties(); track dp.name) {
+                          <tr>
+                            <td>
+                              <code class="table-prop-code">mal:{{ dp.name }}</code>
+                            </td>
+                            <td>
+                              <span class="badge badge-type">{{ dp.type }}</span>
+                            </td>
+                            <td>
+                              @if (dp.characteristics?.length) {
+                                <span class="badge badge-functional">{{ dp.characteristics[0].replace('owl:', '') }}</span>
+                              } @else {
+                                <span class="text-muted-dash">—</span>
+                              }
+                            </td>
+                            <td>
+                              <span class="badge badge-domain">{{ dp.domain }}</span>
+                            </td>
+                            <td class="table-desc">{{ dp.description }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Disjoint Axioms Section -->
+                  <h4 class="onto-subheading" style="margin-top: 2rem;">🛡️ Axiomes de Disjonction (owl:AllDisjointClasses)</h4>
+                  <div class="axioms-cards-list">
+                    @for (ax of maladieOntologyData()?.axioms || []; track ax.description) {
+                      <div class="axiom-item-card">
+                        <div class="axiom-badge-type">
+                          <span class="badge badge-axiom">{{ ax.type }}</span>
+                        </div>
+                        <div class="axiom-content">
+                          <div class="axiom-elements">
+                            @for (el of ax.elements; track el) {
+                              <span class="axiom-tag">{{ el }}</span>
+                            }
+                          </div>
+                          <p class="axiom-note">{{ ax.description }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- TAB 4 : CODE OWL / MANCHESTER / PROTÉGÉ -->
+              @if (maladieOntologyTab() === 'code') {
+                <div class="onto-tab-content">
+                  <div class="onto-code-toolbar">
+                    <span class="code-lang-badge">RDF / Turtle · Protégé OWL 2</span>
+                    <button type="button" class="btn-copy-code" (click)="copyOntologyCode(owlCodeSnippet)">
+                      <span>📋</span>
+                      <span>Copier le code OWL</span>
+                    </button>
+                  </div>
+
+                  <pre class="onto-code-block"><code>{{ owlCodeSnippet }}</code></pre>
+                </div>
+              }
+
+            }
+          </div>
+
+          <!-- Footer -->
+          <div class="onto-modal-footer">
+            <div class="footer-status-info">
+              <span class="dot-online"></span>
+              <span>Fichier source : <code>ontologie_maladie.owl</code> (Hot-Reload 3s actif)</span>
+            </div>
+            <button type="button" class="btn-modal-cancel" (click)="closeMaladieOntologyModal()">Fermer</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- TOAST NOTIFICATION                                           -->
+    <!-- ============================================================ -->
+    @if (toastMessage()) {
+      <div class="onto-toast-notification" [class.toast-error]="toastType() === 'error'">
+        <span class="toast-icon">{{ toastType() === 'error' ? '⚠️' : '✓' }}</span>
+        <span class="toast-body">{{ toastMessage() }}</span>
+        <button type="button" class="toast-close-btn" (click)="toastMessage.set('')">✕</button>
+      </div>
     }
 
   </main>
