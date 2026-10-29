@@ -35,6 +35,10 @@ export class ApiService {
     return this.http.get<any[]>('/api/maladies');
   }
 
+  getMaladieOntologyStructure(): Observable<any> {
+    return this.http.get<any>('/api/ontology/maladie-structure');
+  }
+
   // ── Medicaments ───────────────────────────────────────
   getMedicaments(): Observable<any[]> {
     return this.http.get<any[]>('/api/medicaments');
@@ -69,5 +73,22 @@ export class ApiService {
   // ── Reload OWL ────────────────────────────────────────
   reloadOntologie(): Observable<any> {
     return this.http.post<any>('/api/reload', {});
+  }
+
+  // ── CRUD Ontologie Interactif ─────────────────────────
+  getDynamicEntities(): Observable<any> {
+    return this.http.get<any>('/api/ontology/dynamic-entities');
+  }
+
+  deleteOntologyRow(item: any): Observable<any> {
+    return this.http.post<any>('/api/ontology/row/delete', { item });
+  }
+
+  updateOntologyRow(old_item: any, new_item: any): Observable<any> {
+    return this.http.post<any>('/api/ontology/row/update', { old_item, new_item });
+  }
+
+  addOntologyRow(type: string, data: any): Observable<any> {
+    return this.http.post<any>('/api/ontology/row/add', { type, data });
   }
 }

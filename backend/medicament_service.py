@@ -125,7 +125,8 @@ class MedicamentService:
                     binding[var] = entry
                 else:
                     binding[var] = {"type": "literal", "value": str(val)}
-            bindings.append(binding)
+            if binding not in bindings:
+                bindings.append(binding)
         return {"head": {"vars": vars_list}, "results": {"bindings": bindings}}
 
     def _rows(self, query: str) -> List[Dict[str, str]]:
