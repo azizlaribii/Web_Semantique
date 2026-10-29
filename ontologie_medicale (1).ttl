@@ -9,6 +9,11 @@
     rdfs:label "Ontologie médicale : médecin, patient, ordonnance"@fr ;
     rdfs:comment "Ontologie en 3 niveaux de hiérarchie (classe > sous-classe > sous-sous-classe)."@fr .
 
+med:Acide_Folique a med:Medicament,
+        owl:NamedIndividual ;
+    rdfs:label "Acide folique"@fr ;
+    med:posologie "5 mg par jour" .
+
 med:Aide_soignant a owl:Class ;
     rdfs:subClassOf med:Stuff_Médicale .
 
@@ -70,6 +75,11 @@ med:Endocrinologue a owl:Class ;
 med:Facture a owl:Class ;
     rdfs:subClassOf med:Paiement .
 
+med:Fer_Sulfate a med:Medicament,
+        owl:NamedIndividual ;
+    rdfs:label "Sulfate de fer"@fr ;
+    med:posologie "200 mg, 2 fois par jour" .
+
 med:Gastro-entérologue a owl:Class ;
     rdfs:subClassOf med:MedecinSpecialiste .
 
@@ -104,6 +114,9 @@ med:Neurologue a owl:Class ;
     rdfs:subClassOf med:MedecinSpecialiste .
 
 med:OperationEsthetique a owl:Class ;
+    rdfs:subClassOf med:Opération .
+
+med:OperationUrgente a owl:Class ;
     rdfs:subClassOf med:Opération .
 
 med:Operation_1 a med:OperationChirurgicale,
@@ -196,8 +209,7 @@ med:Patient_Omar a med:PatientAdulte,
         med:Fievre,
         med:Paleur ;
     med:sexe "Masculin" ;
-    med:souffreDe med:Anemie,
-        med:Paludisme ;
+    med:souffreDe med:Paludisme ;
     med:telephone "+216 71 000 005" .
 
 med:Patient_Sara a med:PatientAdulte,
@@ -345,10 +357,6 @@ med:contientMolecule a owl:ObjectProperty ;
     rdfs:domain med:Medicament ;
     rdfs:range med:Molecule .
 
-med:covid a med:Maladie,
-        owl:NamedIndividual ;
-    rdfs:label "covid" .
-
 med:dateConsultation a owl:DatatypeProperty ;
     rdfs:label "date de la consultation"@fr ;
     rdfs:range xsd:date .
@@ -458,10 +466,6 @@ med:est_pris_en_charge_par a owl:ObjectProperty ;
 med:est_urgent a owl:DatatypeProperty ;
     rdfs:domain med:Opération ;
     rdfs:range xsd:boolean .
-
-med:fefefe a med:Maladie,
-        owl:NamedIndividual ;
-    rdfs:label "fefefe" .
 
 med:gravite a owl:DatatypeProperty ;
     rdfs:domain med:Maladie ;
@@ -604,12 +608,6 @@ med:téléphone a owl:DatatypeProperty ;
     rdfs:domain med:Personne ;
     rdfs:range xsd:string .
 
-med:Acide_Folique a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Acide folique"@fr ;
-    med:posologie "5 mg par jour" ;
-    med:traite med:Anemie .
-
 med:Agents_de_service_hospitalier a owl:Class ;
     rdfs:subClassOf med:Stuff_Médicale .
 
@@ -635,8 +633,7 @@ med:Amina a med:PatientEnfant,
     med:nom "Amina Gharbi" ;
     med:numeroCIN "00456789" ;
     med:numeroDossier "PAT-002" ;
-    med:prenom "Amina" ;
-    med:subit med:Operation_2 .
+    med:prenom "Amina" .
 
 med:Amlodipine a med:Medicament,
         owl:NamedIndividual ;
@@ -678,14 +675,7 @@ med:EffetNeurologique a owl:Class ;
     rdfs:label "Effet secondaire neurologique"@fr ;
     rdfs:subClassOf med:EffetSecondaire .
 
-med:Fer_Sulfate a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Sulfate de fer"@fr ;
-    med:posologie "200 mg, 2 fois par jour" ;
-    med:traite med:Anemie .
-
-med:Fievre_Sami a med:Fievre,
-        owl:NamedIndividual .
+med:Fievre_Sami a owl:NamedIndividual .
 
 med:Gonflement a med:SymptomeGeneral,
         owl:NamedIndividual ;
@@ -724,7 +714,6 @@ med:Metformine a med:Medicament,
 med:Methotrexate a med:Medicament,
         owl:NamedIndividual ;
     rdfs:label "Methotrexate"@fr ;
-    med:estContreIndiquePour med:Anemie ;
     med:posologie "10 a 25 mg par semaine" ;
     med:traite med:Arthrite .
 
@@ -747,24 +736,13 @@ med:Nausee_Effet a med:EffetDigestif,
 med:OperationChirurgicale a owl:Class ;
     rdfs:subClassOf med:Opération .
 
-med:OperationUrgente a owl:Class ;
-    rdfs:subClassOf med:Opération .
-
-med:Operation_2 a med:OperationUrgente,
-        owl:NamedIndividual ;
-    med:est_urgent true ;
-    med:se_déroule_dans med:Salle_Op_1 .
-
 med:Paiement a owl:Class ;
     rdfs:subClassOf med:Facturation .
 
-med:Paracetamol_Gen a med:Paracetamol,
+med:Paleur a med:SymptomeGeneral,
         owl:NamedIndividual ;
-    rdfs:label "Paracetamol (generique)"@fr ;
-    med:contientMolecule med:Mol_Paracetamol ;
-    med:posologie "500 mg a 1 g, 3 fois par jour" ;
-    med:traite med:Angine,
-        med:Grippe .
+    rdfs:label "Paleur"@fr ;
+    med:descriptionSymptome "Coloration anormalement pale de la peau" .
 
 med:Ranitidine a med:Medicament,
         owl:NamedIndividual ;
@@ -890,8 +868,16 @@ med:EffetDigestif a owl:Class ;
     rdfs:label "Effet secondaire digestif"@fr ;
     rdfs:subClassOf med:EffetSecondaire .
 
+med:Essoufflement a med:SymptomeRespiratoire,
+        owl:NamedIndividual ;
+    rdfs:label "Essoufflement"@fr ;
+    med:descriptionSymptome "Difficulte a respirer normalement" ;
+    med:estSymptomeDe med:Asthme .
+
 med:Facturation a owl:Class ;
     rdfs:subClassOf med:Service_administratif .
+
+med:Grippe_Sami a owl:NamedIndividual .
 
 med:Mol_Paracetamol a med:MoleculeParacetamol,
         owl:NamedIndividual ;
@@ -904,15 +890,19 @@ med:Ordonnance_1 a med:Ordonnance,
     med:dateOrdonnance "2026-10-01"^^xsd:date ;
     med:estDestineeA med:Sami .
 
-med:Paleur a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Paleur"@fr ;
-    med:descriptionSymptome "Coloration anormalement pale de la peau" ;
-    med:estSymptomeDe med:Anemie .
-
 med:Paracetamol a owl:Class ;
     rdfs:label "Paracétamol"@fr ;
     rdfs:subClassOf med:Antalgique .
+
+med:Paracetamol_Gen a med:Medicament,
+        med:Paracetamol,
+        owl:NamedIndividual ;
+    rdfs:label "Paracetamol Gen",
+        "Paracetamol (generique)"@fr ;
+    med:contientMolecule med:Mol_Paracetamol ;
+    med:posologie "500 mg a 1 g, 3 fois par jour" ;
+    med:traite med:Angine,
+        med:Grippe .
 
 med:PatientEnfant a owl:Class ;
     rdfs:label "Patient enfant"@fr ;
@@ -923,9 +913,6 @@ med:Polyurie a med:SymptomeGeneral,
     rdfs:label "Polyurie"@fr ;
     med:descriptionSymptome "Mictions frequentes et abondantes" ;
     med:estSymptomeDe med:Diabete .
-
-med:Salle_Op_1 a owl:NamedIndividual ;
-    med:se_déroule_dans med:Salle_Op_1 .
 
 med:Service_administratif a owl:Class .
 
@@ -967,13 +954,6 @@ med:Courbatures a med:SymptomeGeneral,
 med:EffetSecondaire a owl:Class ;
     rdfs:label "Effet secondaire"@fr ;
     rdfs:subClassOf med:Medicament .
-
-med:Essoufflement a med:SymptomeRespiratoire,
-        owl:NamedIndividual ;
-    rdfs:label "Essoufflement"@fr ;
-    med:descriptionSymptome "Difficulte a respirer normalement" ;
-    med:estSymptomeDe med:Anemie,
-        med:Asthme .
 
 med:MedecinGeneraliste a owl:Class ;
     rdfs:label "Médecin généraliste"@fr ;
@@ -1132,6 +1112,16 @@ med:Dr_Karim a med:MedecinSpecialiste,
     med:specialite "Cardiologie" ;
     med:telephone "+216 71 000 002" .
 
+med:Fievre a med:SymptomeGeneral,
+        owl:NamedIndividual ;
+    med:descriptionSymptome "Temperature corporelle elevee" ;
+    med:estSymptomeDe med:Angine,
+        med:Bronchite,
+        med:Grippe,
+        med:Paludisme ;
+    med:intensite 7 ;
+    med:temperature 38.5 .
+
 med:MaladieInfectieuse a owl:Class ;
     rdfs:label "Maladie infectieuse"@fr ;
     rdfs:subClassOf med:Type .
@@ -1148,17 +1138,21 @@ med:Role a owl:Class ;
 
 xsd:date a rdfs:Datatype .
 
-med:Angine a med:MaladieInfectieuse,
+med:Angine a med:Maladie,
+        med:MaladieInfectieuse,
         owl:NamedIndividual ;
     rdfs:label "Angine"@fr ;
-    med:aPourSymptome med:Fievre,
+    med:aPourSymptome med:Asthme,
+        med:Fievre,
         med:Maux_de_gorge,
+        med:Nausee,
         med:Toux ;
     med:description "Infection de la gorge causee par des bacteries ou des virus."@fr ;
     med:dureeTraitement "7 jours" ;
     med:estContagieuse true ;
     med:estTraiteePar med:Amx,
-        med:Doliprane ;
+        med:Doliprane,
+        med:Paracetamol_Gen ;
     med:gravite "moderee"@fr .
 
 med:Arthrite a med:MaladieChronique,
@@ -1171,19 +1165,6 @@ med:Arthrite a med:MaladieChronique,
     med:estContagieuse false ;
     med:estTraiteePar med:Brufen,
         med:Methotrexate ;
-    med:gravite "moderee"@fr .
-
-med:Asthme a med:MaladieChronique,
-        owl:NamedIndividual ;
-    rdfs:label "Asthme"@fr ;
-    med:aPourSymptome med:Essoufflement,
-        med:Sifflements,
-        med:Toux ;
-    med:description "Maladie inflammatoire chronique des voies respiratoires."@fr ;
-    med:dureeTraitement "Traitement continu" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Becotide,
-        med:Ventoline ;
     med:gravite "moderee"@fr .
 
 med:Diabete a med:MaladieChronique,
@@ -1199,16 +1180,13 @@ med:Diabete a med:MaladieChronique,
         med:Metformine ;
     med:gravite "moderee"@fr .
 
-med:Fievre a med:SymptomeGeneral,
+med:Fatigue a med:SymptomeGeneral,
         owl:NamedIndividual ;
-    rdfs:label "Fievre"@fr ;
-    med:descriptionSymptome "Temperature corporelle elevee" ;
-    med:estSymptomeDe med:Angine,
-        med:Bronchite,
-        med:Grippe,
-        med:Paludisme ;
-    med:intensite 7 ;
-    med:temperature 38.5 .
+    rdfs:label "Fatigue"@fr ;
+    med:descriptionSymptome "Sensation de lassitude et d epuisement" ;
+    med:estSymptomeDe med:Bronchite,
+        med:Diabete,
+        med:Grippe .
 
 med:Migraine a med:Maladie,
         med:MaladieChronique,
@@ -1225,42 +1203,23 @@ med:Migraine a med:Maladie,
         med:Sumatriptan ;
     med:gravite "moderee"@fr .
 
-med:Nausee a med:SymptomeDigestif,
-        owl:NamedIndividual ;
-    rdfs:label "Nausee"@fr ;
-    med:descriptionSymptome "Envie de vomir" ;
-    med:estSymptomeDe med:Gastrite,
-        med:Migraine,
-        med:Paludisme .
-
 med:PatientAdulte a owl:Class ;
     rdfs:label "Patient adulte"@fr ;
     rdfs:subClassOf med:Patient ;
     owl:disjointWith med:PatientEnfant .
 
-med:Anemie a med:MaladieChronique,
+med:Asthme a med:MaladieChronique,
         owl:NamedIndividual ;
-    rdfs:label "Anemie1234",
-        "Anemie1234"@fr ;
+    rdfs:label "Asthme"@fr ;
     med:aPourSymptome med:Essoufflement,
-        med:Fatigue,
-        med:Paleur ;
-    med:description "Diminution du taux d hemoglobine dans le sang."@fr ;
-    med:dureeTraitement "3 a 6 mois" ;
+        med:Sifflements,
+        med:Toux ;
+    med:description "Maladie inflammatoire chronique des voies respiratoires."@fr ;
+    med:dureeTraitement "Traitement continu" ;
     med:estContagieuse false ;
-    med:estTraiteePar med:Acide_Folique,
-        med:Fer_Sulfate ;
-    med:gravite "moderee"@fr ;
-    med:nom "Anemie1234" .
-
-med:Fatigue a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Fatigue"@fr ;
-    med:descriptionSymptome "Sensation de lassitude et d epuisement" ;
-    med:estSymptomeDe med:Anemie,
-        med:Bronchite,
-        med:Diabete,
-        med:Grippe .
+    med:estTraiteePar med:Becotide,
+        med:Ventoline ;
+    med:gravite "moderee"@fr .
 
 med:Grippe a med:MaladieInfectieuse,
         owl:NamedIndividual ;
@@ -1288,6 +1247,16 @@ med:Hypertension a med:MaladieChronique,
         med:Losartan ;
     med:gravite "severe"@fr .
 
+med:Nausee a med:Symptome,
+        med:SymptomeDigestif,
+        owl:NamedIndividual ;
+    rdfs:label "Nausee",
+        "Nausee"@fr ;
+    med:descriptionSymptome "Envie de vomir" ;
+    med:estSymptomeDe med:Gastrite,
+        med:Migraine,
+        med:Paludisme .
+
 med:Paludisme a med:MaladieInfectieuse,
         owl:NamedIndividual ;
     rdfs:label "Paludisme"@fr ;
@@ -1301,10 +1270,6 @@ med:Paludisme a med:MaladieInfectieuse,
     med:estTraiteePar med:Artemisinine,
         med:Chloroquine ;
     med:gravite "severe"@fr .
-
-med:Symptome a owl:Class ;
-    rdfs:label "Symptôme"@fr ;
-    rdfs:subClassOf med:Maladie .
 
 med:Consultation a owl:Class ;
     rdfs:subClassOf med:Service_medicale .
@@ -1326,6 +1291,10 @@ med:Gastrite a med:Maladie,
 med:MaladieChronique a owl:Class ;
     rdfs:label "Maladie chronique"@fr ;
     rdfs:subClassOf med:Type .
+
+med:Symptome a owl:Class ;
+    rdfs:label "Symptôme"@fr ;
+    rdfs:subClassOf med:Maladie .
 
 med:Stuff_Médicale a owl:Class ;
     rdfs:subClassOf med:Role .
@@ -1364,12 +1333,12 @@ med:Maladie a owl:Class ;
 med:Medicament a owl:Class ;
     rdfs:label "Médicament"@fr .
 
-[] a owl:AllDisjointClasses ;
-    owl:members ( med:Medecin med:Patient med:Stagiaire med:Stuff_Médicale ) .
-
 [] a owl:AllDifferent ;
     owl:distinctMembers ( med:Ali_Stagiaire med:Amina med:Dr_Ahmed med:Dr_Fatima med:Dr_Karim med:Sami ) .
 
 [] a owl:AllDisjointClasses ;
     owl:members ( med:MaladieChronique med:MaladieDigestive med:MaladieInfectieuse ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( med:Medecin med:Patient med:Stagiaire med:Stuff_Médicale ) .
 

@@ -86,7 +86,17 @@ class MedicamentService:
                     self.graph += self.graph_maladie
                 except Exception as e:
                     print(f"[MedicamentService] Maladie non chargée : {e}")
+            # Intégrer les médicaments et molécules définis dans ontologie_medicale (1).ttl
+            ttl_path = os.path.join(BASE_DIR, "ontologie_medicale (1).ttl")
+            if os.path.exists(ttl_path):
+                try:
+                    ttl_g = Graph()
+                    ttl_g.parse(ttl_path, format="turtle")
+                    self.graph += ttl_g
+                except Exception as e:
+                    print(f"[MedicamentService] TTL non chargé : {e}")
             self.graph.bind("mdc", Namespace(MDC_NS))
+            self.graph.bind("med", Namespace("http://example.org/ontologie-medicale#"))
             self.graph.bind("mal", Namespace(MAL_NS))
             self.loaded = True
             print(f"[MedicamentService] ontologies chargées ({len(self.graph)} triplets).")

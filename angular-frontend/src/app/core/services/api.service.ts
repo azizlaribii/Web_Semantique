@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Personne } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -71,8 +71,25 @@ export class ApiService {
   }
 
   // ── Reload OWL ────────────────────────────────────────
+  private ontologyChangedSource = new Subject<void>();
+  public ontologyChanged$ = this.ontologyChangedSource.asObservable();
+
+  notifyOntologyChanged(): void {
+    this.ontologyChangedSource.next();
+  }
+
   reloadOntologie(): Observable<any> {
     return this.http.post<any>('/api/reload', {});
+  }
+
+  uploadOntology(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<any>('/api/ontology/upload', formData);
+  }
+
+  getOntologyFiles(): Observable<any> {
+    return this.http.get<any>('/api/ontology/files');
   }
 
   // ── CRUD Ontologie Interactif ─────────────────────────
@@ -90,5 +107,18 @@ export class ApiService {
 
   addOntologyRow(type: string, data: any): Observable<any> {
     return this.http.post<any>('/api/ontology/row/add', { type, data });
+  }
+
+  // ── Explorateur Dynamique Ontologie ────────────────────
+  getOntologySchema(): Observable<any> {
+    return this.http.get<any>('/api/ontology/schema');
+  }
+
+  getIndividualDetail(name: string): Observable<any> {
+    return this.http.get<any>(`/api/ontology/individual/${encodeURIComponent(name)}`);
+  }
+
+  reloadOntology(): Observable<any> {
+    return this.http.post<any>('/api/ontology/reload', {});
   }
 }

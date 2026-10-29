@@ -431,10 +431,14 @@ def add_contextual_item(data_type, data, reload_callback=None):
         m_uri = _resolve_uri(nom)
         cat_uri = _resolve_uri(cat)
         g_ttl.add((m_uri, RDF.type, cat_uri))
+        g_ttl.add((m_uri, RDF.type, MED.Maladie))
         g_ttl.add((m_uri, RDF.type, OWL.NamedIndividual))
+        g_ttl.add((cat_uri, RDFS.subClassOf, MED.Maladie))
         g_ttl.add((m_uri, RDFS.label, Literal(nom, lang="fr")))
         g_ttl.add((m_uri, RDFS.label, Literal(nom)))
         g_ttl.add((m_uri, MED.nom, Literal(nom)))
+        g_ttl.add((m_uri, MED.description, Literal(f"Maladie {cat} : {nom}")))
+        g_ttl.add((m_uri, MED.dureeTraitement, Literal("Traitement continu" if "chronique" in cat.lower() else "Traitement médical")))
         if data.get("gravite"):
             g_ttl.add((m_uri, MED.gravite, Literal(str(data["gravite"]))))
         item_added = {
@@ -442,7 +446,8 @@ def add_contextual_item(data_type, data, reload_callback=None):
             "maladieInfectieuse": _clean_str(m_uri),
             "nom": nom,
             "label": nom,
-            "type": cat
+            "type": cat,
+            "dureeTraitement": "Traitement continu" if "chronique" in cat.lower() else "Traitement médical"
         }
 
     elif data_type == "entity_patient":

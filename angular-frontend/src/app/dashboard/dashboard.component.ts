@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
@@ -22,7 +22,67 @@ export class DashboardComponent implements OnInit {
   currentUser = this.auth.currentUser;
 
   // Active tab
-  activeTab = signal<'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'maladies' | 'sparql' | 'profil'>('personnes');
+  activeTab = signal<'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'maladies' | 'sparql' | 'profil' | 'explorateur-ontologie'>('personnes');
+
+  // ── EXPLORATEUR DYNAMIQUE ONTOLOGIE ─────────────────────
+  ontologySchema = signal<any>(null);
+  loadingOntologySchema = signal(false);
+  ontologySearch = signal('');
+  ontologyActiveSubTab = signal<'all' | 'individuals' | 'object_properties' | 'datatype_properties' | 'classes'>('all');
+  selectedIndividualDetail = signal<any>(null);
+  loadingIndividualDetail = signal(false);
+  reloadMessage = signal('');
+  isReloadingOntology = signal(false);
+
+  filteredOntologyIndividuals = computed(() => {
+    const s = this.ontologySchema();
+    if (!s || !s.individuals) return [];
+    const q = this.ontologySearch().toLowerCase().trim();
+    if (!q) return s.individuals;
+    return s.individuals.filter((i: any) =>
+      (i.nom && i.nom.toLowerCase().includes(q)) ||
+      (i.label && i.label.toLowerCase().includes(q)) ||
+      (i.types && i.types.some((t: string) => t.toLowerCase().includes(q)))
+    );
+  });
+
+  filteredOntologyObjProps = computed(() => {
+    const s = this.ontologySchema();
+    if (!s || !s.object_properties) return [];
+    const q = this.ontologySearch().toLowerCase().trim();
+    if (!q) return s.object_properties;
+    return s.object_properties.filter((p: any) =>
+      (p.nom && p.nom.toLowerCase().includes(q)) ||
+      (p.label && p.label.toLowerCase().includes(q)) ||
+      (p.domain && p.domain.toLowerCase().includes(q)) ||
+      (p.range && p.range.toLowerCase().includes(q))
+    );
+  });
+
+  filteredOntologyDataProps = computed(() => {
+    const s = this.ontologySchema();
+    if (!s || !s.datatype_properties) return [];
+    const q = this.ontologySearch().toLowerCase().trim();
+    if (!q) return s.datatype_properties;
+    return s.datatype_properties.filter((p: any) =>
+      (p.nom && p.nom.toLowerCase().includes(q)) ||
+      (p.label && p.label.toLowerCase().includes(q)) ||
+      (p.domain && p.domain.toLowerCase().includes(q)) ||
+      (p.range && p.range.toLowerCase().includes(q))
+    );
+  });
+
+  filteredOntologyClasses = computed(() => {
+    const s = this.ontologySchema();
+    if (!s || !s.classes) return [];
+    const q = this.ontologySearch().toLowerCase().trim();
+    if (!q) return s.classes;
+    return s.classes.filter((c: any) =>
+      (c.nom && c.nom.toLowerCase().includes(q)) ||
+      (c.label && c.label.toLowerCase().includes(q)) ||
+      (c.superClasses && c.superClasses.some((sc: string) => sc.toLowerCase().includes(q)))
+    );
+  });
 
   // Personnes state
   personnes = signal<Personne[]>([]);
@@ -39,6 +99,11 @@ export class DashboardComponent implements OnInit {
   iaPersonneResult = signal<any>(null);
   iaPersonneError = signal('');
   iaPersonnePrompts = [
+    'Quelles sont les ordonnances ?',
+    'Donne-moi l\'ordonnance de Sami',
+    'Quelles sont les consultations ?',
+    'Qui connaît le Dr Ahmed ?',
+    'Qui connaît qui ?',
     'Donne-moi les sous-classes de Personne',
     'Donne-moi le médecin Aziz Laribi',
     'Quelles sont les sous-classes de Medecin ?',
@@ -48,7 +113,8 @@ export class DashboardComponent implements OnInit {
     'Quelles sont les Data Properties ?',
     'Quels sont tous les individus ?',
     'Donne-moi la liste des patients.',
-    'Qui est Dr Karim ?',
+    'Qui est Jean Testeur ?',
+    'Donne-moi Jihene Ounis',
     'Quels sont les cardiologues ?',
     'Médecins avec plus de 40 ans.',
   ];
@@ -130,6 +196,59 @@ export class DashboardComponent implements OnInit {
 
   onMedicamentsChanged(): void {
     this.loadCatalog();
+  }
+
+  // Colonnes dynamiques du tableau de résultats IA Personnes
+  private static PERSONNE_COLS: Record<string, string> = {
+    nom: 'Nom & Prénom',
+    nomDisplay: 'Nom',
+    nomClean: 'Nom',
+    role: 'Rôle / Spécialité',
+    specialite: 'Spécialité',
+    age: 'Âge',
+    cin: 'CIN',
+    telephone: 'Téléphone',
+    tel: 'Téléphone',
+    email: 'Email',
+    ordonnance: 'Ordonnance',
+    medecin: 'Médecin Prescripteur',
+    patient: 'Patient Destinataire',
+    date: 'Date',
+    medicaments: 'Médicaments Prescrits',
+    consultation: 'Consultation',
+    salle: 'Salle de Consultation',
+    personne1: 'Personne 1',
+    relation: 'Relation Symétrique',
+    personne2: 'Personne 2',
+    connaissance: 'En relation avec',
+    individu: 'Individu',
+    numeroOrdre: 'N° Ordre',
+    numeroDossier: 'N° Dossier',
+    groupeSanguin: 'Groupe Sanguin',
+    valeur_ou_cible: 'Valeur / Entité reliée',
+    propriete: 'Propriété / Relation',
+    sujet: 'Sujet (Source)',
+    nom_sujet: 'Sujet',
+    objet: 'Objet (Cible)',
+    type: 'Type / Classe',
+    classe: 'Classe OWL',
+    nb_proprietes: 'Nb Propriétés',
+    nb_individus: 'Instances'
+  };
+
+  getPersonneColumns(rows: any[]): string[] {
+    if (!rows || rows.length === 0) return [];
+    const cols: string[] = [];
+    rows.forEach(r => Object.keys(r).forEach(k => {
+      if (!cols.includes(k) && !['uri', 'id', 'p1', 'p2'].includes(k)) {
+        cols.push(k);
+      }
+    }));
+    return cols;
+  }
+
+  getPersonneColTitle(col: string): string {
+    return DashboardComponent.PERSONNE_COLS[col] || col.charAt(0).toUpperCase() + col.slice(1);
   }
 
   // SPARQL state
@@ -669,15 +788,104 @@ SELECT DISTINCT ?patient ?maladie WHERE {
     this.personnes().filter(p => (p.types || []).some(t => t.toLowerCase().includes('stagiaire'))).length
   );
 
+  lastReloadTimestamp = 0;
+  private pollSub: any = null;
+
   ngOnInit(): void {
+    this.refreshAllData();
+
+    // 1. Écouter les événements de rechargement/import
+    this.api.ontologyChanged$.subscribe(() => {
+      this.refreshAllData();
+      this.showToast('✓ Ontologie synchronisée en direct.');
+    });
+
+    // 2. Détection automatique en direct (polling doux toutes les 3s)
+    this.pollSub = setInterval(() => {
+      this.api.getStatus().subscribe({
+        next: (status) => {
+          const ts = status?.dernier_rechargement?.timestamp || 0;
+          if (this.lastReloadTimestamp !== 0 && ts > this.lastReloadTimestamp) {
+            this.lastReloadTimestamp = ts;
+            this.refreshAllData();
+            this.showToast('🔄 Mise à jour détectée : ontologie synchronisée en temps réel.');
+          } else if (this.lastReloadTimestamp === 0 && ts > 0) {
+            this.lastReloadTimestamp = ts;
+          }
+        },
+        error: () => {}
+      });
+    }, 3000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollSub) {
+      clearInterval(this.pollSub);
+    }
+  }
+
+  refreshAllData(): void {
     this.loadPersonnes();
     this.loadSummary();
     this.loadCatalog();
     this.loadDynamicEntities();
+    this.loadOntologySchema();
   }
 
-  setTab(tab: 'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'maladies' | 'sparql' | 'profil'): void {
+  setTab(tab: 'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'maladies' | 'sparql' | 'profil' | 'explorateur-ontologie'): void {
     this.activeTab.set(tab);
+    if (tab === 'explorateur-ontologie' && !this.ontologySchema()) {
+      this.loadOntologySchema();
+    }
+  }
+
+  loadOntologySchema(): void {
+    this.loadingOntologySchema.set(true);
+    this.api.getOntologySchema().subscribe({
+      next: (data) => {
+        this.ontologySchema.set(data);
+        this.loadingOntologySchema.set(false);
+      },
+      error: () => {
+        this.loadingOntologySchema.set(false);
+      }
+    });
+  }
+
+  reloadOntology(): void {
+    this.isReloadingOntology.set(true);
+    this.reloadMessage.set('Rechargement du fichier ontologie_medicale (1).ttl et mise à jour...');
+    this.api.reloadOntology().subscribe({
+      next: (res) => {
+        this.isReloadingOntology.set(false);
+        this.reloadMessage.set(`✓ Ontologie synchronisée en direct ! (${res.total_triplets} triplets actifs)`);
+        this.loadOntologySchema();
+        this.loadPersonnes();
+        this.loadCatalog();
+        setTimeout(() => this.reloadMessage.set(''), 4500);
+      },
+      error: () => {
+        this.isReloadingOntology.set(false);
+        this.reloadMessage.set('Erreur lors du rechargement de l\'ontologie.');
+      }
+    });
+  }
+
+  viewIndividualDetail(nameOrUri: string): void {
+    this.loadingIndividualDetail.set(true);
+    this.api.getIndividualDetail(nameOrUri).subscribe({
+      next: (detail) => {
+        this.selectedIndividualDetail.set(detail);
+        this.loadingIndividualDetail.set(false);
+      },
+      error: () => {
+        this.loadingIndividualDetail.set(false);
+      }
+    });
+  }
+
+  closeIndividualDetail(): void {
+    this.selectedIndividualDetail.set(null);
   }
 
   loadPersonnes(): void {
@@ -868,8 +1076,8 @@ SELECT DISTINCT ?patient ?maladie WHERE {
       'codeCIM', 'type', 'gravite', 'contagieuse', 'dureeTraitement', 'description'
     ];
     let keys = Object.keys(first);
-    if (first.nom && (first.id || first.maladie) && !first.patient && !first.symptome && !first.medicament && !first.medecin) {
-      keys = keys.filter(k => k !== 'maladie' && k !== 'id');
+    if (first.maladie && first.nom && first.nom === first.maladie) {
+      keys = keys.filter(k => k !== 'nom');
     }
     return keys.sort((a, b) => {
       const idxA = order.indexOf(a);
