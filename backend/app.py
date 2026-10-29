@@ -49,6 +49,10 @@ OWL_FILES = _get_ontology_files()
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
 
+# Module Service administratif (routes CRUD + IA + SPARQL)
+from administratif_routes import register_administratif
+reload_administratif = register_administratif(app)
+
 # Force UTF-8 sur toutes les réponses
 @app.after_request
 def set_utf8(response):
@@ -152,6 +156,13 @@ def reload_all_services(reason: str = "Manuel"):
         except Exception as e:
             errors.append(f"medicament: {e}")
             print(f"[HotReload] ERREUR medicament : {e}")
+
+        try:
+            reload_administratif()
+            print("[HotReload] OK module administratif rechargé")
+        except Exception as e:
+            errors.append(f"administratif: {e}")
+            print(f"[HotReload] ERREUR administratif : {e}")
 
         _last_reload_info["ts"] = time.time()
         _last_reload_info["reason"] = reason
@@ -736,6 +747,7 @@ def get_status():
         "protege_owl": f"Chargé ({len(rdflib_service.graph)} triplets depuis ontologie_personne.owl)",
         "medicament_owl": (f"Chargé ({len(medicament_service.graph)} triplets depuis ontologie_medicament.owl)"
                            if medicament_service.loaded else "Non chargé (lancez medicament_owlready2.py)"),
+        "administratif_owl": "Actif (ontologie_administratif.owl)",
         "target_class": "Personne (Médecins, Patients, Stagiaires, Stuff Médical)",
         "hot_reload": "Actif (watcher toutes les 3 secondes)",
         "dernier_rechargement": {
@@ -791,6 +803,9 @@ def ontologie_status():
             "timestamp": mtime,
             "existe": os.path.exists(path)
         }
+    return jsonify(status)
+
+
 # ----------------------------------------------------------------------
 # Route Upload / Import d'une Ontologie (.ttl ou .owl)
 # ----------------------------------------------------------------------

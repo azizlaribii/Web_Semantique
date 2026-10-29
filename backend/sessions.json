@@ -115,5 +115,23 @@
     "role": "Stagiaire",
     "uri": "http://example.org/ontologie-medicale#Stag_amira_maghraoui",
     "created_at": "2026-10-29T15:42:42.121398"
+  },
+  "6iDD68qBjJ54Jh5aJ9hF_FXxzO4QgucbS4ybl0waACqlVf48Ci5VrQk2HXlu65Iy": {
+    "email": "malek.fridhi02@gmail.com",
+    "id": "Ind_Malek_Fridhi",
+    "nom": "Fridhi",
+    "prenom": "Malek",
+    "role": "StuffMedical",
+    "uri": "http://example.org/ontologie-medicale#Ind_Malek_Fridhi",
+    "created_at": "2026-10-29T17:16:56.069870"
+  },
+  "nI3_1KAMGA8ZTLO8h40IxaO-37fepNLb5f1TYdrIxqyhgmd8NFr7MbHsYPvWFL3Y": {
+    "email": "malek.fridhi02@gmail.com",
+    "id": "Ind_Malek_Fridhi",
+    "nom": "Fridhi",
+    "prenom": "Malek",
+    "role": "StuffMedical",
+    "uri": "http://example.org/ontologie-medicale#Ind_Malek_Fridhi",
+    "created_at": "2026-10-29T23:13:31.231185"
   }
 }
