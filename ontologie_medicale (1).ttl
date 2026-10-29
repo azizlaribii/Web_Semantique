@@ -1,1344 +1,1937 @@
-@prefix med: <http://example.org/ontologie-medicale#> .
+@prefix : <http://example.org/ontologie-medicale#> .
 @prefix ns1: <http://example.org/ontologie-medicale#date_de_l’> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://example.org/ontologie-medicale#> .
 
-<http://example.org/ontologie-medicale> a owl:Ontology ;
-    rdfs:label "Ontologie médicale : médecin, patient, ordonnance"@fr ;
-    rdfs:comment "Ontologie en 3 niveaux de hiérarchie (classe > sous-classe > sous-sous-classe)."@fr .
-
-med:Acide_Folique a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Acide folique"@fr ;
-    med:posologie "5 mg par jour" .
-
-med:Aide_soignant a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:Anesthésiste a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Asma a med:Agents_de_service_hospitalier,
-        owl:NamedIndividual .
-
-med:ConsultationControle a owl:Class ;
-    rdfs:subClassOf med:Consultation .
-
-med:ConsultationGenerale a owl:Class ;
-    rdfs:subClassOf med:Consultation .
-
-med:ConsultationSpecialisee a owl:Class ;
-    rdfs:subClassOf med:Consultation .
-
-med:ConsultationUrgence a owl:Class ;
-    rdfs:subClassOf med:Consultation .
-
-med:Dermatologue a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Dossier_medicale a owl:Class ;
-    rdfs:subClassOf med:Dossier_patient .
-
-med:Dr_Aziz_Laribi a med:MedecinGeneraliste,
-        owl:NamedIndividual ;
-    rdfs:label "Aziz Laribi" ;
-    med:age 25 ;
-    med:email "Azizlaribi@gmail.com" ;
-    med:motDePasse "aziz123" ;
-    med:nom "Aziz Laribi" ;
-    med:specialite "Médecine Générale" ;
-    med:telephone "+216 99 888 777" .
-
-med:Dr_Jean_Testeur a med:MedecinSpecialiste,
-        owl:NamedIndividual ;
-    rdfs:label "Jean Testeur" ;
-    med:email "jean.test@hopital.fr" ;
-    med:motDePasse "$2b$12$q.D6880kjN8aYhmN42Phye11Lg6AAmlAUmSXKPWcRYYHQOqVvf9Q2" ;
-    med:nom "Testeur" ;
-    med:prenom "Jean" ;
-    med:specialite "Cardiologie" .
-
-med:Dr_Sophie_Martin a med:Cardiologue,
-        owl:NamedIndividual ;
-    rdfs:label "Sophie Martin" ;
-    med:email "sophie.martin@hopital.fr" ;
-    med:motDePasse "$2b$12$ak.f1UPxMVNhVP78zWr03.Um8Fl50YRK4bovBZc6A0tQrPdOs/ZC2" ;
-    med:nom "Martin" ;
-    med:prenom "Sophie" ;
-    med:specialite "Cardiologie" .
-
-med:Endocrinologue a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Facture a owl:Class ;
-    rdfs:subClassOf med:Paiement .
-
-med:Fer_Sulfate a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Sulfate de fer"@fr ;
-    med:posologie "200 mg, 2 fois par jour" .
-
-med:Gastro-entérologue a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Ind_Jihene_Ounis a med:Stagiaire,
-        owl:NamedIndividual ;
-    rdfs:label "Jihene Ounis" ;
-    med:age 23 ;
-    med:nom "Jihene Ounis" ;
-    med:numeroCIN "09876543" ;
-    med:telephone "+216 98 111 222" .
-
-med:Leila_Patient a med:Patient,
-        owl:NamedIndividual ;
-    rdfs:label "Leila Patient" .
-
-med:MedecinActif a owl:Class ;
-    rdfs:label "Medecin actif"@fr ;
-    rdfs:comment "Classe definie: Medecin qui realise au moins une Consultation."@fr ;
-    owl:equivalentClass [ a owl:Class ;
-            owl:intersectionOf ( med:Medecin [ a owl:Restriction ;
-                        owl:onProperty med:realise ;
-                        owl:someValuesFrom med:Consultation ] ) ] .
-
-med:MoleculeAmoxicilline a owl:Class ;
-    rdfs:label "Molécule d'amoxicilline"@fr ;
-    rdfs:subClassOf med:Molecule .
-
-med:Médico-techniques a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:Neurologue a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:OperationEsthetique a owl:Class ;
-    rdfs:subClassOf med:Opération .
-
-med:OperationUrgente a owl:Class ;
-    rdfs:subClassOf med:Opération .
-
-med:Operation_1 a med:OperationChirurgicale,
-        owl:NamedIndividual ;
-    ns1:opération "2026-10-15"^^xsd:date ;
-    med:durée 90 ;
-    med:est_effectuée_par med:Dr_Karim .
-
-med:OrdonnanceRenouvelable a owl:Class ;
-    rdfs:subClassOf med:Ordonnance .
-
-med:OrdonnanceSimple a owl:Class ;
-    rdfs:subClassOf med:Ordonnance .
-
-med:OrdonnanceSpecialisee a owl:Class ;
-    rdfs:subClassOf med:Ordonnance .
-
-med:Pat_maryem_laribi a med:Patient,
-        owl:NamedIndividual ;
-    rdfs:label "maryem laribi" ;
-    med:email "maryem@gmail.com" ;
-    med:motDePasse "$2b$12$5vT8hAeL1rABqqp0lHsnFOVN8JLinOrkev7dA8w2oPng.JYlDllBW" ;
-    med:nom "laribi" ;
-    med:prenom "maryem" .
-
-med:PatientEnregistre a owl:Class ;
-    rdfs:label "Patient enregistre"@fr ;
-    rdfs:comment "Classe definie: Patient qui possede un numero de dossier."@fr ;
-    owl:equivalentClass [ a owl:Class ;
-            owl:intersectionOf ( med:Patient [ a owl:Restriction ;
-                        owl:onProperty med:numeroDossier ;
-                        owl:someValuesFrom xsd:string ] ) ] .
-
-med:Patient_Ahmed a med:Patient,
-        med:PatientAdulte,
-        owl:NamedIndividual ;
-    rdfs:label "Patient Ahmed",
-        "Ahmed Belhaj (Patient)"@fr ;
-    med:adresse "25 Rue Ibn Sina, Sfax" ;
-    med:age 55 ;
-    med:estSoignePar med:Dr_Ahmed ;
-    med:groupeSanguin "B+" ;
-    med:nom "Ahmed Belhaj" ;
-    med:numeroCIN "00789012" ;
-    med:numeroDossier "PAT-003" ;
-    med:prenom "Ahmed" ;
-    med:presente med:Polyurie,
-        med:Soif_Excessive,
-        med:Vertiges_Symp ;
-    med:sexe "Masculin" ;
-    med:souffreDe med:Diabete,
-        med:Hypertension ;
-    med:telephone "+216 74 000 001" ;
-    rdfs:comment "Patient souffrant de diabete et d hypertension arterielle."@fr .
-
-med:Patient_Leila a med:Patient,
-        med:PatientAdulte,
-        owl:NamedIndividual ;
-    rdfs:label "Patient Leila",
-        "Leila Saidi (Patiente)"@fr ;
-    med:adresse "30 Boulevard du 7 Novembre, Sousse" ;
-    med:age 60 ;
-    med:estSoignePar med:Dr_Karim ;
-    med:groupeSanguin "A-" ;
-    med:nom "Leila Saidi" ;
-    med:numeroCIN "01012345" ;
-    med:numeroDossier "PAT-006" ;
-    med:prenom "Leila" ;
-    med:presente med:Douleur_Articulaire,
-        med:Maux_de_tete,
-        med:Vertiges_Symp ;
-    med:sexe "Feminin" ;
-    med:souffreDe med:Arthrite,
-        med:Hypertension ;
-    med:telephone "+216 73 000 001" .
-
-med:Patient_Omar a med:PatientAdulte,
-        owl:NamedIndividual ;
-    rdfs:label "Omar Chaouachi (Patient)"@fr ;
-    med:adresse "15 Rue de Carthage, Tunis" ;
-    med:age 42 ;
-    med:estSoignePar med:Dr_Fatima ;
-    med:groupeSanguin "O-" ;
-    med:nom "Omar Chaouachi" ;
-    med:numeroCIN "00901234" ;
-    med:numeroDossier "PAT-005" ;
-    med:prenom "Omar" ;
-    med:presente med:Courbatures,
-        med:Fatigue,
-        med:Fievre,
-        med:Paleur ;
-    med:sexe "Masculin" ;
-    med:souffreDe med:Paludisme ;
-    med:telephone "+216 71 000 005" .
-
-med:Patient_Sara a med:PatientAdulte,
-        owl:NamedIndividual ;
-    rdfs:label "Sara Mansouri (Patiente)"@fr ;
-    med:adresse "8 Avenue de France, Tunis" ;
-    med:age 28 ;
-    med:estSoignePar med:Dr_Ahmed ;
-    med:groupeSanguin "AB+" ;
-    med:nom "Sara Mansouri" ;
-    med:numeroCIN "00890123" ;
-    med:numeroDossier "PAT-004" ;
-    med:prenom "Sara" ;
-    med:presente med:Essoufflement,
-        med:Maux_de_tete,
-        med:Sifflements ;
-    med:sexe "Feminin" ;
-    med:souffreDe med:Asthme,
-        med:Migraine ;
-    med:telephone "+216 71 000 004" .
-
-med:Patient_Youssef a med:PatientAdulte,
-        owl:NamedIndividual ;
-    rdfs:label "Youssef Tlili (Patient)"@fr ;
-    med:adresse "5 Rue Alain Savary, Tunis" ;
-    med:age 35 ;
-    med:groupeSanguin "B-" ;
-    med:nom "Youssef Tlili" ;
-    med:numeroCIN "01123456" ;
-    med:numeroDossier "PAT-007" ;
-    med:prenom "Youssef" ;
-    med:presente med:Douleur_Abdominale,
-        med:Maux_de_tete,
-        med:Nausee ;
-    med:sexe "Masculin" ;
-    med:souffreDe med:Gastrite,
-        med:Migraine ;
-    med:telephone "+216 71 000 006" .
-
-med:Penicilline a owl:Class ;
-    rdfs:label "Pénicilline"@fr ;
-    rdfs:subClassOf med:Antibiotique .
-
-med:Pneumologue a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Psychiatre a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Rembourcement_Assurance a owl:Class ;
-    rdfs:subClassOf med:Facturation .
-
-med:Rendez_vous a owl:Class ;
-    rdfs:subClassOf med:Dossier_patient .
-
-med:Salle_Attente_1 a owl:NamedIndividual .
-
-med:Secrétaires_médicales a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:Ulcere_gastrique a med:MaladieDigestive,
-        owl:NamedIndividual ;
-    rdfs:label "Ulcere gastrique (severe)"@fr ;
-    med:aPourSymptome med:Douleur_Abdominale,
-        med:Nausee ;
-    med:description "Plaie ouverte dans la paroi de l estomac."@fr ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Omeprazole ;
-    med:gravite "severe"@fr .
-
-med:Vertige a owl:Class ;
-    rdfs:label "Vertige"@fr ;
-    rdfs:subClassOf med:EffetNeurologique .
-
-med:aConsulte a owl:ObjectProperty,
-        owl:TransitiveProperty ;
-    rdfs:label "a consulté"@fr ;
-    rdfs:comment "Relation transitive : A a consulté B qui a consulté C → A a consulté C."@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range med:Personne .
-
-med:aPourSymptome a owl:ObjectProperty ;
-    rdfs:label "a pour symptôme"@fr ;
-    rdfs:comment "Une maladie se manifeste par un ou plusieurs symptômes."@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range med:Symptome ;
-    owl:inverseOf med:estSymptomeDe .
-
-med:a_lieu_dans a owl:ObjectProperty ;
-    rdfs:domain med:Consultation ;
-    rdfs:range med:Dossier_patient .
-
-med:adresse a owl:DatatypeProperty ;
-    rdfs:label "adresse"@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:string .
-
-med:age a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "âge"@fr ;
-    rdfs:comment "Âge de la personne (entier, fonctionnel)."@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:integer .
-
-med:appartient_à a owl:ObjectProperty ;
-    rdfs:domain med:Medecin .
-
-med:capacité a owl:DatatypeProperty ;
-    rdfs:domain med:Dossier_patient ;
-    rdfs:range xsd:integer .
-
-med:chefs_de_service a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:concerne a owl:ObjectProperty ;
-    rdfs:domain med:Consultation ;
-    rdfs:range med:Maladie .
-
-med:concerneMaladie a owl:ObjectProperty ;
-    rdfs:label "concerne maladie"@fr ;
-    rdfs:comment "Une maladie est concernée par une ordonnance. Inverse : estPrescritePour."@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range med:Ordonnance ;
-    owl:inverseOf med:estPrescritePour .
-
-med:connait a owl:ObjectProperty,
-        owl:SymmetricProperty ;
-    rdfs:label "connaît"@fr ;
-    rdfs:comment "Relation symétrique : si A connaît B, alors B connaît A."@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range med:Personne .
-
-med:contient a owl:ObjectProperty ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range med:Medicament .
-
-med:contientMedicament a owl:ObjectProperty ;
-    rdfs:label "contient (médicament)"@fr ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range med:Medicament .
-
-med:contientMolecule a owl:ObjectProperty ;
-    rdfs:label "contient (molécule)"@fr ;
-    rdfs:comment "Un médicament contient des molécules ; la molécule est elle-même une sous-classe de Médicament."@fr ;
-    rdfs:domain med:Medicament ;
-    rdfs:range med:Molecule .
-
-med:dateConsultation a owl:DatatypeProperty ;
-    rdfs:label "date de la consultation"@fr ;
-    rdfs:range xsd:date .
-
-med:dateNaissance a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "date de naissance"@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:date .
-
-med:dateOrdonnance a owl:DatatypeProperty ;
-    rdfs:label "date de l'ordonnance"@fr ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range xsd:date .
-
-ns1:opération a owl:DatatypeProperty ;
-    rdfs:domain med:Opération ;
-    rdfs:range xsd:date .
-
-ns1:ordonnance a owl:DatatypeProperty ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range xsd:date .
-
-med:description a owl:DatatypeProperty ;
-    rdfs:domain med:Maladie ;
-    rdfs:range rdf:langString .
-
-med:descriptionSymptome a owl:DatatypeProperty .
-
-med:diagnostique a owl:ObjectProperty ;
-    rdfs:label "diagnostique"@fr ;
-    rdfs:domain med:Medecin ;
-    rdfs:range med:Maladie .
-
-med:dureeTraitement a owl:DatatypeProperty ;
-    rdfs:label "duree du traitement"@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range xsd:string .
-
-med:durée a owl:DatatypeProperty ;
-    rdfs:domain med:Opération ;
-    rdfs:range xsd:integer .
-
-med:durée_de_validité a owl:DatatypeProperty ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range xsd:integer .
-
-med:email a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "e-mail"@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:string .
-
-med:estContagieuse a owl:DatatypeProperty ;
-    rdfs:domain med:Maladie ;
-    rdfs:range xsd:boolean .
-
-med:estContreIndiquePour a owl:ObjectProperty ;
-    rdfs:label "est contre-indiqué pour"@fr ;
-    rdfs:domain med:Medicament ;
-    rdfs:range med:Maladie .
-
-med:estDestineeA a owl:ObjectProperty ;
-    rdfs:label "est destinée à"@fr ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range med:Patient .
-
-med:estNecessairePour a owl:ObjectProperty ;
-    rdfs:label "est nécessaire pour"@fr ;
-    rdfs:comment "Une opération est nécessaire pour traiter une maladie. Inverse : necessite."@fr ;
-    rdfs:domain med:Opération ;
-    rdfs:range med:Maladie ;
-    owl:inverseOf med:necessite .
-
-med:estPrisEnChargePar a owl:AnnotationProperty .
-
-med:estRealiseePar a owl:ObjectProperty ;
-    rdfs:label "est réalisée par"@fr ;
-    rdfs:range med:Medecin ;
-    owl:inverseOf med:realise .
-
-med:estSoignePar a owl:ObjectProperty ;
-    rdfs:label "est soigné par"@fr ;
-    rdfs:comment "Un patient est soigné par un médecin. Inverse : soigne."@fr ;
-    rdfs:domain med:Patient ;
-    rdfs:range med:Medecin ;
-    owl:inverseOf med:soigne .
-
-med:estTraiteePar a owl:ObjectProperty ;
-    rdfs:label "est traitée par"@fr ;
-    rdfs:comment "Une maladie est traitée par un médicament."@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range med:Medicament ;
-    owl:inverseOf med:traite .
-
-med:est_destinée_à a owl:ObjectProperty ;
-    rdfs:domain med:Medecin ;
-    rdfs:range med:Patient .
-
-med:est_effectuée_par a owl:ObjectProperty ;
-    rdfs:domain med:Opération ;
-    rdfs:range med:Medecin .
-
-med:est_pris_en_charge_par a owl:ObjectProperty ;
-    rdfs:domain med:Patient .
-
-med:est_urgent a owl:DatatypeProperty ;
-    rdfs:domain med:Opération ;
-    rdfs:range xsd:boolean .
-
-med:gravite a owl:DatatypeProperty ;
-    rdfs:domain med:Maladie ;
-    rdfs:range rdf:langString .
-
-med:groupeSanguin a owl:DatatypeProperty ;
-    rdfs:label "groupe sanguin"@fr ;
-    rdfs:domain med:Patient ;
-    rdfs:range xsd:string .
-
-med:infirmier a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:intensite a owl:DatatypeProperty .
-
-med:joueLeRôleDe a owl:ObjectProperty ;
-    rdfs:domain med:Personne ;
-    rdfs:range med:Role .
-
-med:kinésithérapeutes a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:motDePasse a owl:AnnotationProperty .
-
-med:necessiteSuiviPar a owl:ObjectProperty ;
-    rdfs:label "nécessite suivi par"@fr ;
-    rdfs:comment "Une maladie chronique nécessite un suivi par un médecin."@fr ;
-    rdfs:domain med:MaladieChronique ;
-    rdfs:range med:Medecin ;
-    owl:inverseOf med:suit .
-
-med:nom a owl:DatatypeProperty ;
-    rdfs:label "nom"@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:string .
-
-med:nom_du_service a owl:DatatypeProperty ;
-    rdfs:range xsd:string .
-
-med:numeroCIN a owl:DatatypeProperty,
-        owl:FunctionalProperty,
-        owl:InverseFunctionalProperty,
-        owl:ObjectProperty ;
-    rdfs:label "numéro CIN"@fr ;
-    rdfs:comment "Identifiant unique de la personne (Fonctionnel + InverseFonctionnel)."@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:string .
-
-med:numeroOrdre a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "numéro d'ordre"@fr ;
-    rdfs:comment "Numéro d'ordre professionnel du médecin."@fr ;
-    rdfs:domain med:Medecin ;
-    rdfs:range xsd:string .
-
-<http://example.org/ontologie-medicale#numéro_de_l’ordonnance> a owl:DatatypeProperty ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range xsd:string .
-
-med:numéro_de_salle a owl:DatatypeProperty ;
-    rdfs:domain med:Dossier_patient ;
-    rdfs:range xsd:integer .
-
-med:participeA a owl:ObjectProperty ;
-    rdfs:label "participe à"@fr ;
-    rdfs:domain med:Patient .
-
-med:peutProvoquer a owl:ObjectProperty ;
-    rdfs:label "peut provoquer"@fr ;
-    rdfs:domain med:Medicament ;
-    rdfs:range med:EffetSecondaire .
-
-med:posologie a owl:DatatypeProperty ;
-    rdfs:label "posologie"@fr ;
-    rdfs:domain med:Medicament ;
-    rdfs:range xsd:string .
-
-med:prenom a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "prénom"@fr ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:string .
-
-med:presente a owl:ObjectProperty ;
-    rdfs:label "présente"@fr ;
-    rdfs:comment "Le patient décrit / présente ses symptômes."@fr ;
-    rdfs:domain med:Patient ;
-    rdfs:range med:Symptome .
-
-med:provoque a owl:ObjectProperty ;
-    rdfs:label "provoque"@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range med:Symptome .
-
-med:redige a owl:ObjectProperty ;
-    rdfs:label "rédige"@fr ;
-    rdfs:domain med:Medecin ;
-    rdfs:range med:Ordonnance .
-
-med:rédige a owl:ObjectProperty ;
-    rdfs:domain med:Medecin ;
-    rdfs:range med:Ordonnance .
-
-med:sages-femmes a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:se_déroule_dans a owl:ObjectProperty ;
-    rdfs:domain med:Opération .
-
-med:sexe a owl:DatatypeProperty ;
-    rdfs:label "sexe"@fr ;
-    rdfs:domain med:Patient ;
-    rdfs:range xsd:string .
-
-med:souffreDe a owl:ObjectProperty ;
-    rdfs:label "souffre de"@fr ;
-    rdfs:comment "Un patient souffre d'une maladie. Inverse : touche."@fr ;
-    rdfs:domain med:Patient ;
-    rdfs:range med:Maladie ;
-    owl:inverseOf med:touche .
-
-med:specialite a owl:DatatypeProperty ;
-    rdfs:label "spécialité"@fr ;
-    rdfs:domain med:MedecinSpecialiste ;
-    rdfs:range xsd:string .
-
-med:subit a owl:ObjectProperty ;
-    rdfs:domain med:Patient ;
-    rdfs:range med:Opération .
-
-med:tarif a owl:DatatypeProperty ;
-    rdfs:domain med:Consultation ;
-    rdfs:range xsd:decimal .
-
-med:telephone a owl:AnnotationProperty .
-
-med:temperature a owl:DatatypeProperty .
-
-med:téléphone a owl:DatatypeProperty ;
-    rdfs:domain med:Personne ;
-    rdfs:range xsd:string .
-
-med:Agents_de_service_hospitalier a owl:Class ;
-    rdfs:subClassOf med:Stuff_Médicale .
-
-med:Ali_Stagiaire a med:Stagiaire,
-        owl:NamedIndividual ;
-    rdfs:label "Ali Ben Romdhane (Stagiaire)"@fr ;
-    med:age 25 ;
-    med:nom "Ali Ben Romdhane" ;
-    med:numeroCIN "00567890" ;
-    med:prenom "Ali" ;
-    med:telephone "+216 55 000 111" ;
-    rdfs:comment "Stagiaire en medecine, individu de la classe Stagiaire (sous Personne)."@fr .
-
-med:Amina a med:PatientEnfant,
-        owl:NamedIndividual ;
-    rdfs:label "Amina Gharbi (PatientEnfant)"@fr ;
-    med:age 8 ;
-    med:email "aminagharbi@gmail.com" ;
-    med:estPrisEnChargePar med:Service_Urgences ;
-    med:est_pris_en_charge_par med:Service_Urgences ;
-    med:groupeSanguin "O+" ;
-    med:motDePasse "amina123" ;
-    med:nom "Amina Gharbi" ;
-    med:numeroCIN "00456789" ;
-    med:numeroDossier "PAT-002" ;
-    med:prenom "Amina" .
-
-med:Amlodipine a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Amlodipine"@fr ;
-    med:posologie "5 a 10 mg par jour" ;
-    med:traite med:Hypertension .
-
-med:Antalgique a owl:Class ;
-    rdfs:label "Antalgique"@fr ;
-    rdfs:subClassOf med:Medicament .
-
-med:AntiInflammatoire a owl:Class ;
-    rdfs:label "Anti-inflammatoire"@fr ;
-    rdfs:subClassOf med:Medicament .
-
-med:Artemisinine a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Artemisinine"@fr ;
-    med:posologie "4 mg/kg par jour pendant 3 jours" ;
-    med:traite med:Paludisme .
-
-med:Becotide a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Becotide (Beclometasone)"@fr ;
-    med:posologie "100 a 400 mcg par inhalation, 2 fois par jour" ;
-    med:traite med:Asthme .
-
-med:Cardiologue a owl:Class ;
-    rdfs:subClassOf med:MedecinSpecialiste .
-
-med:Chloroquine a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Chloroquine"@fr ;
-    med:estContreIndiquePour med:Arthrite ;
-    med:posologie "500 mg par semaine en prophylaxie" ;
-    med:traite med:Paludisme .
-
-med:EffetNeurologique a owl:Class ;
-    rdfs:label "Effet secondaire neurologique"@fr ;
-    rdfs:subClassOf med:EffetSecondaire .
-
-med:Fievre_Sami a owl:NamedIndividual .
-
-med:Gonflement a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Gonflement articulaire"@fr ;
-    med:descriptionSymptome "Gonflement et enflure au niveau des articulations" ;
-    med:estSymptomeDe med:Arthrite .
-
-med:Ibuprofene a owl:Class ;
-    rdfs:label "Ibuprofène"@fr ;
-    rdfs:subClassOf med:AntiInflammatoire .
-
-med:Insuline a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Insuline"@fr ;
-    med:posologie "Dosage individualise selon glycemie" ;
-    med:traite med:Diabete .
-
-med:Losartan a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Losartan"@fr ;
-    med:posologie "50 a 100 mg par jour" ;
-    med:traite med:Hypertension .
-
-med:Maux_de_gorge a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Maux de gorge"@fr ;
-    med:descriptionSymptome "Douleur ou irritation dans la gorge" ;
-    med:estSymptomeDe med:Angine .
-
-med:Metformine a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Metformine"@fr ;
-    med:posologie "500 mg a 1000 mg, 2 fois par jour avec les repas" ;
-    med:traite med:Diabete .
-
-med:Methotrexate a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Methotrexate"@fr ;
-    med:posologie "10 a 25 mg par semaine" ;
-    med:traite med:Arthrite .
-
-med:Mol_Ibuprofene a med:MoleculeIbuprofene,
-        owl:NamedIndividual ;
-    rdfs:label "Ibuprofène (molécule)"@fr .
-
-med:MoleculeIbuprofene a owl:Class ;
-    rdfs:label "Molécule d'ibuprofène"@fr ;
-    rdfs:subClassOf med:Molecule .
-
-med:MoleculeParacetamol a owl:Class ;
-    rdfs:label "Molécule de paracétamol"@fr ;
-    rdfs:subClassOf med:Molecule .
-
-med:Nausee_Effet a med:EffetDigestif,
-        owl:NamedIndividual ;
-    rdfs:label "Nausées"@fr .
-
-med:OperationChirurgicale a owl:Class ;
-    rdfs:subClassOf med:Opération .
-
-med:Paiement a owl:Class ;
-    rdfs:subClassOf med:Facturation .
-
-med:Paleur a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Paleur"@fr ;
-    med:descriptionSymptome "Coloration anormalement pale de la peau" .
-
-med:Ranitidine a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Ranitidine"@fr ;
-    med:estContreIndiquePour med:Ulcere_Exemple ;
-    med:posologie "150 mg, 2 fois par jour" ;
-    med:traite med:Gastrite .
-
-med:Salle_101 a owl:NamedIndividual ;
-    med:capacité 3 ;
-    med:numéro_de_salle 101 .
-
-med:Sumatriptan a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Sumatriptan"@fr ;
-    med:posologie "50 a 100 mg au debut de la crise" ;
-    med:traite med:Migraine .
-
-med:Ventoline a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Ventoline (Salbutamol)"@fr ;
-    med:posologie "2 bouffees a inhaler en cas de crise" ;
-    med:traite med:Asthme .
-
-med:Vomissement a owl:Class ;
-    rdfs:label "Vomissement"@fr ;
-    rdfs:subClassOf med:EffetDigestif .
-
-med:Vomissement_Effet a med:Vomissement,
-        owl:NamedIndividual .
-
-med:estPrescritePour a owl:ObjectProperty ;
-    rdfs:label "est prescrite pour"@fr ;
-    rdfs:comment "Une ordonnance est prescrite pour une maladie donnée."@fr ;
-    rdfs:domain med:Ordonnance ;
-    rdfs:range med:Maladie .
-
-med:estSymptomeDe a owl:ObjectProperty ;
-    rdfs:label "est symptôme de"@fr ;
-    rdfs:comment "Un symptôme est associé à une maladie. Inverse : aPourSymptome."@fr ;
-    rdfs:domain med:Symptome ;
-    rdfs:range med:Maladie .
-
-med:necessite a owl:ObjectProperty ;
-    rdfs:label "nécessite"@fr ;
-    rdfs:comment "Une maladie nécessite une opération chirurgicale."@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range med:Opération .
-
-med:numeroDossier a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "numéro de dossier"@fr ;
-    rdfs:domain med:Patient ;
-    rdfs:range xsd:string .
-
-med:soigne a owl:ObjectProperty ;
-    rdfs:label "soigne"@fr ;
-    rdfs:comment "Un médecin soigne un patient. Inverse : estSoignePar."@fr ;
-    rdfs:domain med:Medecin ;
-    rdfs:range med:Patient .
-
-med:suit a owl:ObjectProperty ;
-    rdfs:label "suit"@fr ;
-    rdfs:comment "Un médecin suit l'évolution d'une maladie chronique. Inverse : necessiteSuiviPar."@fr ;
-    rdfs:domain med:Medecin ;
-    rdfs:range med:MaladieChronique .
-
-med:touche a owl:ObjectProperty ;
-    rdfs:label "touche"@fr ;
-    rdfs:comment "Une maladie touche un patient."@fr ;
-    rdfs:domain med:Maladie ;
-    rdfs:range med:Patient .
-
-med:traite a owl:ObjectProperty ;
-    rdfs:label "traite"@fr ;
-    rdfs:comment "Un médicament traite une maladie. Inverse : estTraiteePar."@fr ;
-    rdfs:domain med:Medicament ;
-    rdfs:range med:Maladie .
-
-med:Amx a med:Antibiotique,
-        owl:NamedIndividual ;
-    rdfs:label "Amoxicilline"@fr ;
-    med:posologie "500 mg, 3 fois par jour pendant 7 jours" ;
-    med:traite med:Angine,
-        med:Bronchite .
-
-med:Antibiotique a owl:Class ;
-    rdfs:label "Antibiotique"@fr ;
-    rdfs:subClassOf med:Medicament .
-
-med:Brufen a med:Ibuprofene,
-        owl:NamedIndividual ;
-    rdfs:label "Brufen (Ibuprofene)"@fr ;
-    med:contientMolecule med:Mol_Ibuprofene ;
-    med:estContreIndiquePour med:Gastrite,
-        med:Ulcere_Exemple ;
-    med:peutProvoquer med:Vomissement_Effet ;
-    med:posologie "400 mg, 2 a 3 fois par jour" ;
-    med:traite med:Arthrite .
-
-med:Douleur_Articulaire a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Douleur articulaire"@fr ;
-    med:descriptionSymptome "Douleur au niveau des articulations" ;
-    med:estSymptomeDe med:Arthrite .
-
-med:Dr_Fatima a med:MedecinGeneraliste,
-        owl:NamedIndividual ;
-    rdfs:label "Dr Fatima Benali (Médecin Généraliste - Urgences)"@fr ;
-    med:adresse "7 Rue Ibn Khaldoun, Tunis" ;
-    med:age 35 ;
-    med:appartient_à med:Service_Urgences ;
-    med:email "fatima.benali@hopital.tn" ;
-    med:nom "Dr Fatima Benali" ;
-    med:numeroCIN "00678901" ;
-    med:numeroOrdre "MED-003" ;
-    med:prenom "Fatima" ;
-    med:specialite "Médecine générale" ;
-    med:telephone "+216 71 000 003" ;
-    rdfs:comment "Médecin généraliste affectée au service des urgences."@fr .
-
-med:EffetDigestif a owl:Class ;
-    rdfs:label "Effet secondaire digestif"@fr ;
-    rdfs:subClassOf med:EffetSecondaire .
-
-med:Essoufflement a med:SymptomeRespiratoire,
-        owl:NamedIndividual ;
-    rdfs:label "Essoufflement"@fr ;
-    med:descriptionSymptome "Difficulte a respirer normalement" ;
-    med:estSymptomeDe med:Asthme .
-
-med:Facturation a owl:Class ;
-    rdfs:subClassOf med:Service_administratif .
-
-med:Grippe_Sami a owl:NamedIndividual .
-
-med:Mol_Paracetamol a med:MoleculeParacetamol,
-        owl:NamedIndividual ;
-    rdfs:label "Paracétamol (molécule)"@fr .
-
-med:Ordonnance_1 a med:Ordonnance,
-        owl:NamedIndividual ;
-    med:contientMedicament med:Brufen,
-        med:Doliprane ;
-    med:dateOrdonnance "2026-10-01"^^xsd:date ;
-    med:estDestineeA med:Sami .
-
-med:Paracetamol a owl:Class ;
-    rdfs:label "Paracétamol"@fr ;
-    rdfs:subClassOf med:Antalgique .
-
-med:Paracetamol_Gen a med:Medicament,
-        med:Paracetamol,
-        owl:NamedIndividual ;
-    rdfs:label "Paracetamol Gen",
-        "Paracetamol (generique)"@fr ;
-    med:contientMolecule med:Mol_Paracetamol ;
-    med:posologie "500 mg a 1 g, 3 fois par jour" ;
-    med:traite med:Angine,
-        med:Grippe .
-
-med:PatientEnfant a owl:Class ;
-    rdfs:label "Patient enfant"@fr ;
-    rdfs:subClassOf med:Patient .
-
-med:Polyurie a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Polyurie"@fr ;
-    med:descriptionSymptome "Mictions frequentes et abondantes" ;
-    med:estSymptomeDe med:Diabete .
-
-med:Service_administratif a owl:Class .
-
-med:Sifflements a med:SymptomeRespiratoire,
-        owl:NamedIndividual ;
-    rdfs:label "Sifflements respiratoires"@fr ;
-    med:descriptionSymptome "Son sifflant lors de la respiration" ;
-    med:estSymptomeDe med:Asthme .
-
-med:Soif_Excessive a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Soif excessive"@fr ;
-    med:descriptionSymptome "Sensation de soif intense et persistante" ;
-    med:estSymptomeDe med:Diabete .
-
-med:Vomissement_Symp a med:SymptomeDigestif,
-        owl:NamedIndividual ;
-    rdfs:label "Vomissements"@fr ;
-    med:descriptionSymptome "Rejet du contenu gastrique par la bouche" ;
-    med:estSymptomeDe med:Gastrite,
-        med:Migraine,
-        med:Paludisme .
-
-med:realise a owl:ObjectProperty ;
-    rdfs:label "réalise"@fr ;
-    rdfs:domain med:Medecin .
-
-med:Consultation_1 a owl:NamedIndividual ;
-    med:a_lieu_dans med:Salle_101 ;
-    med:dateConsultation "2026-10-01"^^xsd:date .
-
-med:Courbatures a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Courbatures"@fr ;
-    med:descriptionSymptome "Douleurs musculaires diffuses" ;
-    med:estSymptomeDe med:Grippe,
-        med:Paludisme .
-
-med:EffetSecondaire a owl:Class ;
-    rdfs:label "Effet secondaire"@fr ;
-    rdfs:subClassOf med:Medicament .
-
-med:MedecinGeneraliste a owl:Class ;
-    rdfs:label "Médecin généraliste"@fr ;
-    rdfs:subClassOf med:Medecin ;
-    owl:disjointWith med:MedecinSpecialiste .
-
-med:Omeprazole a med:Medicament,
-        owl:NamedIndividual ;
-    rdfs:label "Omeprazole"@fr ;
-    med:posologie "20 mg par jour avant le repas" ;
-    med:traite med:Gastrite,
-        med:Ulcere_Exemple .
-
-med:Sami a med:PatientAdulte,
-        owl:NamedIndividual ;
-    rdfs:label "Sami Trabelsi (PatientAdulte)"@fr ;
-    med:adresse "12 Rue de la Republique, Tunis" ;
-    med:age 32 ;
-    med:estPrisEnChargePar med:Service_Cardio ;
-    med:estSoignePar med:Dr_Ahmed ;
-    med:groupeSanguin "A+" ;
-    med:nom "Sami Trabelsi" ;
-    med:numeroCIN "00345678" ;
-    med:numeroDossier "PAT-001" ;
-    med:participeA med:Consultation_1 ;
-    med:prenom "Sami" ;
-    med:presente med:Fievre_Sami ;
-    med:souffreDe med:Grippe,
-        med:Hypertension ;
-    med:telephone "+216 22 333 444" .
-
-med:Service_Cardio a owl:NamedIndividual .
-
-med:Service_Urgences a owl:NamedIndividual .
-
-med:Service_medicale a owl:Class .
-
-med:Stagiaire a owl:Class ;
-    rdfs:subClassOf med:Role .
-
-med:SymptomeDigestif a owl:Class ;
-    rdfs:label "Symptôme digestif"@fr ;
-    rdfs:subClassOf med:Symptome .
-
-med:SymptomeRespiratoire a owl:Class ;
-    rdfs:label "Symptôme respiratoire"@fr ;
-    rdfs:subClassOf med:Symptome .
-
-med:Type a owl:Class ;
-    rdfs:subClassOf med:Maladie .
-
-med:Vertiges_Symp a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Vertiges"@fr ;
-    med:descriptionSymptome "Sensation de rotation ou d instabilite" ;
-    med:estSymptomeDe med:Hypertension .
-
-med:Douleur_Abdominale a med:SymptomeDigestif,
-        owl:NamedIndividual ;
-    rdfs:label "Douleur abdominale"@fr ;
-    med:descriptionSymptome "Douleur dans la region abdominale" ;
-    med:estSymptomeDe med:Gastrite,
-        med:Ulcere_Exemple .
-
-med:MaladieDigestive a owl:Class ;
-    rdfs:label "Maladie digestive"@fr ;
-    rdfs:subClassOf med:Type .
-
-med:Molecule a owl:Class ;
-    rdfs:label "Molécule"@fr ;
-    rdfs:subClassOf med:Medicament .
-
-med:Toux a med:SymptomeRespiratoire,
-        owl:NamedIndividual ;
-    rdfs:label "Toux"@fr ;
-    med:descriptionSymptome "Expulsion brusque d air par les voies respiratoires" ;
-    med:estSymptomeDe med:Angine,
-        med:Asthme,
-        med:Bronchite,
-        med:Grippe .
-
-med:Ulcere_Exemple a med:MaladieDigestive,
-        owl:NamedIndividual ;
-    rdfs:label "Ulcere gastrique"@fr ;
-    med:aPourSymptome med:Douleur_Abdominale,
-        med:Fatigue,
-        med:Nausee ;
-    med:description "Lesion de la muqueuse gastrique ou duodenale."@fr ;
-    med:dureeTraitement "4 a 8 semaines" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Omeprazole ;
-    med:gravite "moderee"@fr .
-
-med:Bronchite a med:MaladieInfectieuse,
-        owl:NamedIndividual ;
-    rdfs:label "Bronchite"@fr ;
-    med:aPourSymptome med:Fatigue,
-        med:Fievre,
-        med:Toux ;
-    med:description "Inflammation des bronches, souvent d origine virale ou bacterienne."@fr ;
-    med:dureeTraitement "10 jours" ;
-    med:estContagieuse true ;
-    med:estTraiteePar med:Amx,
-        med:Doliprane ;
-    med:gravite "legere"@fr .
-
-med:Doliprane a med:Paracetamol,
-        owl:NamedIndividual ;
-    rdfs:label "Doliprane (Paracetamol)"@fr ;
-    med:contientMolecule med:Mol_Paracetamol ;
-    med:peutProvoquer med:Nausee_Effet ;
-    med:posologie "1 g, 3 a 4 fois par jour" ;
-    med:traite med:Angine,
-        med:Bronchite,
-        med:Grippe .
-
-med:Dossier_patient a owl:Class ;
-    rdfs:subClassOf med:Service_administratif .
-
-med:Dr_Ahmed a med:Medecin,
-        med:MedecinGeneraliste,
-        owl:NamedIndividual ;
-    rdfs:label "Dr Ahmed Ben Salah (Médecin Généraliste)"@fr ;
-    med:adresse "3 Avenue Habib Bourguiba, Tunis" ;
-    med:age 50 ;
-    med:appartient_à med:Service_Cardio ;
-    med:connait med:Dr_Karim ;
-    med:diagnostique med:Gastrite,
-        med:Grippe_Sami ;
-    med:email "ahmed.bensalah@hopital.tn" ;
-    med:nom "Dr Ahmed Ben Salah" ;
-    med:numeroCIN "00123456" ;
-    med:numeroOrdre "MED-001" ;
-    med:prenom "Ahmed" ;
-    med:realise med:Consultation_1 ;
-    med:redige med:Ordonnance_1 ;
-    med:rédige med:Ordonnance_1 ;
-    med:soigne med:Sami ;
-    med:specialite "Médecine générale" ;
-    med:telephone "+216 71 000 001" .
-
-med:Dr_Karim a med:MedecinSpecialiste,
-        owl:NamedIndividual ;
-    rdfs:label "Dr Karim Mansour (Cardiologue)"@fr ;
-    med:age 40 ;
-    med:appartient_à med:Service_Cardio ;
-    med:connait med:Dr_Ahmed,
-        med:Dr_Karim ;
-    med:diagnostique med:Grippe_Sami ;
-    med:email "karim.mansour@hopital.tn" ;
-    med:nom "Dr Karim Mansour" ;
-    med:numeroCIN "00234567" ;
-    med:numeroOrdre "MED-002" ;
-    med:prenom "Karim" ;
-    med:realise med:Consultation_1 ;
-    med:specialite "Cardiologie" ;
-    med:telephone "+216 71 000 002" .
-
-med:Fievre a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    med:descriptionSymptome "Temperature corporelle elevee" ;
-    med:estSymptomeDe med:Angine,
-        med:Bronchite,
-        med:Grippe,
-        med:Paludisme ;
-    med:intensite 7 ;
-    med:temperature 38.5 .
-
-med:MaladieInfectieuse a owl:Class ;
-    rdfs:label "Maladie infectieuse"@fr ;
-    rdfs:subClassOf med:Type .
-
-med:Maux_de_tete a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Maux de tete"@fr ;
-    med:descriptionSymptome "Douleur a la tete de diverses origines" ;
-    med:estSymptomeDe med:Hypertension,
-        med:Migraine .
-
-med:Role a owl:Class ;
-    rdfs:subClassOf med:Personne .
-
-xsd:date a rdfs:Datatype .
-
-med:Angine a med:Maladie,
-        med:MaladieInfectieuse,
-        owl:NamedIndividual ;
-    rdfs:label "Angine"@fr ;
-    med:aPourSymptome med:Asthme,
-        med:Fievre,
-        med:Maux_de_gorge,
-        med:Nausee,
-        med:Toux ;
-    med:description "Infection de la gorge causee par des bacteries ou des virus."@fr ;
-    med:dureeTraitement "7 jours" ;
-    med:estContagieuse true ;
-    med:estTraiteePar med:Amx,
-        med:Doliprane,
-        med:Paracetamol_Gen ;
-    med:gravite "moderee"@fr .
-
-med:Arthrite a med:MaladieChronique,
-        owl:NamedIndividual ;
-    rdfs:label "Arthrite"@fr ;
-    med:aPourSymptome med:Douleur_Articulaire,
-        med:Gonflement ;
-    med:description "Inflammation des articulations causant douleur et raideur."@fr ;
-    med:dureeTraitement "Traitement continu" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Brufen,
-        med:Methotrexate ;
-    med:gravite "moderee"@fr .
-
-med:Diabete a med:MaladieChronique,
-        owl:NamedIndividual ;
-    rdfs:label "Diabete"@fr ;
-    med:aPourSymptome med:Fatigue,
-        med:Polyurie,
-        med:Soif_Excessive ;
-    med:description "Maladie chronique caracterisee par un taux de sucre eleve dans le sang."@fr ;
-    med:dureeTraitement "Traitement a vie" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Insuline,
-        med:Metformine ;
-    med:gravite "moderee"@fr .
-
-med:Fatigue a med:SymptomeGeneral,
-        owl:NamedIndividual ;
-    rdfs:label "Fatigue"@fr ;
-    med:descriptionSymptome "Sensation de lassitude et d epuisement" ;
-    med:estSymptomeDe med:Bronchite,
-        med:Diabete,
-        med:Grippe .
-
-med:Migraine a med:Maladie,
-        med:MaladieChronique,
-        owl:NamedIndividual ;
-    rdfs:label "Migraine",
-        "Migraine"@fr ;
-    med:aPourSymptome med:Maux_de_tete,
-        med:Nausee,
-        med:Vomissement_Symp ;
-    med:description "Maux de tete intenses et recurrents souvent accompagnes de nausees."@fr ;
-    med:dureeTraitement "Traitement de la crise" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Doliprane,
-        med:Sumatriptan ;
-    med:gravite "moderee"@fr .
-
-med:PatientAdulte a owl:Class ;
-    rdfs:label "Patient adulte"@fr ;
-    rdfs:subClassOf med:Patient ;
-    owl:disjointWith med:PatientEnfant .
-
-med:Asthme a med:MaladieChronique,
-        owl:NamedIndividual ;
-    rdfs:label "Asthme"@fr ;
-    med:aPourSymptome med:Essoufflement,
-        med:Sifflements,
-        med:Toux ;
-    med:description "Maladie inflammatoire chronique des voies respiratoires."@fr ;
-    med:dureeTraitement "Traitement continu" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Becotide,
-        med:Ventoline ;
-    med:gravite "moderee"@fr .
-
-med:Grippe a med:MaladieInfectieuse,
-        owl:NamedIndividual ;
-    rdfs:label "Grippe"@fr ;
-    med:aPourSymptome med:Courbatures,
-        med:Fatigue,
-        med:Fievre,
-        med:Toux ;
-    med:description "Infection virale respiratoire aigue tres contagieuse."@fr ;
-    med:dureeTraitement "7 a 10 jours" ;
-    med:estContagieuse true ;
-    med:estTraiteePar med:Doliprane,
-        med:Paracetamol_Gen ;
-    med:gravite "moderee"@fr .
-
-med:Hypertension a med:MaladieChronique,
-        owl:NamedIndividual ;
-    rdfs:label "Hypertension arterielle"@fr ;
-    med:aPourSymptome med:Maux_de_tete,
-        med:Vertiges_Symp ;
-    med:description "Pression arterielle chroniquement elevee."@fr ;
-    med:dureeTraitement "Traitement a vie" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Amlodipine,
-        med:Losartan ;
-    med:gravite "severe"@fr .
-
-med:Nausee a med:Symptome,
-        med:SymptomeDigestif,
-        owl:NamedIndividual ;
-    rdfs:label "Nausee",
-        "Nausee"@fr ;
-    med:descriptionSymptome "Envie de vomir" ;
-    med:estSymptomeDe med:Gastrite,
-        med:Migraine,
-        med:Paludisme .
-
-med:Paludisme a med:MaladieInfectieuse,
-        owl:NamedIndividual ;
-    rdfs:label "Paludisme"@fr ;
-    med:aPourSymptome med:Courbatures,
-        med:Fatigue,
-        med:Fievre,
-        med:Nausee ;
-    med:description "Maladie parasitaire transmise par les moustiques Anopheles."@fr ;
-    med:dureeTraitement "3 a 7 jours" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Artemisinine,
-        med:Chloroquine ;
-    med:gravite "severe"@fr .
-
-med:Consultation a owl:Class ;
-    rdfs:subClassOf med:Service_medicale .
-
-med:Gastrite a med:Maladie,
-        med:MaladieDigestive,
-        owl:NamedIndividual ;
-    rdfs:label "Gastrite"@fr ;
-    med:aPourSymptome med:Douleur_Abdominale,
-        med:Nausee,
-        med:Vomissement_Symp ;
-    med:description "Inflammation de la muqueuse gastrique."@fr ;
-    med:dureeTraitement "2 a 4 semaines" ;
-    med:estContagieuse false ;
-    med:estTraiteePar med:Omeprazole,
-        med:Ranitidine ;
-    med:gravite "legere"@fr .
-
-med:MaladieChronique a owl:Class ;
-    rdfs:label "Maladie chronique"@fr ;
-    rdfs:subClassOf med:Type .
-
-med:Symptome a owl:Class ;
-    rdfs:label "Symptôme"@fr ;
-    rdfs:subClassOf med:Maladie .
-
-med:Stuff_Médicale a owl:Class ;
-    rdfs:subClassOf med:Role .
-
-med:Opération a owl:Class ;
-    rdfs:subClassOf med:Service_medicale .
-
-med:SymptomeGeneral a owl:Class ;
-    rdfs:label "Symptôme général"@fr ;
-    rdfs:subClassOf med:Symptome .
-
-med:MedecinSpecialiste a owl:Class ;
-    rdfs:label "Médecin spécialiste"@fr ;
-    rdfs:subClassOf med:Medecin .
-
-med:Personne a owl:Class ;
-    rdfs:label "Personne"@fr ;
-    rdfs:comment "Toute entité humaine présente dans le système médical (médecin, patient, stagiaire …)."@fr .
-
-med:Ordonnance a owl:Class ;
-    rdfs:label "Ordonnance"@fr ;
-    rdfs:subClassOf med:Service_medicale .
-
-med:Medecin a owl:Class ;
-    rdfs:label "Médecin"@fr ;
-    rdfs:subClassOf med:Role ;
-    owl:disjointWith med:Patient .
-
-med:Patient a owl:Class ;
-    rdfs:label "Patient"@fr ;
-    rdfs:subClassOf med:Role .
-
-med:Maladie a owl:Class ;
-    rdfs:label "Maladie"@fr .
-
-med:Medicament a owl:Class ;
-    rdfs:label "Médicament"@fr .
-
-[] a owl:AllDifferent ;
-    owl:distinctMembers ( med:Ali_Stagiaire med:Amina med:Dr_Ahmed med:Dr_Fatima med:Dr_Karim med:Sami ) .
-
-[] a owl:AllDisjointClasses ;
-    owl:members ( med:MaladieChronique med:MaladieDigestive med:MaladieInfectieuse ) .
-
-[] a owl:AllDisjointClasses ;
-    owl:members ( med:Medecin med:Patient med:Stagiaire med:Stuff_Médicale ) .
+<http://example.org/ontologie-medicale> rdf:type owl:Ontology ;
+                                         rdfs:comment "Ontologie en 3 niveaux de hiérarchie (classe > sous-classe > sous-sous-classe)."@fr ;
+                                         rdfs:label "Ontologie médicale : médecin, patient, ordonnance"@fr .
 
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://example.org/ontologie-medicale#estPrisEnChargePar
+:estPrisEnChargePar rdf:type owl:AnnotationProperty .
+
+
+###  http://example.org/ontologie-medicale#motDePasse
+:motDePasse rdf:type owl:AnnotationProperty .
+
+
+###  http://example.org/ontologie-medicale#telephone
+:telephone rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#date
+xsd:date rdf:type rdfs:Datatype .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://example.org/ontologie-medicale#aConsulte
+:aConsulte rdf:type owl:ObjectProperty ,
+                    owl:TransitiveProperty ;
+           rdfs:domain :Personne ;
+           rdfs:range :Personne ;
+           rdfs:comment "Relation transitive : A a consulté B qui a consulté C → A a consulté C."@fr ;
+           rdfs:label "a consulté"@fr .
+
+
+###  http://example.org/ontologie-medicale#aPourSymptome
+:aPourSymptome rdf:type owl:ObjectProperty ;
+               owl:inverseOf :estSymptomeDe ;
+               rdfs:domain :Maladie ;
+               rdfs:range :Symptome ;
+               rdfs:comment "Une maladie se manifeste par un ou plusieurs symptômes."@fr ;
+               rdfs:label "a pour symptôme"@fr .
+
+
+###  http://example.org/ontologie-medicale#a_lieu_dans
+:a_lieu_dans rdf:type owl:ObjectProperty ;
+             rdfs:domain :Consultation ;
+             rdfs:range :Dossier_patient .
+
+
+###  http://example.org/ontologie-medicale#appartient_à
+:appartient_à rdf:type owl:ObjectProperty ;
+              rdfs:domain :Medecin .
+
+
+###  http://example.org/ontologie-medicale#concerne
+:concerne rdf:type owl:ObjectProperty ;
+          rdfs:domain :Consultation ;
+          rdfs:range :Maladie .
+
+
+###  http://example.org/ontologie-medicale#concerneMaladie
+:concerneMaladie rdf:type owl:ObjectProperty ;
+                 owl:inverseOf :estPrescritePour ;
+                 rdfs:domain :Maladie ;
+                 rdfs:range :Ordonnance ;
+                 rdfs:comment "Une maladie est concernée par une ordonnance. Inverse : estPrescritePour."@fr ;
+                 rdfs:label "concerne maladie"@fr .
+
+
+###  http://example.org/ontologie-medicale#connait
+:connait rdf:type owl:ObjectProperty ,
+                  owl:SymmetricProperty ;
+         rdfs:domain :Personne ;
+         rdfs:range :Personne ;
+         rdfs:comment "Relation symétrique : si A connaît B, alors B connaît A."@fr ;
+         rdfs:label "connaît"@fr .
+
+
+###  http://example.org/ontologie-medicale#contient
+:contient rdf:type owl:ObjectProperty ;
+          rdfs:domain :Ordonnance ;
+          rdfs:range :Medicament .
+
+
+###  http://example.org/ontologie-medicale#contientMedicament
+:contientMedicament rdf:type owl:ObjectProperty ;
+                    rdfs:domain :Ordonnance ;
+                    rdfs:range :Medicament ;
+                    rdfs:label "contient (médicament)"@fr .
+
+
+###  http://example.org/ontologie-medicale#contientMolecule
+:contientMolecule rdf:type owl:ObjectProperty ;
+                  rdfs:domain :Medicament ;
+                  rdfs:range :Molecule ;
+                  rdfs:comment "Un médicament contient des molécules ; la molécule est elle-même une sous-classe de Médicament."@fr ;
+                  rdfs:label "contient (molécule)"@fr .
+
+
+###  http://example.org/ontologie-medicale#diagnostique
+:diagnostique rdf:type owl:ObjectProperty ;
+              rdfs:domain :Medecin ;
+              rdfs:range :Maladie ;
+              rdfs:label "diagnostique"@fr .
+
+
+###  http://example.org/ontologie-medicale#estContreIndiquePour
+:estContreIndiquePour rdf:type owl:ObjectProperty ;
+                      rdfs:domain :Medicament ;
+                      rdfs:range :Maladie ;
+                      rdfs:label "est contre-indiqué pour"@fr .
+
+
+###  http://example.org/ontologie-medicale#estDestineeA
+:estDestineeA rdf:type owl:ObjectProperty ;
+              rdfs:domain :Ordonnance ;
+              rdfs:range :Patient ;
+              rdfs:label "est destinée à"@fr .
+
+
+###  http://example.org/ontologie-medicale#estNecessairePour
+:estNecessairePour rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :necessite ;
+                   rdfs:domain :Opération ;
+                   rdfs:range :Maladie ;
+                   rdfs:comment "Une opération est nécessaire pour traiter une maladie. Inverse : necessite."@fr ;
+                   rdfs:label "est nécessaire pour"@fr .
+
+
+###  http://example.org/ontologie-medicale#estPrescritePour
+:estPrescritePour rdf:type owl:ObjectProperty ;
+                  rdfs:domain :Ordonnance ;
+                  rdfs:range :Maladie ;
+                  rdfs:comment "Une ordonnance est prescrite pour une maladie donnée."@fr ;
+                  rdfs:label "est prescrite pour"@fr .
+
+
+###  http://example.org/ontologie-medicale#estRealiseePar
+:estRealiseePar rdf:type owl:ObjectProperty ;
+                owl:inverseOf :realise ;
+                rdfs:range :Medecin ;
+                rdfs:label "est réalisée par"@fr .
+
+
+###  http://example.org/ontologie-medicale#estSoignePar
+:estSoignePar rdf:type owl:ObjectProperty ;
+              owl:inverseOf :soigne ;
+              rdfs:domain :Patient ;
+              rdfs:range :Medecin ;
+              rdfs:comment "Un patient est soigné par un médecin. Inverse : soigne."@fr ;
+              rdfs:label "est soigné par"@fr .
+
+
+###  http://example.org/ontologie-medicale#estSymptomeDe
+:estSymptomeDe rdf:type owl:ObjectProperty ;
+               rdfs:domain :Symptome ;
+               rdfs:range :Maladie ;
+               rdfs:comment "Un symptôme est associé à une maladie. Inverse : aPourSymptome."@fr ;
+               rdfs:label "est symptôme de"@fr .
+
+
+###  http://example.org/ontologie-medicale#estTraiteePar
+:estTraiteePar rdf:type owl:ObjectProperty ;
+               owl:inverseOf :traite ;
+               rdfs:domain :Maladie ;
+               rdfs:range :Medicament ;
+               rdfs:comment "Une maladie est traitée par un médicament."@fr ;
+               rdfs:label "est traitée par"@fr .
+
+
+###  http://example.org/ontologie-medicale#est_destinée_à
+:est_destinée_à rdf:type owl:ObjectProperty ;
+                rdfs:domain :Medecin ;
+                rdfs:range :Patient .
+
+
+###  http://example.org/ontologie-medicale#est_effectuée_par
+:est_effectuée_par rdf:type owl:ObjectProperty ;
+                   rdfs:domain :Opération ;
+                   rdfs:range :Medecin .
+
+
+###  http://example.org/ontologie-medicale#est_pris_en_charge_par
+:est_pris_en_charge_par rdf:type owl:ObjectProperty ;
+                        rdfs:domain :Patient .
+
+
+###  http://example.org/ontologie-medicale#joueLeRôleDe
+:joueLeRôleDe rdf:type owl:ObjectProperty ;
+              rdfs:domain :Personne ;
+              rdfs:range :Role .
+
+
+###  http://example.org/ontologie-medicale#necessite
+:necessite rdf:type owl:ObjectProperty ;
+           rdfs:domain :Maladie ;
+           rdfs:range :Opération ;
+           rdfs:comment "Une maladie nécessite une opération chirurgicale."@fr ;
+           rdfs:label "nécessite"@fr .
+
+
+###  http://example.org/ontologie-medicale#necessiteSuiviPar
+:necessiteSuiviPar rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :suit ;
+                   rdfs:domain :MaladieChronique ;
+                   rdfs:range :Medecin ;
+                   rdfs:comment "Une maladie chronique nécessite un suivi par un médecin."@fr ;
+                   rdfs:label "nécessite suivi par"@fr .
+
+
+###  http://example.org/ontologie-medicale#numeroCIN
+:numeroCIN rdf:type owl:ObjectProperty ,
+                    owl:FunctionalProperty ,
+                    owl:InverseFunctionalProperty ;
+           rdfs:domain :Personne .
+
+
+###  http://example.org/ontologie-medicale#participeA
+:participeA rdf:type owl:ObjectProperty ;
+            rdfs:domain :Patient ;
+            rdfs:label "participe à"@fr .
+
+
+###  http://example.org/ontologie-medicale#peutProvoquer
+:peutProvoquer rdf:type owl:ObjectProperty ;
+               rdfs:domain :Medicament ;
+               rdfs:range :EffetSecondaire ;
+               rdfs:label "peut provoquer"@fr .
+
+
+###  http://example.org/ontologie-medicale#presente
+:presente rdf:type owl:ObjectProperty ;
+          rdfs:domain :Patient ;
+          rdfs:range :Symptome ;
+          rdfs:comment "Le patient décrit / présente ses symptômes."@fr ;
+          rdfs:label "présente"@fr .
+
+
+###  http://example.org/ontologie-medicale#provoque
+:provoque rdf:type owl:ObjectProperty ;
+          rdfs:domain :Maladie ;
+          rdfs:range :Symptome ;
+          rdfs:label "provoque"@fr .
+
+
+###  http://example.org/ontologie-medicale#realise
+:realise rdf:type owl:ObjectProperty ;
+         rdfs:domain :Medecin ;
+         rdfs:label "réalise"@fr .
+
+
+###  http://example.org/ontologie-medicale#redige
+:redige rdf:type owl:ObjectProperty ;
+        rdfs:domain :Medecin ;
+        rdfs:range :Ordonnance ;
+        rdfs:label "rédige"@fr .
+
+
+###  http://example.org/ontologie-medicale#rédige
+:rédige rdf:type owl:ObjectProperty ;
+        rdfs:domain :Medecin ;
+        rdfs:range :Ordonnance .
+
+
+###  http://example.org/ontologie-medicale#se_déroule_dans
+:se_déroule_dans rdf:type owl:ObjectProperty ;
+                 rdfs:domain :Opération .
+
+
+###  http://example.org/ontologie-medicale#soigne
+:soigne rdf:type owl:ObjectProperty ;
+        rdfs:domain :Medecin ;
+        rdfs:range :Patient ;
+        rdfs:comment "Un médecin soigne un patient. Inverse : estSoignePar."@fr ;
+        rdfs:label "soigne"@fr .
+
+
+###  http://example.org/ontologie-medicale#souffreDe
+:souffreDe rdf:type owl:ObjectProperty ;
+           owl:inverseOf :touche ;
+           rdfs:domain :Patient ;
+           rdfs:range :Maladie ;
+           rdfs:comment "Un patient souffre d'une maladie. Inverse : touche."@fr ;
+           rdfs:label "souffre de"@fr .
+
+
+###  http://example.org/ontologie-medicale#subit
+:subit rdf:type owl:ObjectProperty ;
+       rdfs:domain :Patient ;
+       rdfs:range :Opération .
+
+
+###  http://example.org/ontologie-medicale#suit
+:suit rdf:type owl:ObjectProperty ;
+      rdfs:domain :Medecin ;
+      rdfs:range :MaladieChronique ;
+      rdfs:comment "Un médecin suit l'évolution d'une maladie chronique. Inverse : necessiteSuiviPar."@fr ;
+      rdfs:label "suit"@fr .
+
+
+###  http://example.org/ontologie-medicale#touche
+:touche rdf:type owl:ObjectProperty ;
+        rdfs:domain :Maladie ;
+        rdfs:range :Patient ;
+        rdfs:comment "Une maladie touche un patient."@fr ;
+        rdfs:label "touche"@fr .
+
+
+###  http://example.org/ontologie-medicale#traite
+:traite rdf:type owl:ObjectProperty ;
+        rdfs:domain :Medicament ;
+        rdfs:range :Maladie ;
+        rdfs:comment "Un médicament traite une maladie. Inverse : estTraiteePar."@fr ;
+        rdfs:label "traite"@fr .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://example.org/ontologie-medicale#adresse
+:adresse rdf:type owl:DatatypeProperty ;
+         rdfs:domain :Personne ;
+         rdfs:range xsd:string ;
+         rdfs:label "adresse"@fr .
+
+
+###  http://example.org/ontologie-medicale#age
+:age rdf:type owl:DatatypeProperty ,
+              owl:FunctionalProperty ;
+     rdfs:domain :Personne ;
+     rdfs:range xsd:integer ;
+     rdfs:comment "Âge de la personne (entier, fonctionnel)."@fr ;
+     rdfs:label "âge"@fr .
+
+
+###  http://example.org/ontologie-medicale#capacité
+:capacité rdf:type owl:DatatypeProperty ;
+          rdfs:domain :Dossier_patient ;
+          rdfs:range xsd:integer .
+
+
+###  http://example.org/ontologie-medicale#dateConsultation
+:dateConsultation rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:date ;
+                  rdfs:label "date de la consultation"@fr .
+
+
+###  http://example.org/ontologie-medicale#dateNaissance
+:dateNaissance rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :Personne ;
+               rdfs:range xsd:date ;
+               rdfs:label "date de naissance"@fr .
+
+
+###  http://example.org/ontologie-medicale#dateOrdonnance
+:dateOrdonnance rdf:type owl:DatatypeProperty ;
+                rdfs:domain :Ordonnance ;
+                rdfs:range xsd:date ;
+                rdfs:label "date de l'ordonnance"@fr .
+
+
+###  http://example.org/ontologie-medicale#description
+:description rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Maladie ;
+             rdfs:range rdf:langString .
+
+
+###  http://example.org/ontologie-medicale#descriptionSymptome
+:descriptionSymptome rdf:type owl:DatatypeProperty .
+
+
+###  http://example.org/ontologie-medicale#dureeTraitement
+:dureeTraitement rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :Maladie ;
+                 rdfs:range xsd:string ;
+                 rdfs:label "duree du traitement"@fr .
+
+
+###  http://example.org/ontologie-medicale#durée
+:durée rdf:type owl:DatatypeProperty ;
+       rdfs:domain :Opération ;
+       rdfs:range xsd:integer .
+
+
+###  http://example.org/ontologie-medicale#durée_de_validité
+:durée_de_validité rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :Ordonnance ;
+                   rdfs:range xsd:integer .
+
+
+###  http://example.org/ontologie-medicale#email
+:email rdf:type owl:DatatypeProperty ,
+                owl:FunctionalProperty ;
+       rdfs:domain :Personne ;
+       rdfs:range xsd:string ;
+       rdfs:label "e-mail"@fr .
+
+
+###  http://example.org/ontologie-medicale#estContagieuse
+:estContagieuse rdf:type owl:DatatypeProperty ;
+                rdfs:domain :Maladie ;
+                rdfs:range xsd:boolean .
+
+
+###  http://example.org/ontologie-medicale#est_urgent
+:est_urgent rdf:type owl:DatatypeProperty ;
+            rdfs:domain :Opération ;
+            rdfs:range xsd:boolean .
+
+
+###  http://example.org/ontologie-medicale#gravite
+:gravite rdf:type owl:DatatypeProperty ;
+         rdfs:domain :Maladie ;
+         rdfs:range rdf:langString .
+
+
+###  http://example.org/ontologie-medicale#groupeSanguin
+:groupeSanguin rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Patient ;
+               rdfs:range xsd:string ;
+               rdfs:label "groupe sanguin"@fr .
+
+
+###  http://example.org/ontologie-medicale#intensite
+:intensite rdf:type owl:DatatypeProperty .
+
+
+###  http://example.org/ontologie-medicale#nom
+:nom rdf:type owl:DatatypeProperty ;
+     rdfs:domain :Personne ;
+     rdfs:range xsd:string ;
+     rdfs:label "nom"@fr .
+
+
+###  http://example.org/ontologie-medicale#nom_du_service
+:nom_du_service rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string .
+
+
+###  http://example.org/ontologie-medicale#numeroCIN
+:numeroCIN rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           rdfs:range xsd:string .
+
+
+###  http://example.org/ontologie-medicale#numeroDossier
+:numeroDossier rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :Patient ;
+               rdfs:range xsd:string ;
+               rdfs:label "numéro de dossier"@fr .
+
+
+###  http://example.org/ontologie-medicale#numeroOrdre
+:numeroOrdre rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+             rdfs:domain :Medecin ;
+             rdfs:range xsd:string ;
+             rdfs:comment "Numéro d'ordre professionnel du médecin."@fr ;
+             rdfs:label "numéro d'ordre"@fr .
+
+
+###  http://example.org/ontologie-medicale#numéro_de_salle
+:numéro_de_salle rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :Dossier_patient ;
+                 rdfs:range xsd:integer .
+
+
+###  http://example.org/ontologie-medicale#posologie
+:posologie rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Medicament ;
+           rdfs:range xsd:string ;
+           rdfs:label "posologie"@fr .
+
+
+###  http://example.org/ontologie-medicale#prenom
+:prenom rdf:type owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+        rdfs:domain :Personne ;
+        rdfs:range xsd:string ;
+        rdfs:label "prénom"@fr .
+
+
+###  http://example.org/ontologie-medicale#sexe
+:sexe rdf:type owl:DatatypeProperty ;
+      rdfs:domain :Patient ;
+      rdfs:range xsd:string ;
+      rdfs:label "sexe"@fr .
+
+
+###  http://example.org/ontologie-medicale#specialite
+:specialite rdf:type owl:DatatypeProperty ;
+            rdfs:domain :MedecinSpecialiste ;
+            rdfs:range xsd:string ;
+            rdfs:label "spécialité"@fr .
+
+
+###  http://example.org/ontologie-medicale#tarif
+:tarif rdf:type owl:DatatypeProperty ;
+       rdfs:domain :Consultation ;
+       rdfs:range xsd:decimal .
+
+
+###  http://example.org/ontologie-medicale#temperature
+:temperature rdf:type owl:DatatypeProperty .
+
+
+###  http://example.org/ontologie-medicale#téléphone
+:téléphone rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Personne ;
+           rdfs:range xsd:string .
+
+
+###  http://example.org/ontologie-medicale#date_de_l’opération
+ns1:opération rdf:type owl:DatatypeProperty ;
+              rdfs:domain :Opération ;
+              rdfs:range xsd:date .
+
+
+###  http://example.org/ontologie-medicale#date_de_l’ordonnance
+ns1:ordonnance rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Ordonnance ;
+               rdfs:range xsd:date .
+
+
+###  http://example.org/ontologie-medicale#numéro_de_l’ordonnance
+<http://example.org/ontologie-medicale#numéro_de_l’ordonnance> rdf:type owl:DatatypeProperty ;
+                                                               rdfs:domain :Ordonnance ;
+                                                               rdfs:range xsd:string .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://example.org/ontologie-medicale#Agents_de_service_hospitalier
+:Agents_de_service_hospitalier rdf:type owl:Class ;
+                               rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#Aide_soignant
+:Aide_soignant rdf:type owl:Class ;
+               rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#Anesthésiste
+:Anesthésiste rdf:type owl:Class ;
+              rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Antalgique
+:Antalgique rdf:type owl:Class ;
+            rdfs:subClassOf :Medicament ;
+            rdfs:label "Antalgique"@fr .
+
+
+###  http://example.org/ontologie-medicale#AntiInflammatoire
+:AntiInflammatoire rdf:type owl:Class ;
+                   rdfs:subClassOf :Medicament ;
+                   rdfs:label "Anti-inflammatoire"@fr .
+
+
+###  http://example.org/ontologie-medicale#Antibiotique
+:Antibiotique rdf:type owl:Class ;
+              rdfs:subClassOf :Medicament ;
+              rdfs:label "Antibiotique"@fr .
+
+
+###  http://example.org/ontologie-medicale#Cardiologue
+:Cardiologue rdf:type owl:Class ;
+             rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Consultation
+:Consultation rdf:type owl:Class ;
+              rdfs:subClassOf :Service_medicale .
+
+
+###  http://example.org/ontologie-medicale#ConsultationControle
+:ConsultationControle rdf:type owl:Class ;
+                      rdfs:subClassOf :Consultation .
+
+
+###  http://example.org/ontologie-medicale#ConsultationGenerale
+:ConsultationGenerale rdf:type owl:Class ;
+                      rdfs:subClassOf :Consultation .
+
+
+###  http://example.org/ontologie-medicale#ConsultationSpecialisee
+:ConsultationSpecialisee rdf:type owl:Class ;
+                         rdfs:subClassOf :Consultation .
+
+
+###  http://example.org/ontologie-medicale#ConsultationUrgence
+:ConsultationUrgence rdf:type owl:Class ;
+                     rdfs:subClassOf :Consultation .
+
+
+###  http://example.org/ontologie-medicale#Dermatologue
+:Dermatologue rdf:type owl:Class ;
+              rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Dossier_medicale
+:Dossier_medicale rdf:type owl:Class ;
+                  rdfs:subClassOf :Dossier_patient .
+
+
+###  http://example.org/ontologie-medicale#Dossier_patient
+:Dossier_patient rdf:type owl:Class ;
+                 rdfs:subClassOf :Service_administratif .
+
+
+###  http://example.org/ontologie-medicale#EffetDigestif
+:EffetDigestif rdf:type owl:Class ;
+               rdfs:subClassOf :EffetSecondaire ;
+               rdfs:label "Effet secondaire digestif"@fr .
+
+
+###  http://example.org/ontologie-medicale#EffetNeurologique
+:EffetNeurologique rdf:type owl:Class ;
+                   rdfs:subClassOf :EffetSecondaire ;
+                   rdfs:label "Effet secondaire neurologique"@fr .
+
+
+###  http://example.org/ontologie-medicale#EffetSecondaire
+:EffetSecondaire rdf:type owl:Class ;
+                 rdfs:subClassOf :Medicament ;
+                 rdfs:label "Effet secondaire"@fr .
+
+
+###  http://example.org/ontologie-medicale#Endocrinologue
+:Endocrinologue rdf:type owl:Class ;
+                rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Facturation
+:Facturation rdf:type owl:Class ;
+             rdfs:subClassOf :Service_administratif .
+
+
+###  http://example.org/ontologie-medicale#Facture
+:Facture rdf:type owl:Class ;
+         rdfs:subClassOf :Paiement .
+
+
+###  http://example.org/ontologie-medicale#Fievre
+:Fievre rdf:type owl:Class .
+
+
+###  http://example.org/ontologie-medicale#Gastro-entérologue
+:Gastro-entérologue rdf:type owl:Class ;
+                    rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Ibuprofene
+:Ibuprofene rdf:type owl:Class ;
+            rdfs:subClassOf :AntiInflammatoire ;
+            rdfs:label "Ibuprofène"@fr .
+
+
+###  http://example.org/ontologie-medicale#Maladie
+:Maladie rdf:type owl:Class ;
+         rdfs:label "Maladie"@fr .
+
+
+###  http://example.org/ontologie-medicale#MaladieChronique
+:MaladieChronique rdf:type owl:Class ;
+                  rdfs:subClassOf :Type ;
+                  rdfs:label "Maladie chronique"@fr .
+
+
+###  http://example.org/ontologie-medicale#MaladieDigestive
+:MaladieDigestive rdf:type owl:Class ;
+                  rdfs:subClassOf :Type ;
+                  rdfs:label "Maladie digestive"@fr .
+
+
+###  http://example.org/ontologie-medicale#MaladieInfectieuse
+:MaladieInfectieuse rdf:type owl:Class ;
+                    rdfs:subClassOf :Type ;
+                    rdfs:label "Maladie infectieuse"@fr .
+
+
+###  http://example.org/ontologie-medicale#Medecin
+:Medecin rdf:type owl:Class ;
+         rdfs:subClassOf :Role ;
+         owl:disjointWith :Patient ;
+         rdfs:label "Médecin"@fr .
+
+
+###  http://example.org/ontologie-medicale#MedecinActif
+:MedecinActif rdf:type owl:Class ;
+              owl:equivalentClass [ owl:intersectionOf ( :Medecin
+                                                         [ rdf:type owl:Restriction ;
+                                                           owl:onProperty :realise ;
+                                                           owl:someValuesFrom :Consultation
+                                                         ]
+                                                       ) ;
+                                    rdf:type owl:Class
+                                  ] ;
+              rdfs:comment "Classe definie: Medecin qui realise au moins une Consultation."@fr ;
+              rdfs:label "Medecin actif"@fr .
+
+
+###  http://example.org/ontologie-medicale#MedecinGeneraliste
+:MedecinGeneraliste rdf:type owl:Class ;
+                    rdfs:subClassOf :Medecin ;
+                    owl:disjointWith :MedecinSpecialiste ;
+                    rdfs:label "Médecin généraliste"@fr .
+
+
+###  http://example.org/ontologie-medicale#MedecinSpecialiste
+:MedecinSpecialiste rdf:type owl:Class ;
+                    rdfs:subClassOf :Medecin ;
+                    rdfs:label "Médecin spécialiste"@fr .
+
+
+###  http://example.org/ontologie-medicale#Medicament
+:Medicament rdf:type owl:Class ;
+            rdfs:label "Médicament"@fr .
+
+
+###  http://example.org/ontologie-medicale#Molecule
+:Molecule rdf:type owl:Class ;
+          rdfs:subClassOf :Medicament ;
+          rdfs:label "Molécule"@fr .
+
+
+###  http://example.org/ontologie-medicale#MoleculeAmoxicilline
+:MoleculeAmoxicilline rdf:type owl:Class ;
+                      rdfs:subClassOf :Molecule ;
+                      rdfs:label "Molécule d'amoxicilline"@fr .
+
+
+###  http://example.org/ontologie-medicale#MoleculeIbuprofene
+:MoleculeIbuprofene rdf:type owl:Class ;
+                    rdfs:subClassOf :Molecule ;
+                    rdfs:label "Molécule d'ibuprofène"@fr .
+
+
+###  http://example.org/ontologie-medicale#MoleculeParacetamol
+:MoleculeParacetamol rdf:type owl:Class ;
+                     rdfs:subClassOf :Molecule ;
+                     rdfs:label "Molécule de paracétamol"@fr .
+
+
+###  http://example.org/ontologie-medicale#Médico-techniques
+:Médico-techniques rdf:type owl:Class ;
+                   rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#Neurologue
+:Neurologue rdf:type owl:Class ;
+            rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#OperationChirurgicale
+:OperationChirurgicale rdf:type owl:Class ;
+                       rdfs:subClassOf :Opération .
+
+
+###  http://example.org/ontologie-medicale#OperationEsthetique
+:OperationEsthetique rdf:type owl:Class ;
+                     rdfs:subClassOf :Opération .
+
+
+###  http://example.org/ontologie-medicale#OperationUrgente
+:OperationUrgente rdf:type owl:Class ;
+                  rdfs:subClassOf :Opération .
+
+
+###  http://example.org/ontologie-medicale#Opération
+:Opération rdf:type owl:Class ;
+           rdfs:subClassOf :Service_medicale .
+
+
+###  http://example.org/ontologie-medicale#Ordonnance
+:Ordonnance rdf:type owl:Class ;
+            rdfs:subClassOf :Service_medicale ;
+            rdfs:label "Ordonnance"@fr .
+
+
+###  http://example.org/ontologie-medicale#OrdonnanceRenouvelable
+:OrdonnanceRenouvelable rdf:type owl:Class ;
+                        rdfs:subClassOf :Ordonnance .
+
+
+###  http://example.org/ontologie-medicale#OrdonnanceSimple
+:OrdonnanceSimple rdf:type owl:Class ;
+                  rdfs:subClassOf :Ordonnance .
+
+
+###  http://example.org/ontologie-medicale#OrdonnanceSpecialisee
+:OrdonnanceSpecialisee rdf:type owl:Class ;
+                       rdfs:subClassOf :Ordonnance .
+
+
+###  http://example.org/ontologie-medicale#Paiement
+:Paiement rdf:type owl:Class ;
+          rdfs:subClassOf :Facturation .
+
+
+###  http://example.org/ontologie-medicale#Paracetamol
+:Paracetamol rdf:type owl:Class ;
+             rdfs:subClassOf :Antalgique ;
+             rdfs:label "Paracétamol"@fr .
+
+
+###  http://example.org/ontologie-medicale#Patient
+:Patient rdf:type owl:Class ;
+         rdfs:subClassOf :Role ;
+         rdfs:label "Patient"@fr .
+
+
+###  http://example.org/ontologie-medicale#PatientAdulte
+:PatientAdulte rdf:type owl:Class ;
+               rdfs:subClassOf :Patient ;
+               owl:disjointWith :PatientEnfant ;
+               rdfs:label "Patient adulte"@fr .
+
+
+###  http://example.org/ontologie-medicale#PatientEnfant
+:PatientEnfant rdf:type owl:Class ;
+               rdfs:subClassOf :Patient ;
+               rdfs:label "Patient enfant"@fr .
+
+
+###  http://example.org/ontologie-medicale#PatientEnregistre
+:PatientEnregistre rdf:type owl:Class ;
+                   owl:equivalentClass [ owl:intersectionOf ( :Patient
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty :numeroDossier ;
+                                                                owl:someValuesFrom xsd:string
+                                                              ]
+                                                            ) ;
+                                         rdf:type owl:Class
+                                       ] ;
+                   rdfs:comment "Classe definie: Patient qui possede un numero de dossier."@fr ;
+                   rdfs:label "Patient enregistre"@fr .
+
+
+###  http://example.org/ontologie-medicale#Penicilline
+:Penicilline rdf:type owl:Class ;
+             rdfs:subClassOf :Antibiotique ;
+             rdfs:label "Pénicilline"@fr .
+
+
+###  http://example.org/ontologie-medicale#Personne
+:Personne rdf:type owl:Class ;
+          rdfs:comment "Toute entité humaine présente dans le système médical (médecin, patient, stagiaire …)."@fr ;
+          rdfs:label "Personne"@fr .
+
+
+###  http://example.org/ontologie-medicale#Pneumologue
+:Pneumologue rdf:type owl:Class ;
+             rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Psychiatre
+:Psychiatre rdf:type owl:Class ;
+            rdfs:subClassOf :MedecinSpecialiste .
+
+
+###  http://example.org/ontologie-medicale#Rembourcement_Assurance
+:Rembourcement_Assurance rdf:type owl:Class ;
+                         rdfs:subClassOf :Facturation .
+
+
+###  http://example.org/ontologie-medicale#Rendez_vous
+:Rendez_vous rdf:type owl:Class ;
+             rdfs:subClassOf :Dossier_patient .
+
+
+###  http://example.org/ontologie-medicale#Role
+:Role rdf:type owl:Class ;
+      rdfs:subClassOf :Personne .
+
+
+###  http://example.org/ontologie-medicale#Secrétaires_médicales
+:Secrétaires_médicales rdf:type owl:Class ;
+                       rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#Service_administratif
+:Service_administratif rdf:type owl:Class .
+
+
+###  http://example.org/ontologie-medicale#Service_medicale
+:Service_medicale rdf:type owl:Class .
+
+
+###  http://example.org/ontologie-medicale#Stagiaire
+:Stagiaire rdf:type owl:Class ;
+           rdfs:subClassOf :Role .
+
+
+###  http://example.org/ontologie-medicale#Stuff_Médicale
+:Stuff_Médicale rdf:type owl:Class ;
+                rdfs:subClassOf :Role .
+
+
+###  http://example.org/ontologie-medicale#Symptome
+:Symptome rdf:type owl:Class ;
+          rdfs:subClassOf :Maladie ;
+          rdfs:label "Symptôme"@fr .
+
+
+###  http://example.org/ontologie-medicale#SymptomeDigestif
+:SymptomeDigestif rdf:type owl:Class ;
+                  rdfs:subClassOf :Symptome ;
+                  rdfs:label "Symptôme digestif"@fr .
+
+
+###  http://example.org/ontologie-medicale#SymptomeGeneral
+:SymptomeGeneral rdf:type owl:Class ;
+                 rdfs:subClassOf :Symptome ;
+                 rdfs:label "Symptôme général"@fr .
+
+
+###  http://example.org/ontologie-medicale#SymptomeRespiratoire
+:SymptomeRespiratoire rdf:type owl:Class ;
+                      rdfs:subClassOf :Symptome ;
+                      rdfs:label "Symptôme respiratoire"@fr .
+
+
+###  http://example.org/ontologie-medicale#Type
+:Type rdf:type owl:Class ;
+      rdfs:subClassOf :Maladie .
+
+
+###  http://example.org/ontologie-medicale#Vertige
+:Vertige rdf:type owl:Class ;
+         rdfs:subClassOf :EffetNeurologique ;
+         rdfs:label "Vertige"@fr .
+
+
+###  http://example.org/ontologie-medicale#Vomissement
+:Vomissement rdf:type owl:Class ;
+             rdfs:subClassOf :EffetDigestif ;
+             rdfs:label "Vomissement"@fr .
+
+
+###  http://example.org/ontologie-medicale#chefs_de_service
+:chefs_de_service rdf:type owl:Class ;
+                  rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#infirmier
+:infirmier rdf:type owl:Class ;
+           rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#kinésithérapeutes
+:kinésithérapeutes rdf:type owl:Class ;
+                   rdfs:subClassOf :Stuff_Médicale .
+
+
+###  http://example.org/ontologie-medicale#sages-femmes
+:sages-femmes rdf:type owl:Class ;
+              rdfs:subClassOf :Stuff_Médicale .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://example.org/ontologie-medicale#Acide_Folique
+:Acide_Folique rdf:type owl:NamedIndividual ,
+                        :Medicament ;
+               :traite :Anemie ;
+               :posologie "5 mg par jour" ;
+               rdfs:label "Acide folique"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ali_Stagiaire
+:Ali_Stagiaire rdf:type owl:NamedIndividual ,
+                        :Stagiaire ;
+               :age 25 ;
+               :nom "Ali Ben Romdhane" ;
+               :numeroCIN "00567890" ;
+               :prenom "Ali" ;
+               :telephone "+216 55 000 111" ;
+               rdfs:comment "Stagiaire en medecine, individu de la classe Stagiaire (sous Personne)."@fr ;
+               rdfs:label "Ali Ben Romdhane (Stagiaire)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Amina
+:Amina rdf:type owl:NamedIndividual ,
+                :PatientEnfant ;
+       :est_pris_en_charge_par :Service_Urgences ;
+       :subit :Operation_2 ;
+       :age 8 ;
+       :email "aminagharbi@gmail.com" ;
+       :groupeSanguin "O+" ;
+       :nom "Amina Gharbi" ;
+       :numeroCIN "00456789" ;
+       :numeroDossier "PAT-002" ;
+       :prenom "Amina" ;
+       :estPrisEnChargePar :Service_Urgences ;
+       :motDePasse "amina123" ;
+       rdfs:label "Amina Gharbi (PatientEnfant)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Amlodipine
+:Amlodipine rdf:type owl:NamedIndividual ,
+                     :Medicament ;
+            :traite :Hypertension ;
+            :posologie "5 a 10 mg par jour" ;
+            rdfs:label "Amlodipine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Amx
+:Amx rdf:type owl:NamedIndividual ,
+              :Antibiotique ;
+     :traite :Angine ,
+             :Bronchite ;
+     :posologie "500 mg, 3 fois par jour pendant 7 jours" ;
+     rdfs:label "Amoxicilline"@fr .
+
+
+###  http://example.org/ontologie-medicale#Anemie
+:Anemie rdf:type owl:NamedIndividual ,
+                 :MaladieChronique ;
+        :aPourSymptome :Essoufflement ,
+                       :Fatigue ,
+                       :Paleur ;
+        :estTraiteePar :Acide_Folique ,
+                       :Fer_Sulfate ;
+        :description "Diminution du taux d hemoglobine dans le sang."@fr ;
+        :dureeTraitement "3 a 6 mois" ;
+        :estContagieuse "false"^^xsd:boolean ;
+        :gravite "moderee"@fr ;
+        :nom "Anemie1234" ;
+        rdfs:label "Anemie1234"@fr ,
+                   "Anemie1234" .
+
+
+###  http://example.org/ontologie-medicale#Angine
+:Angine rdf:type owl:NamedIndividual ,
+                 :MaladieInfectieuse ;
+        :aPourSymptome :Fievre ,
+                       :Maux_de_gorge ,
+                       :Toux ;
+        :estTraiteePar :Amx ,
+                       :Doliprane ;
+        :description "Infection de la gorge causee par des bacteries ou des virus."@fr ;
+        :dureeTraitement "7 jours" ;
+        :estContagieuse "true"^^xsd:boolean ;
+        :gravite "moderee"@fr ;
+        rdfs:label "Angine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Artemisinine
+:Artemisinine rdf:type owl:NamedIndividual ,
+                       :Medicament ;
+              :traite :Paludisme ;
+              :posologie "4 mg/kg par jour pendant 3 jours" ;
+              rdfs:label "Artemisinine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Arthrite
+:Arthrite rdf:type owl:NamedIndividual ,
+                   :MaladieChronique ;
+          :aPourSymptome :Douleur_Articulaire ,
+                         :Gonflement ;
+          :estTraiteePar :Brufen ,
+                         :Methotrexate ;
+          :description "Inflammation des articulations causant douleur et raideur."@fr ;
+          :dureeTraitement "Traitement continu" ;
+          :estContagieuse "false"^^xsd:boolean ;
+          :gravite "moderee"@fr ;
+          rdfs:label "Arthrite"@fr .
+
+
+###  http://example.org/ontologie-medicale#Asma
+:Asma rdf:type owl:NamedIndividual ,
+               :Agents_de_service_hospitalier .
+
+
+###  http://example.org/ontologie-medicale#Asthme
+:Asthme rdf:type owl:NamedIndividual ,
+                 :MaladieChronique ;
+        :aPourSymptome :Essoufflement ,
+                       :Sifflements ,
+                       :Toux ;
+        :estTraiteePar :Becotide ,
+                       :Ventoline ;
+        :description "Maladie inflammatoire chronique des voies respiratoires."@fr ;
+        :dureeTraitement "Traitement continu" ;
+        :estContagieuse "false"^^xsd:boolean ;
+        :gravite "moderee"@fr ;
+        rdfs:label "Asthme"@fr .
+
+
+###  http://example.org/ontologie-medicale#Becotide
+:Becotide rdf:type owl:NamedIndividual ,
+                   :Medicament ;
+          :traite :Asthme ;
+          :posologie "100 a 400 mcg par inhalation, 2 fois par jour" ;
+          rdfs:label "Becotide (Beclometasone)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Bronchite
+:Bronchite rdf:type owl:NamedIndividual ,
+                    :MaladieInfectieuse ;
+           :aPourSymptome :Fatigue ,
+                          :Fievre ,
+                          :Toux ;
+           :estTraiteePar :Amx ,
+                          :Doliprane ;
+           :description "Inflammation des bronches, souvent d origine virale ou bacterienne."@fr ;
+           :dureeTraitement "10 jours" ;
+           :estContagieuse "true"^^xsd:boolean ;
+           :gravite "legere"@fr ;
+           rdfs:label "Bronchite"@fr .
+
+
+###  http://example.org/ontologie-medicale#Brufen
+:Brufen rdf:type owl:NamedIndividual ,
+                 :Ibuprofene ;
+        :contientMolecule :Mol_Ibuprofene ;
+        :estContreIndiquePour :Gastrite ,
+                              :Ulcere_Exemple ;
+        :peutProvoquer :Vomissement_Effet ;
+        :traite :Arthrite ;
+        :posologie "400 mg, 2 a 3 fois par jour" ;
+        rdfs:label "Brufen (Ibuprofene)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Chloroquine
+:Chloroquine rdf:type owl:NamedIndividual ,
+                      :Medicament ;
+             :estContreIndiquePour :Arthrite ;
+             :traite :Paludisme ;
+             :posologie "500 mg par semaine en prophylaxie" ;
+             rdfs:label "Chloroquine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Consultation_1
+:Consultation_1 rdf:type owl:NamedIndividual ;
+                :a_lieu_dans :Salle_101 ;
+                :dateConsultation "2026-10-01"^^xsd:date .
+
+
+###  http://example.org/ontologie-medicale#Courbatures
+:Courbatures rdf:type owl:NamedIndividual ,
+                      :SymptomeGeneral ;
+             :estSymptomeDe :Grippe ,
+                            :Paludisme ;
+             :descriptionSymptome "Douleurs musculaires diffuses" ;
+             rdfs:label "Courbatures"@fr .
+
+
+###  http://example.org/ontologie-medicale#Diabete
+:Diabete rdf:type owl:NamedIndividual ,
+                  :MaladieChronique ;
+         :aPourSymptome :Fatigue ,
+                        :Polyurie ,
+                        :Soif_Excessive ;
+         :estTraiteePar :Insuline ,
+                        :Metformine ;
+         :description "Maladie chronique caracterisee par un taux de sucre eleve dans le sang."@fr ;
+         :dureeTraitement "Traitement a vie" ;
+         :estContagieuse "false"^^xsd:boolean ;
+         :gravite "moderee"@fr ;
+         rdfs:label "Diabete"@fr .
+
+
+###  http://example.org/ontologie-medicale#Doliprane
+:Doliprane rdf:type owl:NamedIndividual ,
+                    :Paracetamol ;
+           :contientMolecule :Mol_Paracetamol ;
+           :peutProvoquer :Nausee_Effet ;
+           :traite :Angine ,
+                   :Bronchite ,
+                   :Grippe ;
+           :posologie "1 g, 3 a 4 fois par jour" ;
+           rdfs:label "Doliprane (Paracetamol)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Douleur_Abdominale
+:Douleur_Abdominale rdf:type owl:NamedIndividual ,
+                             :SymptomeDigestif ;
+                    :estSymptomeDe :Gastrite ,
+                                   :Ulcere_Exemple ;
+                    :descriptionSymptome "Douleur dans la region abdominale" ;
+                    rdfs:label "Douleur abdominale"@fr .
+
+
+###  http://example.org/ontologie-medicale#Douleur_Articulaire
+:Douleur_Articulaire rdf:type owl:NamedIndividual ,
+                              :SymptomeGeneral ;
+                     :estSymptomeDe :Arthrite ;
+                     :descriptionSymptome "Douleur au niveau des articulations" ;
+                     rdfs:label "Douleur articulaire"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Ahmed
+:Dr_Ahmed rdf:type owl:NamedIndividual ,
+                   :Medecin ,
+                   :MedecinGeneraliste ;
+          :appartient_à :Service_Cardio ;
+          :connait :Dr_Karim ;
+          :diagnostique :Gastrite ,
+                        :Grippe_Sami ;
+          :realise :Consultation_1 ;
+          :redige :Ordonnance_1 ;
+          :rédige :Ordonnance_1 ;
+          :soigne :Sami ;
+          :adresse "3 Avenue Habib Bourguiba, Tunis" ;
+          :age 50 ;
+          :email "ahmed.bensalah@hopital.tn" ;
+          :nom "Dr Ahmed Ben Salah" ;
+          :numeroCIN "00123456" ;
+          :numeroOrdre "MED-001" ;
+          :prenom "Ahmed" ;
+          :specialite "Médecine générale" ;
+          :telephone "+216 71 000 001" ;
+          rdfs:label "Dr Ahmed Ben Salah (Médecin Généraliste)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Aziz_Laribi
+:Dr_Aziz_Laribi rdf:type owl:NamedIndividual ,
+                         :MedecinGeneraliste ;
+                :age 25 ;
+                :email "Azizlaribi@gmail.com" ;
+                :nom "Aziz Laribi" ;
+                :specialite "Médecine Générale" ;
+                :motDePasse "aziz123" ;
+                :telephone "+216 99 888 777" ;
+                rdfs:label "Aziz Laribi" .
+
+
+###  http://example.org/ontologie-medicale#Dr_Fatima
+:Dr_Fatima rdf:type owl:NamedIndividual ,
+                    :MedecinGeneraliste ;
+           :appartient_à :Service_Urgences ;
+           :adresse "7 Rue Ibn Khaldoun, Tunis" ;
+           :age 35 ;
+           :email "fatima.benali@hopital.tn" ;
+           :nom "Dr Fatima Benali" ;
+           :numeroCIN "00678901" ;
+           :numeroOrdre "MED-003" ;
+           :prenom "Fatima" ;
+           :specialite "Médecine générale" ;
+           :telephone "+216 71 000 003" ;
+           rdfs:comment "Médecin généraliste affectée au service des urgences."@fr ;
+           rdfs:label "Dr Fatima Benali (Médecin Généraliste - Urgences)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Jean_Testeur
+:Dr_Jean_Testeur rdf:type owl:NamedIndividual ,
+                          :MedecinSpecialiste ;
+                 :email "jean.test@hopital.fr" ;
+                 :nom "Testeur" ;
+                 :prenom "Jean" ;
+                 :specialite "Cardiologie" ;
+                 :motDePasse "$2b$12$q.D6880kjN8aYhmN42Phye11Lg6AAmlAUmSXKPWcRYYHQOqVvf9Q2" ;
+                 rdfs:label "Jean Testeur" .
+
+
+###  http://example.org/ontologie-medicale#Dr_Karim
+:Dr_Karim rdf:type owl:NamedIndividual ,
+                   :MedecinSpecialiste ;
+          :appartient_à :Service_Cardio ;
+          :connait :Dr_Ahmed ,
+                   :Dr_Karim ;
+          :diagnostique :Grippe_Sami ;
+          :realise :Consultation_1 ;
+          :age 40 ;
+          :email "karim.mansour@hopital.tn" ;
+          :nom "Dr Karim Mansour" ;
+          :numeroCIN "00234567" ;
+          :numeroOrdre "MED-002" ;
+          :prenom "Karim" ;
+          :specialite "Cardiologie" ;
+          :telephone "+216 71 000 002" ;
+          rdfs:label "Dr Karim Mansour (Cardiologue)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Dr_Sophie_Martin
+:Dr_Sophie_Martin rdf:type owl:NamedIndividual ,
+                           :Cardiologue ;
+                  :email "sophie.martin@hopital.fr" ;
+                  :nom "Martin" ;
+                  :prenom "Sophie" ;
+                  :specialite "Cardiologie" ;
+                  :motDePasse "$2b$12$ak.f1UPxMVNhVP78zWr03.Um8Fl50YRK4bovBZc6A0tQrPdOs/ZC2" ;
+                  rdfs:label "Sophie Martin" .
+
+
+###  http://example.org/ontologie-medicale#Essoufflement
+:Essoufflement rdf:type owl:NamedIndividual ,
+                        :SymptomeRespiratoire ;
+               :estSymptomeDe :Anemie ,
+                              :Asthme ;
+               :descriptionSymptome "Difficulte a respirer normalement" ;
+               rdfs:label "Essoufflement"@fr .
+
+
+###  http://example.org/ontologie-medicale#Fatigue
+:Fatigue rdf:type owl:NamedIndividual ,
+                  :SymptomeGeneral ;
+         :estSymptomeDe :Anemie ,
+                        :Bronchite ,
+                        :Diabete ,
+                        :Grippe ;
+         :descriptionSymptome "Sensation de lassitude et d epuisement" ;
+         rdfs:label "Fatigue"@fr .
+
+
+###  http://example.org/ontologie-medicale#Fer_Sulfate
+:Fer_Sulfate rdf:type owl:NamedIndividual ,
+                      :Medicament ;
+             :traite :Anemie ;
+             :posologie "200 mg, 2 fois par jour" ;
+             rdfs:label "Sulfate de fer"@fr .
+
+
+###  http://example.org/ontologie-medicale#Fievre
+:Fievre rdf:type owl:NamedIndividual ,
+                 :SymptomeGeneral ;
+        :estSymptomeDe :Angine ,
+                       :Bronchite ,
+                       :Grippe ,
+                       :Paludisme ;
+        :descriptionSymptome "Temperature corporelle elevee" ;
+        :intensite 7 ;
+        :temperature 38.5 .
+
+
+###  http://example.org/ontologie-medicale#Fievre_Sami
+:Fievre_Sami rdf:type owl:NamedIndividual ,
+                      :Fievre .
+
+
+###  http://example.org/ontologie-medicale#Gastrite
+:Gastrite rdf:type owl:NamedIndividual ,
+                   :Maladie ,
+                   :MaladieDigestive ;
+          :aPourSymptome :Douleur_Abdominale ,
+                         :Nausee ,
+                         :Vomissement_Symp ;
+          :estTraiteePar :Omeprazole ,
+                         :Ranitidine ;
+          :description "Inflammation de la muqueuse gastrique."@fr ;
+          :dureeTraitement "2 a 4 semaines" ;
+          :estContagieuse "false"^^xsd:boolean ;
+          :gravite "legere"@fr ;
+          rdfs:label "Gastrite"@fr .
+
+
+###  http://example.org/ontologie-medicale#Gonflement
+:Gonflement rdf:type owl:NamedIndividual ,
+                     :SymptomeGeneral ;
+            :estSymptomeDe :Arthrite ;
+            :descriptionSymptome "Gonflement et enflure au niveau des articulations" ;
+            rdfs:label "Gonflement articulaire"@fr .
+
+
+###  http://example.org/ontologie-medicale#Grippe
+:Grippe rdf:type owl:NamedIndividual ,
+                 :MaladieInfectieuse ;
+        :aPourSymptome :Courbatures ,
+                       :Fatigue ,
+                       :Fievre ,
+                       :Toux ;
+        :estTraiteePar :Doliprane ,
+                       :Paracetamol_Gen ;
+        :description "Infection virale respiratoire aigue tres contagieuse."@fr ;
+        :dureeTraitement "7 a 10 jours" ;
+        :estContagieuse "true"^^xsd:boolean ;
+        :gravite "moderee"@fr ;
+        rdfs:label "Grippe"@fr .
+
+
+###  http://example.org/ontologie-medicale#Grippe_Sami
+:Grippe_Sami rdf:type owl:NamedIndividual .
+
+
+###  http://example.org/ontologie-medicale#Hypertension
+:Hypertension rdf:type owl:NamedIndividual ,
+                       :MaladieChronique ;
+              :aPourSymptome :Maux_de_tete ,
+                             :Vertiges_Symp ;
+              :estTraiteePar :Amlodipine ,
+                             :Losartan ;
+              :description "Pression arterielle chroniquement elevee."@fr ;
+              :dureeTraitement "Traitement a vie" ;
+              :estContagieuse "false"^^xsd:boolean ;
+              :gravite "severe"@fr ;
+              rdfs:label "Hypertension arterielle"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ind_Jihene_Ounis
+:Ind_Jihene_Ounis rdf:type owl:NamedIndividual ,
+                           :Stagiaire ;
+                  :age 23 ;
+                  :nom "Jihene Ounis" ;
+                  :numeroCIN "09876543" ;
+                  :telephone "+216 98 111 222" ;
+                  rdfs:label "Jihene Ounis" .
+
+
+###  http://example.org/ontologie-medicale#Insuline
+:Insuline rdf:type owl:NamedIndividual ,
+                   :Medicament ;
+          :traite :Diabete ;
+          :posologie "Dosage individualise selon glycemie" ;
+          rdfs:label "Insuline"@fr .
+
+
+###  http://example.org/ontologie-medicale#Leila_Patient
+:Leila_Patient rdf:type owl:NamedIndividual ,
+                        :Patient ;
+               rdfs:label "Leila Patient" .
+
+
+###  http://example.org/ontologie-medicale#Losartan
+:Losartan rdf:type owl:NamedIndividual ,
+                   :Medicament ;
+          :traite :Hypertension ;
+          :posologie "50 a 100 mg par jour" ;
+          rdfs:label "Losartan"@fr .
+
+
+###  http://example.org/ontologie-medicale#Maux_de_gorge
+:Maux_de_gorge rdf:type owl:NamedIndividual ,
+                        :SymptomeGeneral ;
+               :estSymptomeDe :Angine ;
+               :descriptionSymptome "Douleur ou irritation dans la gorge" ;
+               rdfs:label "Maux de gorge"@fr .
+
+
+###  http://example.org/ontologie-medicale#Maux_de_tete
+:Maux_de_tete rdf:type owl:NamedIndividual ,
+                       :SymptomeGeneral ;
+              :estSymptomeDe :Hypertension ,
+                             :Migraine ;
+              :descriptionSymptome "Douleur a la tete de diverses origines" ;
+              rdfs:label "Maux de tete"@fr .
+
+
+###  http://example.org/ontologie-medicale#Metformine
+:Metformine rdf:type owl:NamedIndividual ,
+                     :Medicament ;
+            :traite :Diabete ;
+            :posologie "500 mg a 1000 mg, 2 fois par jour avec les repas" ;
+            rdfs:label "Metformine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Methotrexate
+:Methotrexate rdf:type owl:NamedIndividual ,
+                       :Medicament ;
+              :estContreIndiquePour :Anemie ;
+              :traite :Arthrite ;
+              :posologie "10 a 25 mg par semaine" ;
+              rdfs:label "Methotrexate"@fr .
+
+
+###  http://example.org/ontologie-medicale#Migraine
+:Migraine rdf:type owl:NamedIndividual ,
+                   :Maladie ,
+                   :MaladieChronique ;
+          :aPourSymptome :Maux_de_tete ,
+                         :Nausee ,
+                         :Vomissement_Symp ;
+          :estTraiteePar :Doliprane ,
+                         :Sumatriptan ;
+          :description "Maux de tete intenses et recurrents souvent accompagnes de nausees."@fr ;
+          :dureeTraitement "Traitement de la crise" ;
+          :estContagieuse "false"^^xsd:boolean ;
+          :gravite "moderee"@fr ;
+          rdfs:label "Migraine"@fr ,
+                     "Migraine" .
+
+
+###  http://example.org/ontologie-medicale#Mol_Ibuprofene
+:Mol_Ibuprofene rdf:type owl:NamedIndividual ,
+                         :MoleculeIbuprofene ;
+                rdfs:label "Ibuprofène (molécule)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Mol_Paracetamol
+:Mol_Paracetamol rdf:type owl:NamedIndividual ,
+                          :MoleculeParacetamol ;
+                 rdfs:label "Paracétamol (molécule)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Nausee
+:Nausee rdf:type owl:NamedIndividual ,
+                 :SymptomeDigestif ;
+        :estSymptomeDe :Gastrite ,
+                       :Migraine ,
+                       :Paludisme ;
+        :descriptionSymptome "Envie de vomir" ;
+        rdfs:label "Nausee"@fr .
+
+
+###  http://example.org/ontologie-medicale#Nausee_Effet
+:Nausee_Effet rdf:type owl:NamedIndividual ,
+                       :EffetDigestif ;
+              rdfs:label "Nausées"@fr .
+
+
+###  http://example.org/ontologie-medicale#Omeprazole
+:Omeprazole rdf:type owl:NamedIndividual ,
+                     :Medicament ;
+            :traite :Gastrite ,
+                    :Ulcere_Exemple ;
+            :posologie "20 mg par jour avant le repas" ;
+            rdfs:label "Omeprazole"@fr .
+
+
+###  http://example.org/ontologie-medicale#Operation_1
+:Operation_1 rdf:type owl:NamedIndividual ,
+                      :OperationChirurgicale ;
+             :est_effectuée_par :Dr_Karim ;
+             :durée 90 ;
+             ns1:opération "2026-10-15"^^xsd:date .
+
+
+###  http://example.org/ontologie-medicale#Operation_2
+:Operation_2 rdf:type owl:NamedIndividual ,
+                      :OperationUrgente ;
+             :se_déroule_dans :Salle_Op_1 ;
+             :est_urgent "true"^^xsd:boolean .
+
+
+###  http://example.org/ontologie-medicale#Ordonnance_1
+:Ordonnance_1 rdf:type owl:NamedIndividual ,
+                       :Ordonnance ;
+              :contientMedicament :Brufen ,
+                                  :Doliprane ;
+              :estDestineeA :Sami ;
+              :dateOrdonnance "2026-10-01"^^xsd:date .
+
+
+###  http://example.org/ontologie-medicale#Paleur
+:Paleur rdf:type owl:NamedIndividual ,
+                 :SymptomeGeneral ;
+        :estSymptomeDe :Anemie ;
+        :descriptionSymptome "Coloration anormalement pale de la peau" ;
+        rdfs:label "Paleur"@fr .
+
+
+###  http://example.org/ontologie-medicale#Paludisme
+:Paludisme rdf:type owl:NamedIndividual ,
+                    :MaladieInfectieuse ;
+           :aPourSymptome :Courbatures ,
+                          :Fatigue ,
+                          :Fievre ,
+                          :Nausee ;
+           :estTraiteePar :Artemisinine ,
+                          :Chloroquine ;
+           :description "Maladie parasitaire transmise par les moustiques Anopheles."@fr ;
+           :dureeTraitement "3 a 7 jours" ;
+           :estContagieuse "false"^^xsd:boolean ;
+           :gravite "severe"@fr ;
+           rdfs:label "Paludisme"@fr .
+
+
+###  http://example.org/ontologie-medicale#Paracetamol_Gen
+:Paracetamol_Gen rdf:type owl:NamedIndividual ,
+                          :Paracetamol ;
+                 :contientMolecule :Mol_Paracetamol ;
+                 :traite :Angine ,
+                         :Grippe ;
+                 :posologie "500 mg a 1 g, 3 fois par jour" ;
+                 rdfs:label "Paracetamol (generique)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Pat_maryem_laribi
+:Pat_maryem_laribi rdf:type owl:NamedIndividual ,
+                            :Patient ;
+                   :email "maryem@gmail.com" ;
+                   :nom "laribi" ;
+                   :prenom "maryem" ;
+                   :motDePasse "$2b$12$5vT8hAeL1rABqqp0lHsnFOVN8JLinOrkev7dA8w2oPng.JYlDllBW" ;
+                   rdfs:label "maryem laribi" .
+
+
+###  http://example.org/ontologie-medicale#Patient_Ahmed
+:Patient_Ahmed rdf:type owl:NamedIndividual ,
+                        :Patient ,
+                        :PatientAdulte ;
+               :estSoignePar :Dr_Ahmed ;
+               :presente :Polyurie ,
+                         :Soif_Excessive ,
+                         :Vertiges_Symp ;
+               :souffreDe :Diabete ,
+                          :Hypertension ;
+               :adresse "25 Rue Ibn Sina, Sfax" ;
+               :age 55 ;
+               :groupeSanguin "B+" ;
+               :nom "Ahmed Belhaj" ;
+               :numeroCIN "00789012" ;
+               :numeroDossier "PAT-003" ;
+               :prenom "Ahmed" ;
+               :sexe "Masculin" ;
+               :telephone "+216 74 000 001" ;
+               rdfs:comment "Patient souffrant de diabete et d hypertension arterielle."@fr ;
+               rdfs:label "Ahmed Belhaj (Patient)"@fr ,
+                          "Patient Ahmed" .
+
+
+###  http://example.org/ontologie-medicale#Patient_Leila
+:Patient_Leila rdf:type owl:NamedIndividual ,
+                        :Patient ,
+                        :PatientAdulte ;
+               :estSoignePar :Dr_Karim ;
+               :presente :Douleur_Articulaire ,
+                         :Maux_de_tete ,
+                         :Vertiges_Symp ;
+               :souffreDe :Arthrite ,
+                          :Hypertension ;
+               :adresse "30 Boulevard du 7 Novembre, Sousse" ;
+               :age 60 ;
+               :groupeSanguin "A-" ;
+               :nom "Leila Saidi" ;
+               :numeroCIN "01012345" ;
+               :numeroDossier "PAT-006" ;
+               :prenom "Leila" ;
+               :sexe "Feminin" ;
+               :telephone "+216 73 000 001" ;
+               rdfs:label "Leila Saidi (Patiente)"@fr ,
+                          "Patient Leila" .
+
+
+###  http://example.org/ontologie-medicale#Patient_Omar
+:Patient_Omar rdf:type owl:NamedIndividual ,
+                       :PatientAdulte ;
+              :estSoignePar :Dr_Fatima ;
+              :presente :Courbatures ,
+                        :Fatigue ,
+                        :Fievre ,
+                        :Paleur ;
+              :souffreDe :Anemie ,
+                         :Paludisme ;
+              :adresse "15 Rue de Carthage, Tunis" ;
+              :age 42 ;
+              :groupeSanguin "O-" ;
+              :nom "Omar Chaouachi" ;
+              :numeroCIN "00901234" ;
+              :numeroDossier "PAT-005" ;
+              :prenom "Omar" ;
+              :sexe "Masculin" ;
+              :telephone "+216 71 000 005" ;
+              rdfs:label "Omar Chaouachi (Patient)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Patient_Sara
+:Patient_Sara rdf:type owl:NamedIndividual ,
+                       :PatientAdulte ;
+              :estSoignePar :Dr_Ahmed ;
+              :presente :Essoufflement ,
+                        :Maux_de_tete ,
+                        :Sifflements ;
+              :souffreDe :Asthme ,
+                         :Migraine ;
+              :adresse "8 Avenue de France, Tunis" ;
+              :age 28 ;
+              :groupeSanguin "AB+" ;
+              :nom "Sara Mansouri" ;
+              :numeroCIN "00890123" ;
+              :numeroDossier "PAT-004" ;
+              :prenom "Sara" ;
+              :sexe "Feminin" ;
+              :telephone "+216 71 000 004" ;
+              rdfs:label "Sara Mansouri (Patiente)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Patient_Youssef
+:Patient_Youssef rdf:type owl:NamedIndividual ,
+                          :PatientAdulte ;
+                 :presente :Douleur_Abdominale ,
+                           :Maux_de_tete ,
+                           :Nausee ;
+                 :souffreDe :Gastrite ,
+                            :Migraine ;
+                 :adresse "5 Rue Alain Savary, Tunis" ;
+                 :age 35 ;
+                 :groupeSanguin "B-" ;
+                 :nom "Youssef Tlili" ;
+                 :numeroCIN "01123456" ;
+                 :numeroDossier "PAT-007" ;
+                 :prenom "Youssef" ;
+                 :sexe "Masculin" ;
+                 :telephone "+216 71 000 006" ;
+                 rdfs:label "Youssef Tlili (Patient)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Polyurie
+:Polyurie rdf:type owl:NamedIndividual ,
+                   :SymptomeGeneral ;
+          :estSymptomeDe :Diabete ;
+          :descriptionSymptome "Mictions frequentes et abondantes" ;
+          rdfs:label "Polyurie"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ranitidine
+:Ranitidine rdf:type owl:NamedIndividual ,
+                     :Medicament ;
+            :estContreIndiquePour :Ulcere_Exemple ;
+            :traite :Gastrite ;
+            :posologie "150 mg, 2 fois par jour" ;
+            rdfs:label "Ranitidine"@fr .
+
+
+###  http://example.org/ontologie-medicale#Salle_101
+:Salle_101 rdf:type owl:NamedIndividual ;
+           :capacité 3 ;
+           :numéro_de_salle 101 .
+
+
+###  http://example.org/ontologie-medicale#Salle_Attente_1
+:Salle_Attente_1 rdf:type owl:NamedIndividual .
+
+
+###  http://example.org/ontologie-medicale#Salle_Op_1
+:Salle_Op_1 rdf:type owl:NamedIndividual ;
+            :se_déroule_dans :Salle_Op_1 .
+
+
+###  http://example.org/ontologie-medicale#Sami
+:Sami rdf:type owl:NamedIndividual ,
+               :PatientAdulte ;
+      :estSoignePar :Dr_Ahmed ;
+      :participeA :Consultation_1 ;
+      :presente :Fievre_Sami ;
+      :souffreDe :Grippe ,
+                 :Hypertension ;
+      :adresse "12 Rue de la Republique, Tunis" ;
+      :age 32 ;
+      :groupeSanguin "A+" ;
+      :nom "Sami Trabelsi" ;
+      :numeroCIN "00345678" ;
+      :numeroDossier "PAT-001" ;
+      :prenom "Sami" ;
+      :estPrisEnChargePar :Service_Cardio ;
+      :telephone "+216 22 333 444" ;
+      rdfs:label "Sami Trabelsi (PatientAdulte)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Service_Cardio
+:Service_Cardio rdf:type owl:NamedIndividual .
+
+
+###  http://example.org/ontologie-medicale#Service_Urgences
+:Service_Urgences rdf:type owl:NamedIndividual .
+
+
+###  http://example.org/ontologie-medicale#Sifflements
+:Sifflements rdf:type owl:NamedIndividual ,
+                      :SymptomeRespiratoire ;
+             :estSymptomeDe :Asthme ;
+             :descriptionSymptome "Son sifflant lors de la respiration" ;
+             rdfs:label "Sifflements respiratoires"@fr .
+
+
+###  http://example.org/ontologie-medicale#Soif_Excessive
+:Soif_Excessive rdf:type owl:NamedIndividual ,
+                         :SymptomeGeneral ;
+                :estSymptomeDe :Diabete ;
+                :descriptionSymptome "Sensation de soif intense et persistante" ;
+                rdfs:label "Soif excessive"@fr .
+
+
+###  http://example.org/ontologie-medicale#Stag_amira_maghraoui
+:Stag_amira_maghraoui rdf:type owl:NamedIndividual ,
+                               :Stagiaire ;
+                      :age 25 ;
+                      :email "amira@gmail.com" ;
+                      :nom "maghraoui" ;
+                      :numeroCIN "14516022" ;
+                      :prenom "amira" ;
+                      :motDePasse "$2b$12$uC.kX8a0S.Vb.oWSydmzlu6oiBt1YqvQy/cUIz5slWuZMCYN2GtIW" ;
+                      :telephone "26534958" ;
+                      rdfs:label "amira maghraoui" .
+
+
+###  http://example.org/ontologie-medicale#Sumatriptan
+:Sumatriptan rdf:type owl:NamedIndividual ,
+                      :Medicament ;
+             :traite :Migraine ;
+             :posologie "50 a 100 mg au debut de la crise" ;
+             rdfs:label "Sumatriptan"@fr .
+
+
+###  http://example.org/ontologie-medicale#Toux
+:Toux rdf:type owl:NamedIndividual ,
+               :SymptomeRespiratoire ;
+      :estSymptomeDe :Angine ,
+                     :Asthme ,
+                     :Bronchite ,
+                     :Grippe ;
+      :descriptionSymptome "Expulsion brusque d air par les voies respiratoires" ;
+      rdfs:label "Toux"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ulcere_Exemple
+:Ulcere_Exemple rdf:type owl:NamedIndividual ,
+                         :MaladieDigestive ;
+                :aPourSymptome :Douleur_Abdominale ,
+                               :Fatigue ,
+                               :Nausee ;
+                :estTraiteePar :Omeprazole ;
+                :description "Lesion de la muqueuse gastrique ou duodenale."@fr ;
+                :dureeTraitement "4 a 8 semaines" ;
+                :estContagieuse "false"^^xsd:boolean ;
+                :gravite "moderee"@fr ;
+                rdfs:label "Ulcere gastrique"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ulcere_gastrique
+:Ulcere_gastrique rdf:type owl:NamedIndividual ,
+                           :MaladieDigestive ;
+                  :aPourSymptome :Douleur_Abdominale ,
+                                 :Nausee ;
+                  :estTraiteePar :Omeprazole ;
+                  :description "Plaie ouverte dans la paroi de l estomac."@fr ;
+                  :estContagieuse "false"^^xsd:boolean ;
+                  :gravite "severe"@fr ;
+                  rdfs:label "Ulcere gastrique (severe)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Ventoline
+:Ventoline rdf:type owl:NamedIndividual ,
+                    :Medicament ;
+           :traite :Asthme ;
+           :posologie "2 bouffees a inhaler en cas de crise" ;
+           rdfs:label "Ventoline (Salbutamol)"@fr .
+
+
+###  http://example.org/ontologie-medicale#Vertiges_Symp
+:Vertiges_Symp rdf:type owl:NamedIndividual ,
+                        :SymptomeGeneral ;
+               :estSymptomeDe :Hypertension ;
+               :descriptionSymptome "Sensation de rotation ou d instabilite" ;
+               rdfs:label "Vertiges"@fr .
+
+
+###  http://example.org/ontologie-medicale#Vomissement_Effet
+:Vomissement_Effet rdf:type owl:NamedIndividual ,
+                            :Vomissement .
+
+
+###  http://example.org/ontologie-medicale#Vomissement_Symp
+:Vomissement_Symp rdf:type owl:NamedIndividual ,
+                           :SymptomeDigestif ;
+                  :estSymptomeDe :Gastrite ,
+                                 :Migraine ,
+                                 :Paludisme ;
+                  :descriptionSymptome "Rejet du contenu gastrique par la bouche" ;
+                  rdfs:label "Vomissements"@fr .
+
+
+###  http://example.org/ontologie-medicale#azmi
+:azmi rdf:type owl:NamedIndividual ,
+               :Secrétaires_médicales .
+
+
+###  http://example.org/ontologie-medicale#covid
+:covid rdf:type owl:NamedIndividual ,
+                :Maladie ;
+       rdfs:label "covid" .
+
+
+###  http://example.org/ontologie-medicale#fefefe
+:fefefe rdf:type owl:NamedIndividual ,
+                 :Maladie ;
+        rdfs:label "fefefe" .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+:Fievre rdfs:label "Fievre"@fr .
+
+
+:numeroCIN rdfs:comment "Identifiant unique de la personne (Fonctionnel + InverseFonctionnel)."@fr ;
+           rdfs:label "numéro CIN"@fr .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :MaladieChronique
+                :MaladieDigestive
+                :MaladieInfectieuse
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Medecin
+                :Patient
+                :Stagiaire
+                :Stuff_Médicale
+              )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :Ali_Stagiaire
+                        :Amina
+                        :Dr_Ahmed
+                        :Dr_Fatima
+                        :Dr_Karim
+                        :Sami
+                      )
+] .
+
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi

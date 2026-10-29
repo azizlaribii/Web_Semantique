@@ -106,5 +106,14 @@
     "role": "MedecinGeneraliste",
     "uri": "http://example.org/ontologie-medicale#Dr_Aziz_Laribi",
     "created_at": "2026-10-26T17:40:14.415263"
+  },
+  "9PrjtL-5kg7qPkBBDx2D9WQ1hvuKO4xnhJK9__oFJrclIn7YXxlm0hDIJbAuONJg": {
+    "email": "amira@gmail.com",
+    "id": "Stag_amira_maghraoui",
+    "nom": "maghraoui",
+    "prenom": "amira",
+    "role": "Stagiaire",
+    "uri": "http://example.org/ontologie-medicale#Stag_amira_maghraoui",
+    "created_at": "2026-10-29T15:42:42.121398"
   }
 }
