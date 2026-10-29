@@ -132,14 +132,18 @@ web_sémantique/
 ├── ontologie_medicament.owl        # Ontologie générée (ouvrable dans Protégé)
 ├── backend/
 │   ├── medicament_service.py       # Service RDFLib (médicaments, graphe, résumé)
-│   ├── ia_medicament_service.py    # Module IA : question en français -> SPARQL
-│   └── test_ia_medicament.py       # 30 tests de l'IA (SPARQL + nombre de résultats)
-└── frontend/
-    └── medicament.js               # Onglet « Module Médicament » (IA, fiches, filtres, graphe)
+│   ├── nlp_medicament.py           # Pipeline NLP : spaCy + scikit-learn + difflib
+│   ├── nlp_data/intents_medicament.json  # Corpus d'entraînement du classifieur (15 intentions)
+│   ├── ia_medicament_service.py    # Intention + entités -> gabarit SPARQL -> exécution
+│   └── test_ia_medicament.py       # 47 tests + validation croisée du classifieur
+└── angular-frontend/src/app/dashboard/medicament/
+    ├── nlp-analyse.component.ts     # Panneau « Analyse NLP » de l'onglet IA — Médicaments
+    └── medicament-crud.component.*  # Onglet « Gestion Médicaments » (CRUD)
 ```
 
-Fichiers modifiés : `backend/app.py` (routes), `frontend/index.html` (onglet), `frontend/style.css` (styles),
-`frontend/app.js` (onglets de résultats limités à leur module), `run_app.py` (message de démarrage).
+Fichiers modifiés : `backend/app.py` (routes CRUD, analyse NLP dans `/api/ia/ask`, hot-reload sans réentraînement),
+`angular-frontend/src/app/core/services/api.service.ts` (appels CRUD),
+`angular-frontend/src/app/dashboard/dashboard.component.*` (nouvel onglet, tableau de résultats dynamique).
 
 ## Ontologie (`http://example.org/ontologie-medicament#`, préfixe `mdc:`)
 
@@ -154,11 +158,40 @@ Fichiers modifiés : `backend/app.py` (routes), `frontend/index.html` (onglet), 
   `MedicamentEvalueCliniquement`.
 - Les données des essais cliniques et les prix sont des valeurs **pédagogiques fictives**.
 
+## Module NLP / TALN (sans LLM)
+
+| Étape | Outil | Rôle |
+|---|---|---|
+| Analyse | **spaCy** `fr_core_news_sm` | Tokenisation, étiquetage POS, lemmatisation |
+| Entités | **spaCy** `PhraseMatcher` | Reconnaît médicaments, molécules, maladies, effets, conditions, classes (vocabulaire lu dans l'ontologie) |
+| Fautes de frappe | **difflib** | « brufin » → Brufen |
+| Délexicalisation | — | Les entités sont remplacées par leur type (`ent_med`, `ent_mal`…) |
+| Intention | **scikit-learn** | TF-IDF (mots + caractères) + régression logistique, 15 intentions, 360 phrases ; 82 % en validation croisée groupée |
+| Paramètres | règles sur les lemmes | Négation, gravité, superlatif, ordre de tri |
+| Génération | gabarits SPARQL | Un gabarit par intention, rempli avec les entités |
+
+## CRUD en SPARQL Update
+
+| Opération | Requête | Route |
+|---|---|---|
+| Create | `INSERT DATA { … }` | `POST /api/medicaments` |
+| Read | `SELECT … WHERE { … }` | `GET /api/medicaments` |
+| Update | `DELETE { … } INSERT { … } WHERE { OPTIONAL { … } }` (champs modifiés seulement) | `PUT /api/medicaments/<id>` |
+| Delete | `DELETE WHERE { … }` + retrait de la liste `owl:AllDifferent` | `DELETE /api/medicaments/<id>` |
+
+Après chaque écriture, des règles SPARQL Update recalculent les 4 classes définies, puis
+`ontologie_medicament.owl` est enregistré (RDF/XML, ouvrable dans Protégé). Une copie d'origine
+(`ontologie_medicament.original.owl`) est faite au premier lancement ; `POST /api/medicaments/reset` la restaure.
+
 ## Routes API
 
 | Route | Méthode | Rôle |
 |---|---|---|
 | `/api/medicaments` | GET | Fiches complètes des médicaments |
+| `/api/medicaments` | POST | Ajouter un médicament (INSERT DATA) |
+| `/api/medicaments/<id>` | PUT / DELETE | Modifier / supprimer un médicament |
+| `/api/medicaments/reset` | POST | Restaurer l'ontologie d'origine |
+| `/api/medicament-options` | GET | Listes de choix du formulaire |
 | `/api/graph-medicament` | GET | Nœuds et liens du graphe |
 | `/api/summary-medicament` | GET | Statistiques du module |
 | `/api/ia-medicament/ask` | POST `{"question": "..."}` | Question en français → SPARQL → résultats |
@@ -166,6 +199,7 @@ Fichiers modifiés : `backend/app.py` (routes), `frontend/index.html` (onglet), 
 ## Régénérer l'ontologie et tester
 
 ```powershell
+python -m pip install -r requirements.txt   # dépendances, dont spaCy et son modèle français
 python medicament_owlready2.py        # régénère ontologie_medicament.owl (Java requis pour HermiT)
 python backend/test_ia_medicament.py  # vérifie l'IA Médicament
 python run_app.py                     # lance l'application

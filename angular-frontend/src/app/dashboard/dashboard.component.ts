@@ -5,11 +5,13 @@ import { AuthService } from '../core/services/auth.service';
 import { ApiService } from '../core/services/api.service';
 import { Personne, User } from '../core/models/user.model';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
+import { NlpAnalyseComponent } from './medicament/nlp-analyse.component';
+import { MedicamentCrudComponent } from './medicament/medicament-crud.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, NlpAnalyseComponent, MedicamentCrudComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -20,7 +22,7 @@ export class DashboardComponent implements OnInit {
   currentUser = this.auth.currentUser;
 
   // Active tab
-  activeTab = signal<'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'maladies' | 'sparql' | 'profil'>('personnes');
+  activeTab = signal<'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'maladies' | 'sparql' | 'profil'>('personnes');
 
   // Personnes state
   personnes = signal<Personne[]>([]);
@@ -72,14 +74,52 @@ export class DashboardComponent implements OnInit {
   iaMedicamentResult = signal<any>(null);
   iaMedicamentError = signal('');
   iaMedicamentPrompts = [
-    'Donne-moi la liste de tous les médicaments.',
-    'Quels sont les antibiotiques disponibles ?',
-    'Quel est le dosage du paracétamol ?',
-    'Quels médicaments traitent le diabète ?',
-    'Quels antalgiques sont disponibles ?',
-    'Quels sont les anti-inflammatoires ?',
-    'Médicaments avec code ATC disponibles.',
+    'Quels sont les effets secondaires du Brufen ?',
+    'Ma femme est enceinte, peut-elle prendre du brufin ?',
+    'Mon fils a la grippe, que lui donner ?',
+    'Y a-t-il une interaction entre Coumadine et Aspegic ?',
+    'Quels médicaments provoquent des saignements ?',
+    'Médicaments sans contre-indication',
+    'Quel est le médicament le plus efficace ?',
+    'Quels médicaments contiennent de l\'ibuprofène ?',
+    'Quels médicaments sont à risque ?',
+    'Trier les médicaments du moins cher au plus cher',
   ];
+
+  // Colonnes du tableau de résultats Médicaments : déduites des données renvoyées
+  private static MED_COLS: Record<string, string> = {
+    medicament: 'Médicament', medicament1: 'Médicament 1', medicament2: 'Médicament 2',
+    autreMedicament: 'Interagit avec', niveauRisque: 'Risque', description: 'Description',
+    contreIndication: 'Contre-indication', type: 'Type', condition: 'Condition',
+    effet: 'Effet secondaire', effetGrave: 'Effet grave', famille: 'Famille', frequence: 'Fréquence',
+    gravite: 'Gravité', molecule: 'Molécule', formuleBrute: 'Formule brute', masseMolaire: 'Masse molaire',
+    maladie: 'Maladie', codeCIM: 'Code CIM-10', classe: 'Classe', posologie: 'Posologie', dosage: 'Dosage',
+    forme: 'Forme', prixTND: 'Prix (TND)', ordonnance: 'Ordonnance', codeATC: 'Code ATC', essai: 'Essai',
+    phase: 'Phase', nombrePatients: 'Patients', tauxEfficacite: 'Efficacité (%)', annee: 'Année',
+    objectif: 'Objectif', nombre: 'Nombre', propriete: 'Propriété', valeur: 'Valeur'
+  };
+
+  medColumns(rows: any[]): string[] {
+    const cols: string[] = [];
+    (rows || []).forEach(r => Object.keys(r).forEach(k => { if (!cols.includes(k)) cols.push(k); }));
+    return cols;
+  }
+
+  medColLabel(col: string): string {
+    return DashboardComponent.MED_COLS[col] || col;
+  }
+
+  medCell(col: string, value: any): string {
+    if (value === undefined || value === null || value === '') return '—';
+    if (col === 'gravite') return ({ '1': 'Légère', '2': 'Modérée', '3': 'Grave' } as any)[value] || value;
+    if (col === 'ordonnance') return value === 'true' ? 'Oui' : 'Non';
+    if (col === 'niveauRisque') return ({ Eleve: 'Élevé', Modere: 'Modéré', Faible: 'Faible' } as any)[value] || value;
+    return String(value);
+  }
+
+  onMedicamentsChanged(): void {
+    this.loadCatalog();
+  }
 
   // SPARQL state
   sparqlQuery = `PREFIX med: <http://example.org/ontologie-medicale#>
@@ -147,7 +187,7 @@ LIMIT 20`;
     this.loadCatalog();
   }
 
-  setTab(tab: 'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'maladies' | 'sparql' | 'profil'): void {
+  setTab(tab: 'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'maladies' | 'sparql' | 'profil'): void {
     this.activeTab.set(tab);
   }
 

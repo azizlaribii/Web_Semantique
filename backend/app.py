@@ -122,8 +122,9 @@ def reload_all_services(reason: str = "Manuel"):
             errors.append(f"maladie: {e}")
             print(f"[HotReload] ERREUR maladie : {e}")
         try:
-            medicament_service._load()
-            ia_medicament_service = IAMedicamentService(medicament_service)
+            with medicament_service.lock:
+                medicament_service._load()
+            ia_medicament_service.refresh()   # met à jour le vocabulaire NLP sans réentraîner
             print("[HotReload] OK ontologie_medicament.owl rechargee")
         except Exception as e:
             errors.append(f"medicament: {e}")
@@ -312,7 +313,9 @@ def ia_ask():
                 "reponse": reponse_txt,
                 "sparql": res.get("sparql", ""),
                 "donnees": donnees,
-                "count": len(donnees)
+                "count": len(donnees),
+                "explication": res.get("explication", ""),
+                "nlp": res.get("nlp")
             })
 
         # 2. Routing vers Maladies
@@ -517,6 +520,42 @@ def get_summary_medicament():
         return jsonify(medicament_service.get_summary())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# --- CRUD Médicament (SPARQL Update) ---------------------------------
+def _crud(action):
+    """Exécute une opération CRUD, recharge le vocabulaire NLP et formate les erreurs."""
+    try:
+        result = action()
+        ia_medicament_service.refresh()   # le nouveau nom est reconnu tout de suite par l'IA
+        return jsonify(result)
+    except MedicamentService.ErreurValidation as e:
+        return jsonify({"error": str(e)}), 400
+    except KeyError as e:
+        return jsonify({"error": f"Médicament introuvable : {e.args[0]}"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/medicament-options", methods=["GET"])
+def get_medicament_options():
+    return jsonify(medicament_service.get_options())
+
+@app.route("/api/medicaments", methods=["POST"])
+def create_medicament():
+    body = request.get_json(force=True, silent=True) or {}
+    return _crud(lambda: medicament_service.create_medicament(body))
+
+@app.route("/api/medicaments/<mid>", methods=["PUT"])
+def update_medicament(mid):
+    body = request.get_json(force=True, silent=True) or {}
+    return _crud(lambda: medicament_service.update_medicament(mid, body))
+
+@app.route("/api/medicaments/<mid>", methods=["DELETE"])
+def delete_medicament(mid):
+    return _crud(lambda: medicament_service.delete_medicament(mid))
+
+@app.route("/api/medicaments/reset", methods=["POST"])
+def reset_medicaments():
+    return _crud(lambda: (medicament_service.reset(), {"ok": True, "operation": "RESET"})[1])
 
 @app.route("/api/ia-medicament/ask", methods=["POST"])
 def ia_medicament_ask():
