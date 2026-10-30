@@ -70,6 +70,7 @@ class ServiceAdministratif:
             g = Graph()
             g.bind("adm", ADM); g.bind("per", PER)
             g.parse(PER_FILE, format="xml")
+            self._per_triples = set(g)            # triplets du module Personne : jamais reecrits
             g.parse(ADM_FILE, format="xml")
             self.g = g
             self.appliquer_regles()
@@ -82,15 +83,21 @@ class ServiceAdministratif:
                 self.g.update(PREFIXES + r)
 
     def sauvegarder(self):
-        """Enregistre l'ontologie administrative (assertions seulement, sans types inferes)."""
+        """Enregistre l'ontologie administrative (assertions seulement, sans types inferes).
+
+        On ecrit tous les triplets qui ne viennent pas du module Personne, y compris les noeuds
+        anonymes (restrictions, intersectionOf, AllDisjointClasses, AllDifferent) : sans eux,
+        Protege affiche des classes « Error » a la place des classes definies.
+        """
         out = Graph()
         out.bind("adm", ADM); out.bind("per", PER)
         inferes = {ADM[c] for c in CLASSES_INFEREES}
-        for s, p, o in self.g:
-            if p == RDF.type and o in inferes:
+        for t in self.g:
+            if t in self._per_triples:
                 continue
-            if str(s).startswith(str(ADM)) or str(p).startswith(str(ADM)):
-                out.add((s, p, o))
+            if t[1] == RDF.type and t[2] in inferes:
+                continue
+            out.add(t)
         out.serialize(destination=ADM_FILE, format="xml")
 
     def reset(self):
