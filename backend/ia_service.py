@@ -50,7 +50,8 @@ _PERSONNE_SUBCLASSES_REGISTRY = [
     ),
     (
         ["sages_femmes", "sage_femme", "sages femmes", "sage femme",
-         "sages-femmes", "sage-femme"],
+         "sages-femmes", "sage-femme", "sagefemme", "sagefemmes",
+         "toutes les sages-femmes", "toutes les sages femmes", "sage", "sages"],
         "<http://example.org/ontologie-medicale#sages-femmes>",
         "Sage-femme",
         "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#sages-femmes> ."
@@ -99,17 +100,17 @@ _PERSONNE_SUBCLASSES_REGISTRY = [
         "{ ?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Stuff_Médicale> . } UNION { ?individu rdf:type/rdfs:subClassOf* med:Stuff_Medicale . }"
     ),
 
-    # 2. Médecins Spécialistes précis
-    (["cardiologue", "cardiologues"], "med:Cardiologue", "Cardiologue", "?individu rdf:type/rdfs:subClassOf* med:Cardiologue ."),
-    (["dermatologue", "dermatologues"], "med:Dermatologue", "Dermatologue", "?individu rdf:type/rdfs:subClassOf* med:Dermatologue ."),
-    (["endocrinologue", "endocrinologues"], "med:Endocrinologue", "Endocrinologue", "?individu rdf:type/rdfs:subClassOf* med:Endocrinologue ."),
-    (["gastro_enterologue", "gastro-entérologue", "gastro enterologue", "gastroenterologue"], "med:Gastro-entérologue", "Gastro-entérologue", "?individu rdf:type/rdfs:subClassOf* med:Gastro-entérologue ."),
-    (["neurologue", "neurologues"], "med:Neurologue", "Neurologue", "?individu rdf:type/rdfs:subClassOf* med:Neurologue ."),
-    (["pneumologue", "pneumologues"], "med:Pneumologue", "Pneumologue", "?individu rdf:type/rdfs:subClassOf* med:Pneumologue ."),
-    (["psychiatre", "psychiatres"], "med:Psychiatre", "Psychiatre", "?individu rdf:type/rdfs:subClassOf* med:Psychiatre ."),
-    (["anesthesiste", "anesthesistes", "anesthésiste", "anesthésistes"], "med:Anesthésiste", "Anesthésiste", "?individu rdf:type/rdfs:subClassOf* med:Anesthésiste ."),
-    (["medecin generaliste", "medecins generalistes", "generaliste", "généraliste", "generalistes", "généralistes"], "med:MedecinGeneraliste", "Médecin Généraliste", "?individu rdf:type/rdfs:subClassOf* med:MedecinGeneraliste ."),
-    (["medecin specialiste", "medecins specialistes", "specialiste", "spécialiste", "specialistes", "spécialistes"], "med:MedecinSpecialiste", "Médecin Spécialiste", "?individu rdf:type/rdfs:subClassOf* med:MedecinSpecialiste ."),
+    # 2. Médecins Spécialistes précis (URI complètes sécurisées pour accents et tirets)
+    (["cardiologue", "cardiologues"], "<http://example.org/ontologie-medicale#Cardiologue>", "Cardiologue", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Cardiologue> ."),
+    (["dermatologue", "dermatologues"], "<http://example.org/ontologie-medicale#Dermatologue>", "Dermatologue", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Dermatologue> ."),
+    (["endocrinologue", "endocrinologues"], "<http://example.org/ontologie-medicale#Endocrinologue>", "Endocrinologue", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Endocrinologue> ."),
+    (["gastro_enterologue", "gastro-entérologue", "gastro enterologue", "gastroenterologue", "gastro-enterologue", "gastro"], "<http://example.org/ontologie-medicale#Gastro-entérologue>", "Gastro-entérologue", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Gastro-entérologue> ."),
+    (["neurologue", "neurologues"], "<http://example.org/ontologie-medicale#Neurologue>", "Neurologue", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Neurologue> ."),
+    (["pneumologue", "pneumologues"], "<http://example.org/ontologie-medicale#Pneumologue>", "Pneumologue", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Pneumologue> ."),
+    (["psychiatre", "psychiatres"], "<http://example.org/ontologie-medicale#Psychiatre>", "Psychiatre", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Psychiatre> ."),
+    (["anesthesiste", "anesthesistes", "anesthésiste", "anesthésistes"], "<http://example.org/ontologie-medicale#Anesthésiste>", "Anesthésiste", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#Anesthésiste> ."),
+    (["medecin generaliste", "medecins generalistes", "generaliste", "généraliste", "generalistes", "généralistes"], "<http://example.org/ontologie-medicale#MedecinGeneraliste>", "Médecin Généraliste", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#MedecinGeneraliste> ."),
+    (["medecin specialiste", "medecins specialistes", "specialiste", "spécialiste", "specialistes", "spécialistes"], "<http://example.org/ontologie-medicale#MedecinSpecialiste>", "Médecin Spécialiste", "?individu rdf:type/rdfs:subClassOf* <http://example.org/ontologie-medicale#MedecinSpecialiste> ."),
 
     # 3. Rôles et sous-classes principales
     (["stagiaire", "stagiaires"], "med:Stagiaire", "Stagiaire", "{ ?individu rdf:type/rdfs:subClassOf* med:Stagiaire . } UNION { ?individu med:joueLeRoleDe med:Stagiaire . } UNION { ?individu med:role med:Stagiaire . }"),

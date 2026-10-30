@@ -93,3 +93,4 @@ Tester en direct les prompts suivants devant le jury :
 ### Étape 5 : Communication Backend / Frontend & UI (3 + 3 pts)
 - Architecture en services découplés (`ApiService` sous Angular, `ia_service.py` et `rdflib_service.py` sous Flask).
 - Réactivité immédiate avec loaders visuels, gestion d'erreurs en alertes stylisées, pagination et filtres dynamiques.
+
