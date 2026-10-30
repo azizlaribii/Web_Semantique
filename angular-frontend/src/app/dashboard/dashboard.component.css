@@ -3458,3 +3458,7 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+.t-PATIENT { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.t-MEDECIN { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+.t-STATUT, .t-MODE { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+.t-ASSURANCE { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }

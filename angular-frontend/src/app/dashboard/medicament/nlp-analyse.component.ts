@@ -108,7 +108,8 @@ export class NlpAnalyseComponent {
 
   private static TYPES: Record<string, string> = {
     MEDICAMENT: 'Médicament', MOLECULE: 'Molécule', MALADIE: 'Maladie', CONDITION: 'Condition',
-    EFFET: 'Effet', FAMILLE_EFFET: "Famille d'effet", CLASSE: 'Classe'
+    EFFET: 'Effet', FAMILLE_EFFET: "Famille d'effet", CLASSE: 'Classe',
+    PATIENT: 'Patient', MEDECIN: 'Médecin', STATUT: 'Statut', MODE: 'Mode de paiement', ASSURANCE: 'Assurance'
   };
 
   typeLabel(t: string): string {
