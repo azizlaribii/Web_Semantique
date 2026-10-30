@@ -1093,7 +1093,13 @@ ns1:ordonnance rdf:type owl:DatatypeProperty ;
 
 ###  http://example.org/ontologie-medicale#Asma
 :Asma rdf:type owl:NamedIndividual ,
-               :Agents_de_service_hospitalier .
+               :Agents_de_service_hospitalier ;
+        rdfs:label "Asma Mejri" ;
+        :nom "Mejri" ;
+        :prenom "Asma" ;
+        :age 38 ;
+        :telephone "+216 71 999 000" ;
+        :email "asma.ash@hopital.tn" .
 
 
 ###  http://example.org/ontologie-medicale#Asthme
@@ -1876,7 +1882,13 @@ ns1:ordonnance rdf:type owl:DatatypeProperty ;
 
 ###  http://example.org/ontologie-medicale#azmi
 :azmi rdf:type owl:NamedIndividual ,
-               :Secrétaires_médicales .
+               :Secrétaires_médicales ;
+        rdfs:label "Azmi Othmani" ;
+        :nom "Othmani" ;
+        :prenom "Azmi" ;
+        :age 30 ;
+        :telephone "+216 71 111 222" ;
+        :email "azmi.secretaire@hopital.tn" .
 
 
 ###  http://example.org/ontologie-medicale#covid
@@ -1965,3 +1977,161 @@ ns1:ordonnance rdf:type owl:DatatypeProperty ;
             :prenom "yasmine" ;
             :email "yasmineb@gmail.com" ;
             :motDePasse "$2b$12$eB.4l5DwC7pLAUKzF3z.1ePXhhV0t.hj53azr6YsY/2CE46sFcaGm" .
+=======
+
+#################################################################
+#    Individus - Stuff Médical & Médecins Spécialistes
+#################################################################
+
+###  Liaison de compatibilité StuffMedical
+:StuffMedical rdfs:subClassOf :Stuff_Médicale .
+
+###  1. Sages-femmes
+:Salma_SageFemme rdf:type owl:NamedIndividual ,
+                          :sages-femmes ;
+                 rdfs:label "Salma Trabelsi" ;
+                 :nom "Trabelsi" ;
+                 :prenom "Salma" ;
+                 :age 32 ;
+                 :telephone "+216 71 222 333" ;
+                 :email "salma.sagefemme@hopital.tn" ;
+                 :specialite "Obstétrique & Périnatalité" .
+
+###  2. Infirmiers
+:Hedi_Infirmier rdf:type owl:NamedIndividual ,
+                         :infirmier ;
+                rdfs:label "Hedi Ben Salah" ;
+                :nom "Ben Salah" ;
+                :prenom "Hedi" ;
+                :age 29 ;
+                :telephone "+216 71 333 444" ;
+                :email "hedi.infirmier@hopital.tn" ;
+                :specialite "Soins infirmiers généraux" .
+
+###  3. Aides-soignants
+:Mounir_AideSoignant rdf:type owl:NamedIndividual ,
+                              :Aide_soignant ;
+                      rdfs:label "Mounir Dridi" ;
+                      :nom "Dridi" ;
+                      :prenom "Mounir" ;
+                      :age 35 ;
+                      :telephone "+216 71 444 555" ;
+                      :email "mounir.soignant@hopital.tn" ;
+                      :specialite "Aide aux soins" .
+
+###  4. Kinésithérapeutes
+:Kamel_Kine rdf:type owl:NamedIndividual ,
+                      :kinésithérapeutes ;
+             rdfs:label "Kamel Mansouri" ;
+             :nom "Mansouri" ;
+             :prenom "Kamel" ;
+             :age 40 ;
+             :telephone "+216 71 555 666" ;
+             :email "kamel.kine@hopital.tn" ;
+             :specialite "Kinésithérapie motrice" .
+
+###  5. Chefs de service
+:Dr_Moncef_Chef rdf:type owl:NamedIndividual ,
+                          :chefs_de_service ;
+                 rdfs:label "Dr Moncef Bourguiba" ;
+                 :nom "Bourguiba" ;
+                 :prenom "Moncef" ;
+                 :age 55 ;
+                 :telephone "+216 71 666 777" ;
+                 :email "moncef.chef@hopital.tn" ;
+                 :specialite "Chef de Service Chirurgie" .
+
+###  6. Médico-techniques
+:Anis_Technicien rdf:type owl:NamedIndividual ,
+                          :Médico-techniques ;
+                  rdfs:label "Anis Chaari" ;
+                  :nom "Chaari" ;
+                  :prenom "Anis" ;
+                  :age 33 ;
+                  :telephone "+216 71 777 888" ;
+                  :email "anis.technique@hopital.tn" ;
+                  :specialite "Imagerie Médicale & Radiologie" .
+
+###  7. Dermatologues
+:Dr_Leila_Derma rdf:type owl:NamedIndividual ,
+                          :Dermatologue ;
+                 rdfs:label "Dr Leila Ben Youssef" ;
+                 :nom "Ben Youssef" ;
+                 :prenom "Leila" ;
+                 :age 44 ;
+                 :specialite "Dermatologie" ;
+                 :telephone "+216 71 888 111" ;
+                 :email "leila.derma@hopital.tn" ;
+                 :numeroOrdre "ORD-8811" .
+
+###  8. Neurologues
+:Dr_Farid_Neuro rdf:type owl:NamedIndividual ,
+                          :Neurologue ;
+                 rdfs:label "Dr Farid Zayani" ;
+                 :nom "Zayani" ;
+                 :prenom "Farid" ;
+                 :age 49 ;
+                 :specialite "Neurologie" ;
+                 :telephone "+216 71 888 222" ;
+                 :email "farid.neuro@hopital.tn" ;
+                 :numeroOrdre "ORD-8822" .
+
+###  9. Psychiatres
+:Dr_Ines_Psy rdf:type owl:NamedIndividual ,
+                       :Psychiatre ;
+              rdfs:label "Dr Ines Khemir" ;
+              :nom "Khemir" ;
+              :prenom "Ines" ;
+              :age 46 ;
+              :specialite "Psychiatrie" ;
+              :telephone "+216 71 888 333" ;
+              :email "ines.psy@hopital.tn" ;
+              :numeroOrdre "ORD-8833" .
+
+###  10. Pneumologues
+:Dr_Hassen_Pneumo rdf:type owl:NamedIndividual ,
+                            :Pneumologue ;
+                   rdfs:label "Dr Hassen Ayari" ;
+                   :nom "Ayari" ;
+                   :prenom "Hassen" ;
+                   :age 52 ;
+                   :specialite "Pneumologie" ;
+                   :telephone "+216 71 888 444" ;
+                   :email "hassen.pneumo@hopital.tn" ;
+                   :numeroOrdre "ORD-8844" .
+
+###  11. Endocrinologues
+:Dr_Amel_Endo rdf:type owl:NamedIndividual ,
+                        :Endocrinologue ;
+               rdfs:label "Dr Amel Gharbi" ;
+               :nom "Gharbi" ;
+               :prenom "Amel" ;
+               :age 39 ;
+               :specialite "Endocrinologie" ;
+               :telephone "+216 71 888 555" ;
+               :email "amel.endo@hopital.tn" ;
+               :numeroOrdre "ORD-8855" .
+
+###  12. Gastro-entérologues
+:Dr_Karim_Gastro rdf:type owl:NamedIndividual ,
+                           :Gastro-entérologue ;
+                  rdfs:label "Dr Karim Sellami" ;
+                  :nom "Sellami" ;
+                  :prenom "Karim" ;
+                  :age 47 ;
+                  :specialite "Gastro-entérologie" ;
+                  :telephone "+216 71 888 666" ;
+                  :email "karim.gastro@hopital.tn" ;
+                  :numeroOrdre "ORD-8866" .
+
+###  13. Anesthésistes
+:Dr_Sami_Anesth rdf:type owl:NamedIndividual ,
+                          :Anesthésiste ;
+                 rdfs:label "Dr Sami Jebali" ;
+                 :nom "Jebali" ;
+                 :prenom "Sami" ;
+                 :age 41 ;
+                 :specialite "Anesthésie-Réanimation" ;
+                 :telephone "+216 71 888 777" ;
+                 :email "sami.anesth@hopital.tn" ;
+                 :numeroOrdre "ORD-8877" .
