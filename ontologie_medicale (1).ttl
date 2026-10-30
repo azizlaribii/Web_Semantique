@@ -1945,3 +1945,23 @@ ns1:ordonnance rdf:type owl:DatatypeProperty ;
             :prenom "Malek" ;
             :email "malek.fridhi02@gmail.com" ;
             :motDePasse "$2b$12$PNssPNdEm49L/y/RvdFGu.ZQr0guNhgE7cWILUN2C/c2fkO11BiaG" .
+
+
+###  http://example.org/ontologie-medicale#Pat_Yasmine_Abdelali
+:Pat_Yasmine_Abdelali rdf:type owl:NamedIndividual ,
+                     :Patient ;
+            rdfs:label "Yasmine Abdelali" ;
+            :nom "Abdelali" ;
+            :prenom "Yasmine" ;
+            :email "yasmine.abdelali@esprit.tn" ;
+            :motDePasse "$2b$12$ul0S5lswCCjOwHvG5DhnRuvMw6/4hTLri14bcPKImblf36NfzLcLS" .
+
+
+###  http://example.org/ontologie-medicale#Ind_yasmine_ben_abdelali
+:Ind_yasmine_ben_abdelali rdf:type owl:NamedIndividual ,
+                     :StuffMedical ;
+            rdfs:label "yasmine ben abdelali" ;
+            :nom "ben abdelali" ;
+            :prenom "yasmine" ;
+            :email "yasmineb@gmail.com" ;
+            :motDePasse "$2b$12$eB.4l5DwC7pLAUKzF3z.1ePXhhV0t.hj53azr6YsY/2CE46sFcaGm" .
