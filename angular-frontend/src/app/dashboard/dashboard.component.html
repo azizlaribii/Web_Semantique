@@ -65,6 +65,25 @@
       <button type="button" class="tab-btn" [class.active]="activeTab() === 'gestion-medicaments'" (click)="setTab('gestion-medicaments')">
         <span class="tab-icon">🛠️</span><span>Gestion Médicaments</span>
       </button>
+      <button
+  type="button"
+  class="tab-btn"
+  [class.active]="activeTab() === 'ia-medical'"
+  (click)="setTab('ia-medical')">
+
+  <span class="tab-icon">🩺</span>
+  <span>IA — Service médical</span>
+</button>
+
+<button
+  type="button"
+  class="tab-btn"
+  [class.active]="activeTab() === 'gestion-medical'"
+  (click)="setTab('gestion-medical')">
+
+  <span class="tab-icon">🏥</span>
+  <span>Gestion médicale</span>
+</button>
       <button type="button" class="tab-btn" [class.active]="activeTab() === 'ia-administratif'" (click)="setTab('ia-administratif')">
       <span class="tab-icon">🗂️</span><span>IA — Administratif</span>
       </button>
@@ -847,6 +866,8 @@
         <app-medicament-crud (changed)="onMedicamentsChanged()" />
       </section>
     }
+    @if (activeTab() === 'ia-medical') { <app-medical-ia /> }
+@if (activeTab() === 'gestion-medical') { <app-medical-crud /> }
     @if (activeTab() === 'ia-administratif') { <app-administratif-ia /> }
 @if (activeTab() === 'gestion-administratif') { <app-administratif-crud /> }
 
