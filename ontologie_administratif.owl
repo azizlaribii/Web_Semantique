@@ -5,458 +5,156 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_03">
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">35.0</adm:montantPayeTND>
-    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T00:00:00</adm:datePaiement>
-    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cheque</adm:modePaiement>
-    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_03"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_02">
-    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45.0</adm:montantTotalTND>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-25T00:00:00</adm:dateFacture>
-    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
-    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_06"/>
-    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-002</adm:numeroFacture>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#estRembourseePar">
-    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#rembourseFacture"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_05">
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_01"/>
-    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
-    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">120.0</adm:montantTotalTND>
-    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T00:00:00</adm:dateFacture>
-    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-005</adm:numeroFacture>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#CNAM">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
-    <adm:tauxCouverture rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.7</adm:tauxCouverture>
-    <adm:nomAssurance rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CNAM</adm:nomAssurance>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#statutRDV">
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#datePaiement">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_01">
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_06">
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-25T16:00:00</adm:dateRendezVous>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_01"/>
-    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Especes</adm:modePaiement>
-    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-15T00:00:00</adm:datePaiement>
-    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">60.0</adm:montantPayeTND>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Service_administratif">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fievre de l'enfant</adm:motifRendezVous>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-006</adm:numeroDossierAdm>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Termine</adm:statutRDV>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_01">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
     <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-15T00:00:00</adm:dateFacture>
-    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-001</adm:numeroFacture>
-    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">60.0</adm:montantTotalTND>
     <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_07"/>
+    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-15T00:00:00</adm:dateFacture>
+    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">60.0</adm:montantTotalTND>
+    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-001</adm:numeroFacture>
     <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#GAT">
-    <adm:nomAssurance rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GAT Assurances</adm:nomAssurance>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:tauxCouverture rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.6</adm:tauxCouverture>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_02">
-    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Suivi hypertension</adm:motifRendezVous>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T10:30:00</adm:dateRendezVous>
-    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Planifie</adm:statutRDV>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-002</adm:numeroDossierAdm>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</adm:dureeMinutes>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_08">
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T15:00:00</adm:dateRendezVous>
-    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Termine</adm:statutRDV>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">15</adm:dureeMinutes>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-002</adm:numeroDossierAdm>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Aziz_Laribi"/>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
-    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Renouvellement ordonnance</adm:motifRendezVous>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Sami">
-    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">101</adm:numeroSalle>
-    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-001</adm:numeroDossierAdm>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
-    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-01-12T00:00:00</adm:dateOuverture>
-    <adm:contientConsultation rdf:resource="http://example.org/ontologie-medicale#Consultation_1"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RendezVousAnnule">
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <owl:equivalentClass rdf:nodeID="Nd2cbb98a9c054499b19d038e85b493e2"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facturation"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_01">
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T09:00:00</adm:dateRendezVous>
-    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Confirme</adm:statutRDV>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-001</adm:numeroDossierAdm>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
-    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Controle grippe</adm:motifRendezVous>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_05">
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Planifie</adm:statutRDV>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-005</adm:numeroDossierAdm>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-05T08:30:00</adm:dateRendezVous>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
-    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bilan cardiaque</adm:motifRendezVous>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">45</adm:dureeMinutes>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Sophie_Martin"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#montantRembourseTND">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#statutDossier">
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_02">
-    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Carte</adm:modePaiement>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45.0</adm:montantPayeTND>
-    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_02"/>
-    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-25T00:00:00</adm:datePaiement>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_10">
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-07T04:18:00</adm:dateRendezVous>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Sophie_Martin"/>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Leila"/>
-    <adm:motifRendezVous>azdqs</adm:motifRendezVous>
-    <adm:statutRDV>Confirme</adm:statutRDV>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#facturePourPatient">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#aPourDossier">
-    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#concernePatient"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#STAR">
-    <adm:tauxCouverture rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.8</adm:tauxCouverture>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:nomAssurance rdf:datatype="http://www.w3.org/2001/XMLSchema#string">STAR Assurances</adm:nomAssurance>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Ahmed">
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-002</adm:numeroDossierAdm>
-    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">102</adm:numeroSalle>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
-    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
-    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-02-03T00:00:00</adm:dateOuverture>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#tauxCouverture">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_06">
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-006</adm:numeroDossierAdm>
-    <adm:motifRendezVous>Fievre de l'enfant</adm:motifRendezVous>
-    <adm:statutRDV>Termine</adm:statutRDV>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-25T16:00:00</adm:dateRendezVous>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</adm:dureeMinutes>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#dateRendezVous">
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#FactureRembourseeParAssurance">
-    <owl:equivalentClass rdf:nodeID="N6e96ae73b6d54a72925f4e7f549e841b"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#numeroFacture">
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#concerneRendezVous">
-    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#motifRendezVous">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#rembourseFacture">
-    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#estRembourseePar"/>
-    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_04">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Carte</adm:modePaiement>
-    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T00:00:00</adm:datePaiement>
-    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_05"/>
-    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">40.0</adm:montantPayeTND>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_03">
-    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">35.0</adm:montantTotalTND>
-    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-003</adm:numeroFacture>
-    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_08"/>
-    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T00:00:00</adm:dateFacture>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#montantPayeTND">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Assurance">
-    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_07">
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-001</adm:numeroDossierAdm>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</adm:dureeMinutes>
-    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Premiere consultation</adm:motifRendezVous>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
-    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Termine</adm:statutRDV>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-15T09:30:00</adm:dateRendezVous>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#estReglePar">
     <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#reglePourFacture"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#reglePourFacture"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Rembourcement_Assurance">
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#FacturePayee">
+    <owl:equivalentClass rdf:nodeID="N8988e7a96c4a4e0f8cc0c76f08cc6a0c"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facturation"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facture"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_patient">
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Service_administratif"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_09">
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">21</adm:dureeMinutes>
-    <adm:motifRendezVous>cq</adm:motifRendezVous>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <adm:statutRDV>Annule</adm:statutRDV>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Leila_Patient"/>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Aziz_Laribi"/>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-23T02:15:00</adm:dateRendezVous>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_04">
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-20T11:00:00</adm:dateRendezVous>
-    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Consultation generale</adm:motifRendezVous>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-004</adm:numeroDossierAdm>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Omar"/>
-    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Annule</adm:statutRDV>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_04">
-    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_04"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-004</adm:numeroFacture>
-    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Patient_Omar"/>
-    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50.0</adm:montantTotalTND>
-    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-20T00:00:00</adm:dateFacture>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture">
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facturation"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Remboursement_02">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
-    <adm:dateRemboursement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-31T00:00:00</adm:dateRemboursement>
-    <adm:rembourseFacture rdf:resource="http://example.org/ontologie-administratif#Facture_03"/>
-    <adm:montantRembourseTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">28.0</adm:montantRembourseTND>
-    <adm:verseePar rdf:resource="http://example.org/ontologie-administratif#STAR"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Omar">
-    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-03-08T00:00:00</adm:dateOuverture>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Sara">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
     <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Omar"/>
-    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">104</adm:numeroSalle>
-    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Archive</adm:statutDossier>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-004</adm:numeroDossierAdm>
+    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">105</adm:numeroSalle>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-005</adm:numeroDossierAdm>
+    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
+    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-04-01T00:00:00</adm:dateOuverture>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_06">
-    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_05"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Ahmed">
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-05T00:00:00</adm:dateFacture>
-    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-006</adm:numeroFacture>
-    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">180.0</adm:montantTotalTND>
-    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
+    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-02-03T00:00:00</adm:dateOuverture>
+    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">102</adm:numeroSalle>
+    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-002</adm:numeroDossierAdm>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RendezVousConfirme">
-    <owl:equivalentClass rdf:nodeID="N6f6af3e873ef4ca5adae25833586cca6"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#statutDossier">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#numeroSalle">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Leila">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Leila"/>
+    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
+    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-02-20T00:00:00</adm:dateOuverture>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-003</adm:numeroDossierAdm>
+    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">103</adm:numeroSalle>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Amina">
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-006</adm:numeroDossierAdm>
+    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
+    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-05-15T00:00:00</adm:dateOuverture>
+    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">106</adm:numeroSalle>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#numeroDossierAdm">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#PatientAssure">
-    <owl:equivalentClass rdf:nodeID="N60abf848dab44e67b5778777ea07c6db"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Patient"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Sara">
-    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-005</adm:numeroDossierAdm>
-    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">105</adm:numeroSalle>
-    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-04-01T00:00:00</adm:dateOuverture>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_04">
+    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_05"/>
+    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Carte</adm:modePaiement>
+    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">40.0</adm:montantPayeTND>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T00:00:00</adm:datePaiement>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#montantTotalTND">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_11">
-    <adm:statutRDV>Confirme</adm:statutRDV>
-    <adm:motifRendezVous>Test</adm:motifRendezVous>
-    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
-    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
-    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-31T04:26:00</adm:dateRendezVous>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_03">
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Douleurs abdominales</adm:motifRendezVous>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-04T14:00:00</adm:dateRendezVous>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
     <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-003</adm:numeroDossierAdm>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Leila"/>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</adm:dureeMinutes>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Confirme</adm:statutRDV>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#CNAM">
+    <adm:nomAssurance rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CNAM</adm:nomAssurance>
+    <adm:tauxCouverture rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.7</adm:tauxCouverture>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#contientConsultation">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
     <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Consultation"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#dateRemboursement">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#numeroDossierAdm">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#concernePatient">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#aPourDossier"/>
-    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Patient_Omar">
+    <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#GAT"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_medicale">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
     <owl:disjointWith rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#tauxCouverture">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#GAT">
+    <adm:nomAssurance rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GAT Assurances</adm:nomAssurance>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+    <adm:tauxCouverture rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.6</adm:tauxCouverture>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#aPourDossier">
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#concernePatient"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facturation">
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Service_administratif"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#reglePourFacture">
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#concerneRendezVous">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
-    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#estReglePar"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Amina">
-    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">106</adm:numeroSalle>
-    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
-    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-05-15T00:00:00</adm:dateOuverture>
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-006</adm:numeroDossierAdm>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Remboursement_01">
-    <adm:dateRemboursement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-30T00:00:00</adm:dateRemboursement>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <adm:montantRembourseTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">42.0</adm:montantRembourseTND>
-    <adm:verseePar rdf:resource="http://example.org/ontologie-administratif#CNAM"/>
-    <adm:rembourseFacture rdf:resource="http://example.org/ontologie-administratif#Facture_01"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#dureeMinutes">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#dateOuverture">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
@@ -464,31 +162,320 @@
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#datePaiement">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_01">
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-001</adm:numeroDossierAdm>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Confirme</adm:statutRDV>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Controle grippe</adm:motifRendezVous>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T09:00:00</adm:dateRendezVous>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_07">
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Termine</adm:statutRDV>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Premiere consultation</adm:motifRendezVous>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-001</adm:numeroDossierAdm>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</adm:dureeMinutes>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-15T09:30:00</adm:dateRendezVous>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#numeroFacture">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#verseePar">
-    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_04">
+    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50.0</adm:montantTotalTND>
+    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-20T00:00:00</adm:dateFacture>
+    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Patient_Omar"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_04"/>
+    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-004</adm:numeroFacture>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#concernePatient">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#aPourDossier"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_09">
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</adm:dureeMinutes>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Fatima"/>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <adm:motifRendezVous></adm:motifRendezVous>
+    <adm:statutRDV>Confirme</adm:statutRDV>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-30T02:39:00</adm:dateRendezVous>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Remboursement_01">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
+    <adm:dateRemboursement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-30T00:00:00</adm:dateRemboursement>
+    <adm:montantRembourseTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">42.0</adm:montantRembourseTND>
+    <adm:verseePar rdf:resource="http://example.org/ontologie-administratif#CNAM"/>
+    <adm:rembourseFacture rdf:resource="http://example.org/ontologie-administratif#Facture_01"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facturation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_05">
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-05T08:30:00</adm:dateRendezVous>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-005</adm:numeroDossierAdm>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">45</adm:dureeMinutes>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Sophie_Martin"/>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bilan cardiaque</adm:motifRendezVous>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Planifie</adm:statutRDV>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_02">
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-002</adm:numeroDossierAdm>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Planifie</adm:statutRDV>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Suivi hypertension</adm:motifRendezVous>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Karim"/>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T10:30:00</adm:dateRendezVous>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</adm:dureeMinutes>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_03">
+    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_08"/>
+    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">35.0</adm:montantTotalTND>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T00:00:00</adm:dateFacture>
+    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-003</adm:numeroFacture>
+    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Remboursement_02">
+    <adm:dateRemboursement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-31T00:00:00</adm:dateRemboursement>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
+    <adm:montantRembourseTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">28.0</adm:montantRembourseTND>
+    <adm:rembourseFacture rdf:resource="http://example.org/ontologie-administratif#Facture_03"/>
+    <adm:verseePar rdf:resource="http://example.org/ontologie-administratif#STAR"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Service_administratif">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_05">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-03T00:00:00</adm:dateFacture>
+    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-005</adm:numeroFacture>
+    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_01"/>
+    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">120.0</adm:montantTotalTND>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#FactureRembourseeParAssurance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:equivalentClass rdf:nodeID="Nbe7213c63cbf43a880a9e9d741100d43"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#estRembourseePar">
+    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#rembourseFacture"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#statutRDV">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Omar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Archive</adm:statutDossier>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Omar"/>
+    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-03-08T00:00:00</adm:dateOuverture>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-004</adm:numeroDossierAdm>
+    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">104</adm:numeroSalle>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#PatientAssure">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+    <owl:equivalentClass rdf:nodeID="N9d03440b801c498aa7ce986fb9bdb9bf"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#rembourseFacture">
+    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#estRembourseePar"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Patient_Omar">
-    <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#GAT"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Assurance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#nomAssurance">
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#reglePourFacture">
+    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <owl:inverseOf rdf:resource="http://example.org/ontologie-administratif#estReglePar"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#dateRemboursement">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_01">
+    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-15T00:00:00</adm:datePaiement>
+    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Especes</adm:modePaiement>
+    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">60.0</adm:montantPayeTND>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_01"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_02">
+    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-002</adm:numeroFacture>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_06"/>
+    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Amina"/>
+    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45.0</adm:montantTotalTND>
+    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-25T00:00:00</adm:dateFacture>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#facturePourPatient">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_08">
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T15:00:00</adm:dateRendezVous>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">15</adm:dureeMinutes>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Ahmed"/>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Aziz_Laribi"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-002</adm:numeroDossierAdm>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Renouvellement ordonnance</adm:motifRendezVous>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Termine</adm:statutRDV>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_03">
+    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T00:00:00</adm:datePaiement>
+    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_03"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cheque</adm:modePaiement>
+    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">35.0</adm:montantPayeTND>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#dateRendezVous">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facture_06">
+    <adm:facturePourPatient rdf:resource="http://example.org/ontologie-medicale#Patient_Sara"/>
+    <adm:montantTotalTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">180.0</adm:montantTotalTND>
+    <adm:dateFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-11-05T00:00:00</adm:dateFacture>
+    <adm:concerneRendezVous rdf:resource="http://example.org/ontologie-administratif#RDV_05"/>
+    <adm:numeroFacture rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FAC-2026-006</adm:numeroFacture>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Sami">
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_medicale"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
+    <adm:contientConsultation rdf:resource="http://example.org/ontologie-medicale#Consultation_1"/>
+    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">101</adm:numeroSalle>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Sami"/>
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-001</adm:numeroDossierAdm>
+    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-01-12T00:00:00</adm:dateOuverture>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#verseePar">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
+    <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#motifRendezVous">
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#montantTotalTND">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#montantPayeTND">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RendezVousConfirme">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <owl:equivalentClass rdf:nodeID="Nea58b1138b4b45d3954c37f6446dff62"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Patient_Ahmed">
+    <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#STAR"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RDV_04">
+    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-004</adm:numeroDossierAdm>
+    <adm:avecMedecin rdf:resource="http://example.org/ontologie-medicale#Dr_Ahmed"/>
+    <adm:dureeMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</adm:dureeMinutes>
+    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Omar"/>
+    <adm:statutRDV rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Annule</adm:statutRDV>
+    <adm:dateRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-20T11:00:00</adm:dateRendezVous>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:motifRendezVous rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Consultation generale</adm:motifRendezVous>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#nomAssurance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement_02">
+    <adm:reglePourFacture rdf:resource="http://example.org/ontologie-administratif#Facture_02"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <adm:modePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Carte</adm:modePaiement>
+    <adm:montantPayeTND rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45.0</adm:montantPayeTND>
+    <adm:datePaiement rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-25T00:00:00</adm:datePaiement>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Sami">
+    <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#CNAM"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#estCouvertPar">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-medicale#Patient"/>
     <rdfs:range rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#RendezVousAnnule">
+    <owl:equivalentClass rdf:nodeID="Nbf2feb61a9274ba080730ea4f61b4bc9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#montantRembourseTND">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rembourcement_Assurance"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#avecMedecin">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
@@ -496,52 +483,58 @@
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
     <rdfs:range rdf:resource="http://example.org/ontologie-medicale#Medecin"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#modePaiement">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
-  </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#Rendez_vous">
     <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#DossierActif">
-    <owl:equivalentClass rdf:nodeID="N20bda8783a0346e3b567d59b8f3fdc83"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#numeroSalle">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-administratif#dateFacture">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
     <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Facture"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#FacturePayee">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <owl:equivalentClass rdf:nodeID="Nba1eadfcc3334004abaf8ad225373680"/>
-    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facture"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_Leila">
-    <adm:concernePatient rdf:resource="http://example.org/ontologie-medicale#Patient_Leila"/>
-    <adm:numeroDossierAdm rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DOS-2026-003</adm:numeroDossierAdm>
-    <adm:numeroSalle rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">103</adm:numeroSalle>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
-    <adm:dateOuverture rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-02-20T00:00:00</adm:dateOuverture>
-    <adm:statutDossier rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Actif</adm:statutDossier>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Facturation">
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Dossier_patient">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Service_administratif"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Rembourcement_Assurance">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facturation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#DossierActif">
+    <owl:equivalentClass rdf:nodeID="N5d2643ef35e446bd9fa5836faffe495b"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Dossier_patient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#STAR">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+    <rdf:type rdf:resource="http://example.org/ontologie-administratif#Assurance"/>
+    <adm:tauxCouverture rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.8</adm:tauxCouverture>
+    <adm:nomAssurance rdf:datatype="http://www.w3.org/2001/XMLSchema#string">STAR Assurances</adm:nomAssurance>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#dureeMinutes">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Rendez_vous"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#Paiement">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontologie-administratif#Facturation"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://example.org/ontologie-medicale#Patient_Leila">
     <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#CNAM"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Sami">
-    <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#CNAM"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://example.org/ontologie-medicale#Patient_Ahmed">
-    <adm:estCouvertPar rdf:resource="http://example.org/ontologie-administratif#STAR"/>
+  <rdf:Description rdf:about="http://example.org/ontologie-administratif#modePaiement">
+    <rdfs:domain rdf:resource="http://example.org/ontologie-administratif#Paiement"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
   </rdf:Description>
 </rdf:RDF>

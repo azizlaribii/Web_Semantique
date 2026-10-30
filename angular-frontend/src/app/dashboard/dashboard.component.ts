@@ -9,10 +9,13 @@ import { NlpAnalyseComponent } from './medicament/nlp-analyse.component';
 import { MedicamentCrudComponent } from './medicament/medicament-crud.component';
 import { AdministratifIaComponent } from './administratif/administratif-ia.component';
 import { AdministratifCrudComponent } from './administratif/administratif-crud.component';
+import { MedicalIaComponent } from './medical/medical-ia.component';
+import { MedicalCrudComponent } from './medical/medical-crud.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, NlpAnalyseComponent, MedicamentCrudComponent,AdministratifIaComponent,AdministratifCrudComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, NlpAnalyseComponent, MedicamentCrudComponent,AdministratifIaComponent,AdministratifCrudComponent,MedicalIaComponent,
+MedicalCrudComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -23,7 +26,7 @@ export class DashboardComponent implements OnInit {
   currentUser = this.auth.currentUser;
 
   // Active tab
-  activeTab = signal<'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' |'gestion-administratif'| 'ia-administratif' | 'maladies' | 'sparql' | 'profil' | 'explorateur-ontologie'>('personnes');
+  activeTab = signal<'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' |'ia-medical' | 'gestion-medical'|'gestion-administratif'| 'ia-administratif' | 'maladies' | 'sparql' | 'profil' | 'explorateur-ontologie'>('personnes');
 
   // ── EXPLORATEUR DYNAMIQUE ONTOLOGIE ─────────────────────
   ontologySchema = signal<any>(null);
@@ -833,8 +836,7 @@ SELECT DISTINCT ?patient ?maladie WHERE {
     this.loadOntologySchema();
   }
 
-  setTab(tab: 'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'gestion-administratif' | 'ia-administratif' | 'maladies' | 'sparql' | 'profil' | 'explorateur-ontologie'): void {
-  this.activeTab.set(tab);
+setTab(tab: 'personnes' | 'ia-personnes' | 'ia-maladies' | 'ia-medicaments' | 'gestion-medicaments' | 'ia-medical' | 'gestion-medical' | 'gestion-administratif' | 'ia-administratif' | 'maladies' | 'sparql' | 'profil' | 'explorateur-ontologie'): void {  this.activeTab.set(tab);
 
   if (tab === 'explorateur-ontologie' && !this.ontologySchema()) {
     this.loadOntologySchema();

@@ -50,8 +50,13 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
 
 # Module Service administratif (routes CRUD + IA + SPARQL)
+# Module Service administratif
 from administratif_routes import register_administratif
 reload_administratif = register_administratif(app)
+
+# Module Service médical
+from medical_routes import register_medical
+reload_medical = register_medical(app)
 
 # Force UTF-8 sur toutes les réponses
 @app.after_request
@@ -163,6 +168,16 @@ def reload_all_services(reason: str = "Manuel"):
         except Exception as e:
             errors.append(f"administratif: {e}")
             print(f"[HotReload] ERREUR administratif : {e}")
+        # Rechargement du module Service Médical
+        
+        # Rechargement du module Service Médical
+        try:
+            reload_medical()
+            print("[HotReload] OK module médical rechargé")
+        except Exception as e:
+            errors.append(f"medical: {e}")
+            print(f"[HotReload] ERREUR médical : {e}")
+   
 
         _last_reload_info["ts"] = time.time()
         _last_reload_info["reason"] = reason
@@ -748,6 +763,7 @@ def get_status():
         "medicament_owl": (f"Chargé ({len(medicament_service.graph)} triplets depuis ontologie_medicament.owl)"
                            if medicament_service.loaded else "Non chargé (lancez medicament_owlready2.py)"),
         "administratif_owl": "Actif (ontologie_administratif.owl)",
+        "medical_module": "Actif (Service Médical)",
         "target_class": "Personne (Médecins, Patients, Stagiaires, Stuff Médical)",
         "hot_reload": "Actif (watcher toutes les 3 secondes)",
         "dernier_rechargement": {
